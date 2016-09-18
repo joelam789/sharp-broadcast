@@ -1,0 +1,128 @@
+<html>
+<head>
+<meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+<title>Live Streaming Example (mobile)</title>
+</head>
+
+<body>
+  
+  <script type="text/javascript" src="audio/audio-worker-shim.min.js"></script>
+  <script type="text/javascript" src="audio/audio-stream-player.js"></script>
+  
+  <script type="text/javascript" src="video/YUVCanvas.js"></script>
+  <script type="text/javascript" src="video/Decoder.js"></script>
+  <script type="text/javascript" src="video/Player.js"></script>
+  <script type="text/javascript" src="video/video-stream-player.js"></script>
+  
+  <script type="text/javascript">
+  
+	var mediaServerIp = "192.168.0.50";
+	
+	AudioWorkerShim.polyfill();
+	
+	window.AudioContext = window.AudioContext       ||
+						  window.webkitAudioContext ||
+						  window.mozAudioContext    ||
+						  window.oAudioContext      ||
+						  window.msAudioContext;
+	
+	
+	var audioCtx = new AudioContext();
+	
+	var aplayer = new SimpleWebAudioStreamPlayer(audioCtx);
+	aplayer.enabled = false;
+	
+	
+	// video
+	
+	var vplayer = new SimpleWebVideoStreamPlayer({
+		webgl: true,
+		useWorker: true,
+		workerFile : "video/Decoder.js",
+		size: {width: 256, height: 144}
+	});
+	
+	vplayer.streamDataQueueSize = 8; // make a little bit "delay" to sync with the audio
+	
+	vplayer.onRenderFirstFrameComplete = function () {
+		aplayer.enabled = true;
+		document.getElementById('msg').innerHTML = 'Done(if no sound, click here)';
+	}
+	
+	var vsocket = new WebSocket("ws://" + mediaServerIp + ":9320/mobile-video");
+	vsocket.binaryType = "arraybuffer";
+	vsocket.onmessage = function(event) {
+		var data = event.data;
+		if (typeof data != "string") {
+			vplayer.decode(data);
+		} else {
+			console.log("video info: " + data);
+			vplayer.updateFrameInterval(data);
+		}
+	};
+	vsocket.onopen = function() {
+		document.getElementById('videoCanvas').appendChild(vplayer.domNode);
+	};
+	
+	
+	// audio
+	
+	var asocket = new WebSocket("ws://" + mediaServerIp + ":9220/test-audio");
+	asocket.binaryType = "arraybuffer";
+	asocket.onmessage = function(event) {
+		var data = event.data;
+		if (typeof data != "string") {
+			aplayer.decode(data);
+		} else {
+			console.log("audio info: " + data);
+		}
+	};
+	asocket.onopen = function() {
+		try {
+			aplayer.open("audio/audio-stream-process.js");
+		} catch (e) {
+			//document.getElementById('msg').innerHTML = 'Audio player error: ' + e;
+		}
+	};
+	asocket.onclose = function() {
+		aplayer.close();
+		console.log('Audio player stopped');
+	};
+	
+	
+	function ios_unlock_sound() {
+		try {
+			if (!aplayer.isPlayingDummy) {
+				aplayer.playDummy();
+				if (!aplayer.enabled) aplayer.enabled = true;
+				document.getElementById('msg').innerHTML = 'Done';
+			}
+		} catch (ex) {
+			document.getElementById('msg').innerHTML = 'Audio player error: ' + ex;
+		}
+	}
+	
+	window.addEventListener("touchend", ios_unlock_sound, false);
+	window.addEventListener("mousedown", ios_unlock_sound, false);
+	
+  </script>
+  
+	<center>
+
+	<br/>
+
+	<div id="videoCanvas" style="-ms-transform: scale(1.5,1.5); -webkit-transform: scale(1.5,1.5); transform: scale(1.5,1.5); 
+									display: block; margin-top: 80px;">
+	</div>
+	<br/>
+	<br/>
+	<br/>
+	<br/>
+	<font color="red">
+	<span id="msg">Loading...</span>
+	</font>
+	
+	</center>
+	
+</body>
+</html>

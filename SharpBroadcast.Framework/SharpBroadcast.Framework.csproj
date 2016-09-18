@@ -1,0 +1,79 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{0BCACD0F-FDE1-4621-A79A-9F3C183CCCCB}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>SharpBroadcast.Framework</RootNamespace>
+    <AssemblyName>SharpBroadcast.Framework</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="ParallelExtensionsExtras">
+      <HintPath>..\Lib\ParallelExtensionsExtras.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpNetwork">
+      <HintPath>..\Lib\SharpNetwork.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpNetwork.SimpleWebSocket">
+      <HintPath>..\Lib\SharpNetwork.SimpleWebSocket.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AacHandler.cs" />
+    <Compile Include="ConsoleLogger.cs" />
+    <Compile Include="H264Handler.cs" />
+    <Compile Include="HttpSourceMediaServer.cs" />
+    <Compile Include="IClientValidator.cs" />
+    <Compile Include="IMediaHandler.cs" />
+    <Compile Include="IMediaServer.cs" />
+    <Compile Include="IServerLogger.cs" />
+    <Compile Include="MediaChannel.cs" />
+    <Compile Include="MediaResourceManager.cs" />
+    <Compile Include="MediaClientValidator.cs" />
+    <Compile Include="MediaDispatcher.cs" />
+    <Compile Include="Mp3Handler.cs" />
+    <Compile Include="MpegHandler.cs" />
+    <Compile Include="OpusHandler.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ServerSetting.cs" />
+    <Compile Include="WebSocketServer.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
