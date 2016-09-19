@@ -74,7 +74,7 @@
 	
 
 	// video (by jsmpeg)
-	var vsocket = new WebSocket( "ws://" + mediaServerIp + ":9420/test-video" );
+	var vsocket = new WebSocket( "ws://" + mediaServerIp + ":9420/test-mpeg" );
 	var vplayer = new jsmpeg(vsocket, 
 							{canvas: document.getElementById('videoCanvas'),
 							 forceCanvas2D: false});

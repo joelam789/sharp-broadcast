@@ -42,7 +42,7 @@
 		size: {width: 256, height: 144}
 	});
 	
-	vplayer.streamDataQueueSize = 8; // make a little bit "delay" to sync audio
+	vplayer.streamDataQueueSize = 4; // make a little bit "delay" to sync audio
 	
 	vplayer.onRenderFirstFrameComplete = function () {
 		aplayer.enabled = true;

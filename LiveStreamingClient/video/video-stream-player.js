@@ -1,6 +1,7 @@
 
 	function SimpleWebVideoStreamPlayer (broadwayOptions) {
 	
+		// for the details of the options, see https://github.com/mbebenita/Broadway
 		this.player = new Player(broadwayOptions);
 		this.player.proxyPlayer = this;
 		
@@ -10,14 +11,14 @@
 		this.enabled = true;
 		this.isFirstFrameComplete = false;
 		
-		this.frameInterval = 40; // 25fps
+		this.frameInterval = 40; // 25fps by default
 		this.renderTimer = null;
 		
 		this.streamDataQueue = [];
-		this.streamDataQueueSize = 0; // set it > 0 only when you want to make "delay" to sync with audio
+		this.streamDataQueueSize = 0; // set it > 0 if you need to make "delay" to sync audio (when video is faster)
 		
 		this.videoDataQueue = [];
-		this.videoDataQueueSize = 8; // cache for rendering
+		this.videoDataQueueSize = 8; // video cache size
 		
 		this.player.renderFrame = function(vdata) {
 			this.proxyPlayer.videoDataQueue.push(vdata);

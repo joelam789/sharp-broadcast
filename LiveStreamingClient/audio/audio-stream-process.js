@@ -16,7 +16,7 @@ onnodecreate = function(e) {
 	node.audioChannelCount = 1;
 	node.audioCurrentRemains = null;
 	
-	node.audioDataQueueSize = 256;
+	node.audioDataQueueSize = 128; // audio cache size
 	node.audioDataBlockSize = 128; // block-size is defined to be 128 sample-frames (see https://www.w3.org/TR/webaudio)
 	
 	node.setupBuffers = function(intputBuffer, remainBuffer, outputBuffers, outputBufferSize) {

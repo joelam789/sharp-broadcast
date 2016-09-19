@@ -4,6 +4,7 @@
 		// normally we should share the context ...
 		this.context = audioctx != undefined && audioctx != null ? audioctx : null;
 		
+		// the dummy objects should be for IOS only ...
 		this.dummyAudioBuffer = null;
 		this.dummyAudioSource = null;
 		this.isPlayingDummy = false;
@@ -15,9 +16,9 @@
 		this.needErrorLog = false;
 		
 		this.streamDataQueue = [];
-		this.streamDataQueueSize = 0;
+		this.streamDataQueueSize = 0; // set it > 0 if you need to make "delay" to sync video (when audio is faster)
 		
-		this.audioDataQueueSize = 256;
+		this.audioDataQueueSize = 128; // audio cache size
 		
 		this.decode = function(data) {
 		
@@ -52,7 +53,8 @@
 					this.context = new AudioContext();
 				}
 				
-				if (inputQueueLen != undefined && inputQueueLen != null && !isNaN(inputQueueLen)) this.streamDataQueueSize = inputQueueLen;
+				if (inputQueueLen != undefined && inputQueueLen != null && !isNaN(inputQueueLen))
+					this.streamDataQueueSize = inputQueueLen;
 
 				var gotoload = this.context.createAudioWorker(audioWorkerSourceFile);
 				gotoload.then(function(factory) {
@@ -70,9 +72,9 @@
 		
 		this.playDummy = function() {
 			if (this.dummyAudioSource == null) {
-				this.dummyAudioBuffer = this.context.createBuffer(1, 1, 44100);;
+				this.dummyAudioBuffer = this.context.createBuffer(1, 1, 44100);
 				this.dummyAudioSource = this.context.createBufferSource();
-				this.dummyAudioSource.buffer = this.dummyAudioBuffer;				
+				this.dummyAudioSource.buffer = this.dummyAudioBuffer;
 				this.dummyAudioSource.connect(this.workerNode);
 				if (this.dummyAudioSource != null) {
 					if (this.dummyAudioSource.start) this.dummyAudioSource.start();
