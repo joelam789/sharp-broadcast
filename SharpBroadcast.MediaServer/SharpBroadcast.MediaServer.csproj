@@ -37,6 +37,9 @@
   <PropertyGroup>
     <ApplicationIcon>video.ico</ApplicationIcon>
   </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Common.Logging">
       <HintPath>..\Lib\Common.Logging.dll</HintPath>

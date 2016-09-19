@@ -22,6 +22,7 @@ namespace SharpBroadcast.MediaServer
             processInstaller.Account = ServiceAccount.LocalSystem;
 
             serviceInstaller.DisplayName = Program.SVC_NAME;
+            serviceInstaller.Description = "Live streaming media server";
             serviceInstaller.StartType = ServiceStartMode.Automatic;
 
             //must be the same as what was set in Program's constructor

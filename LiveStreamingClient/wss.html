@@ -42,7 +42,7 @@
 		size: {width: 256, height: 144}
 	});
 	
-	vplayer.streamDataQueueSize = 16; // make a little bit "delay" to sync with the audio
+	vplayer.streamDataQueueSize = 16; // make a little bit "delay" to sync audio
 	
 	vplayer.onRenderFirstFrameComplete = function () {
 		aplayer.enabled = true;
@@ -78,11 +78,7 @@
 		}
 	};
 	asocket.onopen = function() {
-		try {
-			aplayer.open("audio/audio-stream-process.js");
-		} catch (e) {
-			//document.getElementById('msg').innerHTML = 'Audio player error: ' + e;
-		}
+		aplayer.open("audio/audio-stream-process.js");
 	};
 	asocket.onclose = function() {
 		aplayer.close();
@@ -91,14 +87,10 @@
 	
 	
 	function ios_unlock_sound() {
-		try {
-			if (!aplayer.isPlayingDummy) {
-				aplayer.playDummy();
-				if (!aplayer.enabled) aplayer.enabled = true;
-				document.getElementById('msg').innerHTML = 'Done';
-			}
-		} catch (ex) {
-			document.getElementById('msg').innerHTML = 'Audio player error: ' + ex;
+		if (!aplayer.isPlayingDummy) {
+			aplayer.playDummy();
+			if (!aplayer.enabled) aplayer.enabled = true;
+			document.getElementById('msg').innerHTML = 'Done';
 		}
 	}
 	
