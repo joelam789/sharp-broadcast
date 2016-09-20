@@ -40,8 +40,11 @@
 <script language="JavaScript">
 
 	var mediaServerIp = "127.0.0.1";
-
-	AudioWorkerShim.polyfill();
+	
+	var isChromeOnAndroid = navigator.userAgent.indexOf('Chrome') >= 0
+							&& navigator.userAgent.indexOf('Android') >= 0;
+							
+	if (!isChromeOnAndroid) AudioWorkerShim.polyfill();
 	
 	window.AudioContext = window.AudioContext       ||
 						  window.webkitAudioContext ||
@@ -52,7 +55,21 @@
 	
 	var audioCtx = new AudioContext();
 	
-	var aplayer = new SimpleWebAudioStreamPlayer(audioCtx);
+	var aplayer = null;
+	
+	if (isChromeOnAndroid) {
+		aplayer = new SimpleWebAudioStreamPlayer({
+						audioContext: audioCtx,
+						useWorker: false,
+						audioDataBlockSize: 8192
+					});
+	} else {
+		aplayer = new SimpleWebAudioStreamPlayer({
+						audioContext: audioCtx,
+						useWorker: true,
+						workerFile: "audio/audio-stream-process.js"
+					});
+	}
 	
 	var asocket = new WebSocket("ws://" + mediaServerIp + ":9220/test-audio");
 	asocket.binaryType = "arraybuffer";
@@ -65,7 +82,7 @@
 		}
 	};
 	asocket.onopen = function() {
-		aplayer.open("audio/audio-stream-process.js");
+		aplayer.open();
 	};
 	asocket.onclose = function() {
 		aplayer.close();

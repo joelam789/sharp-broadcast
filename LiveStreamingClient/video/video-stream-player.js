@@ -21,7 +21,7 @@
 		this.videoDataQueueSize = 8; // video cache size
 		
 		this.player.renderFrame = function(vdata) {
-			this.proxyPlayer.videoDataQueue.push(vdata);
+			this.proxyPlayer.videoDataQueue[this.proxyPlayer.videoDataQueue.length] = vdata;
 			while (this.proxyPlayer.videoDataQueue.length > this.proxyPlayer.videoDataQueueSize)
 				this.proxyPlayer.videoDataQueue.shift();
 		};
@@ -45,7 +45,7 @@
 			if (this.enabled == false) return;
 		
 			if (this.streamDataQueueSize > 0) {
-				this.streamDataQueue.push(data);
+				this.streamDataQueue[this.streamDataQueue.length] = data;
 				if (this.streamDataQueue.length <= this.streamDataQueueSize) return;
 			}
 			

@@ -13,7 +13,7 @@ onnodecreate = function(e) {
 	
 	node.audioErrorLogFlag = 0;
 	
-	node.audioChannelCount = 1;
+	node.audioChannelCount = 2;
 	node.audioCurrentRemains = null;
 	
 	node.audioDataQueueSize = 128; // audio cache size
@@ -31,7 +31,7 @@ onnodecreate = function(e) {
 		var beginPos = 0;
 		var totalCurrentInput = Array.prototype.slice.call(totalInput); // ios need this...
 		for (var i=0; i<outputBufferCount; i++) {
-			outputBuffers.push(totalCurrentInput.slice(beginPos, beginPos+outputBufferSize));
+			outputBuffers[outputBuffers.length] = totalCurrentInput.slice(beginPos, beginPos+outputBufferSize);
 			beginPos = beginPos+outputBufferSize;
 		}
 		
@@ -56,7 +56,8 @@ onnodecreate = function(e) {
 
 				if (node.audioCurrentRemains == null) {
 					node.audioCurrentRemains = new Array();
-					for (var i=0; i<node.audioChannelCount; i++) node.audioCurrentRemains.push(new Float32Array(0));
+					for (var i=0; i<node.audioChannelCount; i++) 
+						node.audioCurrentRemains[node.audioCurrentRemains.length] = new Float32Array(0);
 				}
 				
 				for (var i=0; i<node.audioChannelCount; i++) {
@@ -69,7 +70,7 @@ onnodecreate = function(e) {
 					var finalRemain = node.setupBuffers(intputBuffer, remainBuffer, outputBuffers, node.audioDataBlockSize);
 					
 					node.audioCurrentRemains[i] = finalRemain;
-					newbuffer.push(outputBuffers);
+					newbuffer[newbuffer.length] = outputBuffers;
 				}
 				
 				if (newbuffer.length > 0) {
@@ -83,15 +84,17 @@ onnodecreate = function(e) {
 								foundEmpty = true;
 								break;
 							}
-							usefulbuffers.push(newbuffer[i].shift());
+							usefulbuffers[usefulbuffers.length] = newbuffer[i].shift();
 						}
-						if (usefulbuffers.length == node.audioChannelCount) audioBuffers.push(usefulbuffers);
+						if (usefulbuffers.length == node.audioChannelCount) 
+							audioBuffers[audioBuffers.length] = usefulbuffers;
+						
 					}
 					
 					if (node.audioDataQueueSize > 0 && node.buffers.length > node.audioDataQueueSize)
 						node.buffers.splice((node.buffers.length - 1) / 2, node.buffers.length / 2);
 					for (var idx=0; idx<audioBuffers.length; idx++) {
-						node.buffers.push(audioBuffers[idx]);
+						node.buffers[node.buffers.length] = audioBuffers[idx];
 					}
 					
 				}

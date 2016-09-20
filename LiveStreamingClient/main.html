@@ -29,7 +29,11 @@
 	
 	var audioCtx = new AudioContext();
 	
-	var aplayer = new SimpleWebAudioStreamPlayer(audioCtx);
+	var aplayer = new SimpleWebAudioStreamPlayer({
+						audioContext: audioCtx,
+						useWorker: true,
+						workerFile: "audio/audio-stream-process.js"
+					});
 	aplayer.enabled = false;
 	
 	
@@ -78,7 +82,7 @@
 		}
 	};
 	asocket.onopen = function() {
-		aplayer.open("audio/audio-stream-process.js");
+		aplayer.open();
 	};
 	asocket.onclose = function() {
 		aplayer.close();
