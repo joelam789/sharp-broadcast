@@ -78,7 +78,8 @@ namespace SharpBroadcast.Framework
                                 {
                                     try
                                     {
-                                        session.Send(new WebMessage(buffer.Buffer, buffer.Length));
+                                        if (buffer.Buffer != null) session.Send(new WebMessage(buffer.Buffer, buffer.Length));
+                                        else session.Send(new WebMessage(buffer.Text));
                                     }
                                     catch { badlist.Add(client); }
                                 }
@@ -158,12 +159,23 @@ namespace SharpBroadcast.Framework
     public class BufferData
     {
         public byte[] Buffer { get; private set; }
+        public string Text { get; private set; }
         public int Length { get; private set; }
 
         public BufferData(byte[] buffer, int length)
         {
             Buffer = buffer;
             Length = length;
+
+            Text = null;
+        }
+
+        public BufferData(string text)
+        {
+            Text = text;
+            Length = Text.Length;
+
+            Buffer = null;
         }
     }
 }

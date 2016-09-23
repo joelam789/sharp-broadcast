@@ -99,7 +99,7 @@ namespace SharpBroadcast.Framework
                                     if (totalBytes >= mediaServer.OutputBufferSize)
                                     {
                                         byte[] data = GenAudioData(tagPart, headerPart, currentChunks);
-                                        if (channel != null) channel.Process(new BufferData(data, data.Length));
+                                        channel.Process(new BufferData(data, data.Length));
 
                                         currentChunks.Clear();
                                         totalBytes = 0;

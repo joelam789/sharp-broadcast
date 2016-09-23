@@ -353,7 +353,7 @@
             // 
             this.colFps.AspectName = "FPS";
             this.colFps.Text = "FPS";
-            this.colFps.Width = 30;
+            this.colFps.Width = 35;
             // 
             // colBitrate
             // 

@@ -109,7 +109,7 @@ namespace SharpBroadcast.Framework
                                             currentChunks.RemoveRange(0, 2);
                                         }
                                         byte[] data = GenAudioData(headerData, currentChunks);
-                                        if (channel != null) channel.Process(new BufferData(data, data.Length));
+                                        channel.Process(new BufferData(data, data.Length));
 
                                         currentChunks.Clear();
                                         totalBytes = 0;

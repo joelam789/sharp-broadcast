@@ -30,8 +30,12 @@ namespace SharpBroadcast.Framework
         {
             try
             {
-                channel.SetWelcomeText(mediaInfo);
-
+                if (mediaInfo != null && mediaInfo.Length > 0)
+                {
+                    channel.SetWelcomeText(mediaInfo);
+                    channel.Process(new BufferData(channel.GetWelcomeText()));
+                }
+                
                 bool foundFirstMagicTag = false;
 
                 int currentByte = 0;
@@ -83,7 +87,7 @@ namespace SharpBroadcast.Framework
                                     // here we would ignore MediaServer.OutputBufferSize ...
 
                                     byte[] data = cache.ToArray();
-                                    if (channel != null) channel.Process(new BufferData(data, data.Length));
+                                    channel.Process(new BufferData(data, data.Length));
                                 }
 
                                 cache.Clear();

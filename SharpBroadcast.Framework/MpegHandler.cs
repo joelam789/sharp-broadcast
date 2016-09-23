@@ -103,7 +103,7 @@ namespace SharpBroadcast.Framework
 
                 channel.SetWelcomeData(GetWelcomeData(sourceName));
 
-                Queue<BufferData> cache = new Queue<BufferData>();
+                //Queue<BufferData> cache = new Queue<BufferData>();
 
                 int inputBufferSize = mediaServer.InputBufferSize > 0 ? mediaServer.InputBufferSize : 1;
 

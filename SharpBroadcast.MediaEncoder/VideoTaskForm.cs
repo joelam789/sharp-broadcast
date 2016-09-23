@@ -1,26 +1,46 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Configuration;
 using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 
+using Newtonsoft.Json;
+
 namespace SharpBroadcast.MediaEncoder
 {
     public partial class VideoTaskForm : Form
     {
         private VideoOutputTask m_Task = new VideoOutputTask();
+        private VideoResolutionOptionGroup m_Resolution = new VideoResolutionOptionGroup();
 
         public VideoTaskForm()
         {
             InitializeComponent();
+            ReloadResolutionOptions();
         }
 
         public VideoOutputTask GetVideoOutputTask()
         {
             return m_Task;
+        }
+
+        public void ReloadResolutionOptions()
+        {
+            ConfigurationManager.RefreshSection("appSettings");
+
+            var appSettings = ConfigurationManager.AppSettings;
+            var allKeys = appSettings.AllKeys;
+
+            if (allKeys.Contains("ResolutionOptions"))
+            {
+                m_Resolution = JsonConvert.DeserializeObject<VideoResolutionOptionGroup>(appSettings["ResolutionOptions"].ToString());
+                cbbResolution.Items.Clear();
+                foreach (var item in m_Resolution.Options) cbbResolution.Items.Add(item.Trim());
+            }
         }
 
         public void LoadFromTask(VideoOutputTask task)
@@ -88,7 +108,40 @@ namespace SharpBroadcast.MediaEncoder
             this.DialogResult = DialogResult.OK;
         }
 
+        private void btnRefresh_Click(object sender, EventArgs e)
+        {
+            string currentResolution = "";
 
+            if (cbbResolution.SelectedIndex >= 0)
+                currentResolution = cbbResolution.Items[cbbResolution.SelectedIndex].ToString();
+
+            ReloadResolutionOptions();
+
+            if (currentResolution.Length > 0)
+            {
+                for (var i = 0; i < cbbResolution.Items.Count; i++)
+                {
+                    if (cbbResolution.Items[i].ToString() == currentResolution)
+                    {
+                        cbbResolution.SelectedIndex = i;
+                        break;
+                    }
+                }
+            }
+            
+        }
+
+
+    }
+
+    public class VideoResolutionOptionGroup
+    {
+        public List<string> Options { get; set; }
+
+        public VideoResolutionOptionGroup()
+        {
+            Options = new List<string>();
+        }
     }
 
     

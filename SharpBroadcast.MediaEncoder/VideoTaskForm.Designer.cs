@@ -29,6 +29,9 @@
         private void InitializeComponent()
         {
             this.gbVideoSetting = new System.Windows.Forms.GroupBox();
+            this.btnRefresh = new System.Windows.Forms.Button();
+            this.nudFps = new System.Windows.Forms.NumericUpDown();
+            this.lblFps = new System.Windows.Forms.Label();
             this.edtExtraParam = new System.Windows.Forms.TextBox();
             this.lblExtraParam = new System.Windows.Forms.Label();
             this.edtPixelFormat = new System.Windows.Forms.TextBox();
@@ -49,17 +52,16 @@
             this.gbAction = new System.Windows.Forms.GroupBox();
             this.btnCancel = new System.Windows.Forms.Button();
             this.btnOK = new System.Windows.Forms.Button();
-            this.nudFps = new System.Windows.Forms.NumericUpDown();
-            this.lblFps = new System.Windows.Forms.Label();
             this.gbVideoSetting.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nudFps)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudBitrate)).BeginInit();
             this.gbServerInfo.SuspendLayout();
             this.gbAction.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.nudFps)).BeginInit();
             this.SuspendLayout();
             // 
             // gbVideoSetting
             // 
+            this.gbVideoSetting.Controls.Add(this.btnRefresh);
             this.gbVideoSetting.Controls.Add(this.nudFps);
             this.gbVideoSetting.Controls.Add(this.lblFps);
             this.gbVideoSetting.Controls.Add(this.edtExtraParam);
@@ -80,6 +82,42 @@
             this.gbVideoSetting.TabIndex = 2;
             this.gbVideoSetting.TabStop = false;
             this.gbVideoSetting.Text = "Video";
+            // 
+            // btnRefresh
+            // 
+            this.btnRefresh.Location = new System.Drawing.Point(258, 41);
+            this.btnRefresh.Name = "btnRefresh";
+            this.btnRefresh.Size = new System.Drawing.Size(50, 23);
+            this.btnRefresh.TabIndex = 15;
+            this.btnRefresh.Text = "Refresh";
+            this.btnRefresh.UseVisualStyleBackColor = true;
+            this.btnRefresh.Click += new System.EventHandler(this.btnRefresh_Click);
+            // 
+            // nudFps
+            // 
+            this.nudFps.Location = new System.Drawing.Point(130, 72);
+            this.nudFps.Maximum = new decimal(new int[] {
+            60,
+            0,
+            0,
+            0});
+            this.nudFps.Name = "nudFps";
+            this.nudFps.Size = new System.Drawing.Size(120, 22);
+            this.nudFps.TabIndex = 14;
+            this.nudFps.Value = new decimal(new int[] {
+            20,
+            0,
+            0,
+            0});
+            // 
+            // lblFps
+            // 
+            this.lblFps.AutoSize = true;
+            this.lblFps.Location = new System.Drawing.Point(99, 74);
+            this.lblFps.Name = "lblFps";
+            this.lblFps.Size = new System.Drawing.Size(23, 12);
+            this.lblFps.TabIndex = 13;
+            this.lblFps.Text = "FPS";
             // 
             // edtExtraParam
             // 
@@ -116,11 +154,11 @@
             // lblBitrateUnit
             // 
             this.lblBitrateUnit.AutoSize = true;
-            this.lblBitrateUnit.Location = new System.Drawing.Point(256, 102);
+            this.lblBitrateUnit.Location = new System.Drawing.Point(262, 102);
             this.lblBitrateUnit.Name = "lblBitrateUnit";
-            this.lblBitrateUnit.Size = new System.Drawing.Size(34, 12);
+            this.lblBitrateUnit.Size = new System.Drawing.Size(30, 12);
             this.lblBitrateUnit.TabIndex = 8;
-            this.lblBitrateUnit.Text = "kbits/s";
+            this.lblBitrateUnit.Text = "kbit/s";
             // 
             // lblVideoType
             // 
@@ -297,32 +335,6 @@
             this.btnOK.UseVisualStyleBackColor = true;
             this.btnOK.Click += new System.EventHandler(this.btnOK_Click);
             // 
-            // nudFps
-            // 
-            this.nudFps.Location = new System.Drawing.Point(130, 72);
-            this.nudFps.Maximum = new decimal(new int[] {
-            60,
-            0,
-            0,
-            0});
-            this.nudFps.Name = "nudFps";
-            this.nudFps.Size = new System.Drawing.Size(120, 22);
-            this.nudFps.TabIndex = 14;
-            this.nudFps.Value = new decimal(new int[] {
-            20,
-            0,
-            0,
-            0});
-            // 
-            // lblFps
-            // 
-            this.lblFps.AutoSize = true;
-            this.lblFps.Location = new System.Drawing.Point(99, 74);
-            this.lblFps.Name = "lblFps";
-            this.lblFps.Size = new System.Drawing.Size(23, 12);
-            this.lblFps.TabIndex = 13;
-            this.lblFps.Text = "FPS";
-            // 
             // VideoTaskForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -337,11 +349,11 @@
             this.Load += new System.EventHandler(this.VideoTaskForm_Load);
             this.gbVideoSetting.ResumeLayout(false);
             this.gbVideoSetting.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nudFps)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudBitrate)).EndInit();
             this.gbServerInfo.ResumeLayout(false);
             this.gbServerInfo.PerformLayout();
             this.gbAction.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.nudFps)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -371,5 +383,6 @@
         private System.Windows.Forms.Label lblExtraParam;
         private System.Windows.Forms.NumericUpDown nudFps;
         private System.Windows.Forms.Label lblFps;
+        private System.Windows.Forms.Button btnRefresh;
     }
 }
