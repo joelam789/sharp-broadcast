@@ -11,6 +11,7 @@
 		this.enabled = true;
 		this.isFirstFrameComplete = false;
 		
+		this.incomingDataSizeQueue = [];
 		this.currentFrameDataSize = 0;
 		this.minKeyFrameDataSize = 0;
 		
@@ -25,8 +26,10 @@
 		
 		this.player.renderFrame = function(vdata) {
 			this.proxyPlayer.videoDataQueue[this.proxyPlayer.videoDataQueue.length] = vdata;
-			while (this.proxyPlayer.videoDataQueue.length > this.proxyPlayer.videoDataQueueSize)
+			while (this.proxyPlayer.videoDataQueue.length > this.proxyPlayer.videoDataQueueSize) {
 				this.proxyPlayer.videoDataQueue.shift();
+				this.proxyPlayer.incomingDataSizeQueue.shift();
+			}
 		};
 		
 		this.player.onRenderFrameComplete = function(vdata) {
@@ -55,10 +58,10 @@
 				if (this.streamDataQueue.length <= this.streamDataQueueSize) return;
 			}
 			
-			this.currentFrameDataSize = data.byteLength;
+			var processingVideoData = this.streamDataQueue.length > 0 ? this.streamDataQueue.shift() : data;
+			this.incomingDataSizeQueue[this.incomingDataSizeQueue.length] = processingVideoData.byteLength;
 
-			this.player.decode(Array.prototype.slice.apply(new Uint8Array(
-								this.streamDataQueue.length > 0 ? this.streamDataQueue.shift() : data)));
+			this.player.decode(Array.prototype.slice.apply(new Uint8Array(processingVideoData)));
 		};
 		
 		this.updateFrameInterval = function(fps) {
@@ -85,11 +88,14 @@
 		
 		this.renderFunc = function() {
 			var vdataobj = this.videoDataQueue.shift();
+			var vdatasize = this.incomingDataSizeQueue.shift();
 			if (vdataobj == null) return;
-				
+			
 			if (this.isFirstFrameComplete === false 
 				&& this.minKeyFrameDataSize > 0 
-				&& this.minKeyFrameDataSize > this.currentFrameDataSize) return;
+				&& this.minKeyFrameDataSize > vdatasize) return;
+			
+			this.currentFrameDataSize = vdatasize;
 			
 			if (this.player.webgl){
 			  this.player.renderFrameWebGL(vdataobj);
