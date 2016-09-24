@@ -11,6 +11,9 @@
 		this.enabled = true;
 		this.isFirstFrameComplete = false;
 		
+		this.currentFrameDataSize = 0;
+		this.minKeyFrameDataSize = 0;
+		
 		this.frameInterval = 40; // 25fps by default
 		this.renderTimer = null;
 		
@@ -29,10 +32,13 @@
 		this.player.onRenderFrameComplete = function(vdata) {
 			
 			if (this.proxyPlayer.isFirstFrameComplete === false) {
-				this.proxyPlayer.isFirstFrameComplete = true;
-				if (this.proxyPlayer.onRenderFirstFrameComplete){
-					this.proxyPlayer.onRenderFirstFrameComplete();
-				}
+				if (this.proxyPlayer.minKeyFrameDataSize <= 0
+					|| this.proxyPlayer.currentFrameDataSize >= this.proxyPlayer.minKeyFrameDataSize) {
+					this.proxyPlayer.isFirstFrameComplete = true;
+					if (this.proxyPlayer.onRenderFirstFrameComplete){
+						this.proxyPlayer.onRenderFirstFrameComplete();
+					}
+				}			
 			}
 			
 			if (this.proxyPlayer.onRenderFrameComplete){
@@ -49,6 +55,8 @@
 				if (this.streamDataQueue.length <= this.streamDataQueueSize) return;
 			}
 			
+			this.currentFrameDataSize = data.byteLength;
+
 			this.player.decode(Array.prototype.slice.apply(new Uint8Array(
 								this.streamDataQueue.length > 0 ? this.streamDataQueue.shift() : data)));
 		};
@@ -77,12 +85,16 @@
 		
 		this.renderFunc = function() {
 			var vdataobj = this.videoDataQueue.shift();
-			if (vdataobj != null) {
-				if (this.player.webgl){
-				  this.player.renderFrameWebGL(vdataobj);
-				}else{
-				  this.player.renderFrameRGB(vdataobj);
-				};
-			}
+			if (vdataobj == null) return;
+				
+			if (this.isFirstFrameComplete === false 
+				&& this.minKeyFrameDataSize > 0 
+				&& this.minKeyFrameDataSize > this.currentFrameDataSize) return;
+			
+			if (this.player.webgl){
+			  this.player.renderFrameWebGL(vdataobj);
+			}else{
+			  this.player.renderFrameRGB(vdataobj);
+			};
 		};
 	}
