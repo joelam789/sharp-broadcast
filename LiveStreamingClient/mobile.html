@@ -66,8 +66,6 @@
 		size: {width: 256, height: 144}
 	});
 	
-	vplayer.streamDataQueueSize = 4; // make a little bit "delay" to sync audio
-	
 	vplayer.onRenderFirstFrameComplete = function () {
 		aplayer.enabled = true;
 		document.getElementById('msg').innerHTML = 'Done(if no sound, click here)';
