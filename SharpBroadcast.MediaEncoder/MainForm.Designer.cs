@@ -74,6 +74,8 @@
             this.colAudioExtraParam = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
             this.colAudioServerAddress = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
             this.colAudioChannelName = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
+            this.edtVideoOption = new System.Windows.Forms.TextBox();
+            this.edtAudioOption = new System.Windows.Forms.TextBox();
             this.gbMediaSource.SuspendLayout();
             this.gbLog.SuspendLayout();
             this.gbAction.SuspendLayout();
@@ -86,6 +88,8 @@
             // 
             // gbMediaSource
             // 
+            this.gbMediaSource.Controls.Add(this.edtAudioOption);
+            this.gbMediaSource.Controls.Add(this.edtVideoOption);
             this.gbMediaSource.Controls.Add(this.cbbMics);
             this.gbMediaSource.Controls.Add(this.edtUrlSource);
             this.gbMediaSource.Controls.Add(this.cbbCams);
@@ -93,7 +97,7 @@
             this.gbMediaSource.Controls.Add(this.rbtnFromDevice);
             this.gbMediaSource.Location = new System.Drawing.Point(12, 12);
             this.gbMediaSource.Name = "gbMediaSource";
-            this.gbMediaSource.Size = new System.Drawing.Size(400, 130);
+            this.gbMediaSource.Size = new System.Drawing.Size(400, 173);
             this.gbMediaSource.TabIndex = 0;
             this.gbMediaSource.TabStop = false;
             this.gbMediaSource.Text = "Media Source";
@@ -109,7 +113,7 @@
             // 
             // edtUrlSource
             // 
-            this.edtUrlSource.Location = new System.Drawing.Point(18, 92);
+            this.edtUrlSource.Location = new System.Drawing.Point(18, 136);
             this.edtUrlSource.Name = "edtUrlSource";
             this.edtUrlSource.Size = new System.Drawing.Size(370, 22);
             this.edtUrlSource.TabIndex = 3;
@@ -127,7 +131,7 @@
             // rbtnFromUrl
             // 
             this.rbtnFromUrl.AutoSize = true;
-            this.rbtnFromUrl.Location = new System.Drawing.Point(18, 70);
+            this.rbtnFromUrl.Location = new System.Drawing.Point(18, 114);
             this.rbtnFromUrl.Name = "rbtnFromUrl";
             this.rbtnFromUrl.Size = new System.Drawing.Size(74, 16);
             this.rbtnFromUrl.TabIndex = 1;
@@ -170,18 +174,18 @@
             // 
             this.gbAction.Controls.Add(this.btnStop);
             this.gbAction.Controls.Add(this.btnStart);
-            this.gbAction.Location = new System.Drawing.Point(12, 148);
+            this.gbAction.Location = new System.Drawing.Point(12, 191);
             this.gbAction.Name = "gbAction";
-            this.gbAction.Size = new System.Drawing.Size(400, 130);
+            this.gbAction.Size = new System.Drawing.Size(400, 87);
             this.gbAction.TabIndex = 4;
             this.gbAction.TabStop = false;
             this.gbAction.Text = "Action";
             // 
             // btnStop
             // 
-            this.btnStop.Location = new System.Drawing.Point(208, 52);
+            this.btnStop.Location = new System.Drawing.Point(208, 21);
             this.btnStop.Name = "btnStop";
-            this.btnStop.Size = new System.Drawing.Size(180, 23);
+            this.btnStop.Size = new System.Drawing.Size(180, 50);
             this.btnStop.TabIndex = 1;
             this.btnStop.Text = "STOP";
             this.btnStop.UseVisualStyleBackColor = true;
@@ -189,9 +193,9 @@
             // 
             // btnStart
             // 
-            this.btnStart.Location = new System.Drawing.Point(18, 52);
+            this.btnStart.Location = new System.Drawing.Point(18, 21);
             this.btnStart.Name = "btnStart";
-            this.btnStart.Size = new System.Drawing.Size(180, 23);
+            this.btnStart.Size = new System.Drawing.Size(180, 50);
             this.btnStart.TabIndex = 0;
             this.btnStart.Text = "START";
             this.btnStart.UseVisualStyleBackColor = true;
@@ -505,6 +509,20 @@
             this.colAudioChannelName.Text = "Channel";
             this.colAudioChannelName.Width = 100;
             // 
+            // edtVideoOption
+            // 
+            this.edtVideoOption.Location = new System.Drawing.Point(18, 69);
+            this.edtVideoOption.Name = "edtVideoOption";
+            this.edtVideoOption.Size = new System.Drawing.Size(180, 22);
+            this.edtVideoOption.TabIndex = 5;
+            // 
+            // edtAudioOption
+            // 
+            this.edtAudioOption.Location = new System.Drawing.Point(208, 69);
+            this.edtAudioOption.Name = "edtAudioOption";
+            this.edtAudioOption.Size = new System.Drawing.Size(180, 22);
+            this.edtAudioOption.TabIndex = 6;
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -580,6 +598,8 @@
         private System.Windows.Forms.Button btnReloadVideoTasks;
         private System.Windows.Forms.Button btnSaveAudioTasks;
         private System.Windows.Forms.Button btnReloadAudioTasks;
+        private System.Windows.Forms.TextBox edtVideoOption;
+        private System.Windows.Forms.TextBox edtAudioOption;
     }
 }
 

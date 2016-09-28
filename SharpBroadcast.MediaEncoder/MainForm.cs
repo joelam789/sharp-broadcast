@@ -187,8 +187,12 @@ namespace SharpBroadcast.MediaEncoder
                     string audioDevice = (cbbMics.Visible && cbbMics.Enabled && cbbMics.SelectedIndex >= 0) 
                                             ? cbbMics.Items[cbbMics.SelectedIndex].ToString() : "";
 
+                    string videoOptions = (videoDevice.Length > 0 && edtVideoOption.Enabled)
+                                            ? edtVideoOption.Text : "";
+                    string audioOptions = (audioDevice.Length > 0 && edtAudioOption.Enabled)
+                                            ? edtAudioOption.Text : "";
 
-                    input = CommandGenerator.GenInputPart(videoDevice, audioDevice);
+                    input = CommandGenerator.GenInputPart(videoDevice, audioDevice, videoOptions, audioOptions);
                 }
             }
 
@@ -369,6 +373,9 @@ namespace SharpBroadcast.MediaEncoder
                     cbbMics.Items.Clear();
                 }
 
+                edtVideoOption.Enabled = cbbCams.Enabled;
+                edtAudioOption.Enabled = cbbMics.Enabled;
+
                 List<string> videoList = new List<string>();
                 List<string> audioList = new List<string>();
 
@@ -391,6 +398,9 @@ namespace SharpBroadcast.MediaEncoder
                     cbbMics.Enabled = false;
                     cbbMics.Items.Clear();
                 }
+
+                edtVideoOption.Enabled = cbbCams.Enabled;
+                edtAudioOption.Enabled = cbbMics.Enabled;
             }
         }
 

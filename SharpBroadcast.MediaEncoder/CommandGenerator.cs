@@ -7,18 +7,19 @@ namespace SharpBroadcast.MediaEncoder
 {
     public class CommandGenerator
     {
-        public static string GenInputPart(string videoDevice, string audioDevice)
+        public static string GenInputPart(string videoDevice, string audioDevice,
+                                            string videoOptions, string audioOptions)
         {
             string input = "";
 
             if (videoDevice.Length > 0)
             {
-                input += "-f dshow -i video=\"" + videoDevice + "\"";
+                input += " -f dshow " + videoOptions + " -i video=\"" + videoDevice + "\"";
             }
 
             if (audioDevice.Length > 0)
             {
-                input += " -f dshow -i audio=\"" + audioDevice + "\"";
+                input += " -f dshow " + audioOptions + " -i audio=\"" + audioDevice + "\"";
             }
 
             return input;
@@ -30,7 +31,7 @@ namespace SharpBroadcast.MediaEncoder
 
             if (sourceURL.Length > 0)
             {
-                input = "-re -i \"" + sourceURL + "\"";
+                input = " -re -i \"" + sourceURL + "\"";
             }
 
             return input;
