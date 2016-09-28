@@ -10,6 +10,8 @@ namespace SharpBroadcast.Framework
     {
         public int InputPort { get; set; }
 
+        public int InputQueueSize { get; set; }
+
         public int InputBufferSize { get; set; }
 
         public List<string> InputWhitelist { get; set; }
@@ -29,6 +31,7 @@ namespace SharpBroadcast.Framework
         public ServerSetting()
         {
             InputPort = 9210;
+            InputQueueSize = 8;
             InputBufferSize = 8;
             InputWhitelist = new List<string>();
             OutputPort = 9220;

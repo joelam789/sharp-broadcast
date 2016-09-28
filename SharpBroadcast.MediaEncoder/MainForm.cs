@@ -175,14 +175,15 @@ namespace SharpBroadcast.MediaEncoder
 
             if (rbtnFromDevice.Checked)
             {
-                if (cbbCams.SelectedIndex < 0)
+                if (cbbCams.SelectedIndex < 0 && cbbMics.SelectedIndex < 0)
                 {
-                    MessageBox.Show("Please select a webcam.");
+                    MessageBox.Show("Please select a device.");
                     return "";
                 }
                 else
                 {
-                    string videoDevice = cbbCams.Items[cbbCams.SelectedIndex].ToString();
+                    string videoDevice = (cbbCams.Visible && cbbCams.Enabled && cbbCams.SelectedIndex >= 0) 
+                                            ? cbbCams.Items[cbbCams.SelectedIndex].ToString() : "";
                     string audioDevice = (cbbMics.Visible && cbbMics.Enabled && cbbMics.SelectedIndex >= 0) 
                                             ? cbbMics.Items[cbbMics.SelectedIndex].ToString() : "";
 

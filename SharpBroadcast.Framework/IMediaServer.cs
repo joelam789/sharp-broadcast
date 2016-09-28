@@ -9,6 +9,7 @@ namespace SharpBroadcast.Framework
     {
         string ServerName { get; }
 
+        int InputQueueSize { get; set; }
         int InputBufferSize { get; set; }
 
         int OutputQueueSize { get; set; }

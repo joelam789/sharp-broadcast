@@ -11,7 +11,10 @@ namespace SharpBroadcast.MediaEncoder
         {
             string input = "";
 
-            input = "-f dshow -i video=\"" + videoDevice + "\"";
+            if (videoDevice.Length > 0)
+            {
+                input += "-f dshow -i video=\"" + videoDevice + "\"";
+            }
 
             if (audioDevice.Length > 0)
             {
@@ -36,8 +39,10 @@ namespace SharpBroadcast.MediaEncoder
         public static string GenVideoOutputPart(VideoOutputTask task)
         {
             string output = " -an -s " + task.Resolution 
-                            + (task.FPS > 0 ? (" -r " + task.FPS) : "") 
-                            + " -b:v " + task.Bitrate + "k ";
+                            + (task.FPS > 0 ? (" -r " + task.FPS) : "")
+                            + (task.Bitrate > 0 ? (" -b:v " + task.Bitrate + "k ") : "") 
+                            ;
+
             string serverUrl = task.ServerAddress.ToLower().Trim();
             if (!serverUrl.Contains("http://")) serverUrl = "http://" + serverUrl;
 
@@ -47,8 +52,10 @@ namespace SharpBroadcast.MediaEncoder
             {
                 if (task.ExtraParam.Length > 0) output += " " + task.ExtraParam + " ";
                 output += " -f mpeg1video ";
-                output += serverUrl + "/" + task.ChannelName + "/" + task.VideoType + "/" 
-                            + task.Resolution + (task.FPS > 0 ? ("x" + task.FPS) : "") + '@' + task.Bitrate + "kbps";
+                output += serverUrl + "/" + task.ChannelName + "/" + task.VideoType + "/" + task.Resolution 
+                            + (task.FPS > 0 ? ("x" + task.FPS) : "")
+                            + (task.Bitrate > 0 ? ("" + '@' + task.Bitrate + "kbps") : "") 
+                            ;
             }
             else if (task.VideoType == "h264")
             {
@@ -56,8 +63,10 @@ namespace SharpBroadcast.MediaEncoder
                 if (task.PixelFormat.Length > 0) output += " -pix_fmt " + task.PixelFormat;
                 if (task.ExtraParam.Length > 0) output += " " + task.ExtraParam + " ";
                 output += " -f h264 ";
-                output += serverUrl + "/" + task.ChannelName + "/" + task.VideoType + "/"
-                            + task.Resolution + (task.FPS > 0 ? ("x" + task.FPS) : "") + '@' + task.Bitrate + "kbps";
+                output += serverUrl + "/" + task.ChannelName + "/" + task.VideoType + "/" + task.Resolution
+                            + (task.FPS > 0 ? ("x" + task.FPS) : "")
+                            + (task.Bitrate > 0 ? ("" + '@' + task.Bitrate + "kbps") : "")
+                            ;
             }
             else return "";
 
@@ -73,7 +82,7 @@ namespace SharpBroadcast.MediaEncoder
 
         public static string GenNormalAudioOutputPart(AudioOutputTask task)
         {
-            string output = " -vn -b:a " + task.Bitrate + "k ";
+            string output = " -vn " + (task.Bitrate > 0 ? (" -b:a " + task.Bitrate + "k ") : "");
 
             string serverUrl = task.ServerAddress.ToLower().Trim();
             if (!serverUrl.Contains("http://")) serverUrl = "http://" + serverUrl;

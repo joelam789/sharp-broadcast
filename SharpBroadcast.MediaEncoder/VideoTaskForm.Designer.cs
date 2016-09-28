@@ -200,11 +200,6 @@
             0,
             0,
             0});
-            this.nudBitrate.Minimum = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
             this.nudBitrate.Name = "nudBitrate";
             this.nudBitrate.Size = new System.Drawing.Size(120, 22);
             this.nudBitrate.TabIndex = 3;

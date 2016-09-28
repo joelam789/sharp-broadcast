@@ -15,8 +15,9 @@ namespace SharpBroadcast.Framework
 {
     public class HttpSourceMediaServer : IMediaServer
     {
-        public const int DEFAULT_QUEUE_SIZE = 256;
+        public const int DEFAULT_INPUT_QUEUE_SIZE = 8;
         public const int DEFAULT_INPUT_BUFFER_SIZE = 8;
+        public const int DEFAULT_OUTPUT_QUEUE_SIZE = 256;
         public const int DEFAULT_OUTPUT_BUFFER_SIZE = 256;
         
         protected string m_ServerName = "";
@@ -46,6 +47,7 @@ namespace SharpBroadcast.Framework
 
         private MediaResourceManager m_ResourceManager = null;
 
+        public int InputQueueSize { get; set; }
         public int InputBufferSize { get; set; }
 
         public int OutputQueueSize { get; set; }
@@ -63,9 +65,10 @@ namespace SharpBroadcast.Framework
                             int inputPort = -1, int outputPort = -1, List<string> inputWhiteList = null, 
                             string certFile = "", string certKey = "")
         {
+            InputQueueSize = DEFAULT_INPUT_QUEUE_SIZE;
             InputBufferSize = DEFAULT_INPUT_BUFFER_SIZE;
 
-            OutputQueueSize = DEFAULT_QUEUE_SIZE;
+            OutputQueueSize = DEFAULT_OUTPUT_QUEUE_SIZE;
             OutputBufferSize = DEFAULT_OUTPUT_BUFFER_SIZE;
             OutputSocketBufferSize = 0;  // use default value
 
