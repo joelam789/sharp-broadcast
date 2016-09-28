@@ -15,6 +15,7 @@ Features:
 
 Known issues
 
-- There is some noise between audio chunks (It should be caused by resampling when decode audio data)
+- There is some noise between audio chunks (it should be caused by resampling when decode audio data)
+- Only Firefox supports OggOpus (but the latency is a bit significant)
 - Only Firefox does not support AAC(ADTS)
-- Only Firefox supports OggOpus
+
