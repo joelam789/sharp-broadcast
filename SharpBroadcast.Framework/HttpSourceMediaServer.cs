@@ -538,7 +538,7 @@ namespace SharpBroadcast.Framework
                 }
                 else if (context != null)
                 {
-                    context.Response.Close();
+                    context.Response.Abort(); // make sure the connection is closed
                 }
             }
             catch (Exception ex)
@@ -577,14 +577,15 @@ namespace SharpBroadcast.Framework
             {
                 string mediainfo = "";
                 if (urlSegments.Length > 3) mediainfo = urlSegments[3].Replace("/", "");
+                if (mediainfo.Length > 0) mediainfo = handler.GetMediaType() + "(" + mediainfo + ")";
+                else mediainfo = handler.GetMediaType();
 
                 if (channelName.Length > 0)
                 {
                     MediaChannelState state = new MediaChannelState();
                     state.ChannelName = channelName;
                     state.AddressInfo = ctx.Request.RemoteEndPoint.ToString();
-                    state.MediaInfo = handler.GetMediaType();
-                    if (mediainfo.Length > 0) state.MediaInfo += "(" + mediainfo + ")";
+                    state.MediaInfo = mediainfo;
                     state.ClientCount = 0;
 
                     UpdateState(channelName, state);

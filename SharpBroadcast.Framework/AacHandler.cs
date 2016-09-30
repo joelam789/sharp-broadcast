@@ -42,6 +42,12 @@ namespace SharpBroadcast.Framework
                 byte[] magicTag = new byte[MAGIC_TAG_LEN];
                 Array.Copy(MAGIC_TAG, magicTag, MAGIC_TAG_LEN);
 
+                if (mediaInfo != null && mediaInfo.Length > 0)
+                {
+                    channel.SetWelcomeText(mediaInfo);
+                    channel.Process(new BufferData(channel.GetWelcomeText()));
+                }
+
                 bool foundFirstMagicTag = false;
                 int magicByteIndex = 0;
 

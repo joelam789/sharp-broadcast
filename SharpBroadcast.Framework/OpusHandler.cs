@@ -44,6 +44,12 @@ namespace SharpBroadcast.Framework
         {
             try
             {
+                if (mediaInfo != null && mediaInfo.Length > 0)
+                {
+                    channel.SetWelcomeText(mediaInfo);
+                    channel.Process(new BufferData(channel.GetWelcomeText()));
+                }
+
                 bool foundFirstMagicTag = false;
 
                 List<byte> headerData = new List<byte>();

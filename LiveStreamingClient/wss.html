@@ -24,6 +24,9 @@
 	
 	var mediaServerIp = "127.0.0.1";
 	
+	var tryToUsePCM = true;
+	var audioChannelName = "test-audio";
+	
 	AudioWorkerShim.polyfill();
 	
 	window.AudioContext = window.AudioContext       ||
@@ -34,6 +37,11 @@
 	
 	
 	var audioCtx = new AudioContext();
+	if (tryToUsePCM) {
+		if (audioCtx.sampleRate == 44100 || audioCtx.sampleRate == 48000) {
+			audioChannelName = "pcm-" + audioCtx.sampleRate;
+		}
+	}
 	
 	var aplayer = new SimpleWebAudioStreamPlayer({
 						audioContext: audioCtx,
@@ -42,6 +50,7 @@
 					});
 	aplayer.enabled = false;
 	
+	if (audioChannelName.indexOf('pcm') >= 0) aplayer.streamDataQueueSize = 2;
 	
 	// video
 	
@@ -54,7 +63,7 @@
 	
 	vplayer.onRenderFirstFrameComplete = function () {
 		aplayer.enabled = true;
-		document.getElementById('msg').innerHTML = 'Done (If no sound playing, please click here)';
+		document.getElementById('msg').innerHTML = 'playing ' + aplayer.mediaInfo + ' (if still no sound, please click here)';
 	}
 	
 	var vsocket = new WebSocket("wss://" + mediaServerIp + ":9321/test-video");
@@ -75,13 +84,14 @@
 	
 	// audio
 	
-	var asocket = new WebSocket("wss://" + mediaServerIp + ":9221/test-audio");
+	var asocket = new WebSocket("wss://" + mediaServerIp + ":9221/" + audioChannelName);
 	asocket.binaryType = "arraybuffer";
 	asocket.onmessage = function(event) {
 		var data = event.data;
 		if (typeof data != "string") {
 			aplayer.decode(data);
 		} else {
+			aplayer.updateMediaInfo(data);
 			console.log("audio info: " + data);
 		}
 	};

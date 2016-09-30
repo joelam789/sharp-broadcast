@@ -81,7 +81,12 @@ namespace SharpBroadcast.Framework
                         {
                             try
                             {
-                                vinfo = mediaInfo.Replace("/", "");
+                                var mpegInfo = mediaInfo.Replace("/", "");
+                                if (mpegInfo.Contains('(') && mpegInfo.Contains(')'))
+                                    mpegInfo = mpegInfo.Substring(mpegInfo.IndexOf('(') + 1,
+                                        mpegInfo.IndexOf(')') - mpegInfo.IndexOf('(') - 1);
+
+                                vinfo = mpegInfo;
                                 var parts = (vinfo.Split('@')[0]).Split('x');
 
                                 if (parts.Length > 0) width = Convert.ToInt16(parts[0]);
@@ -102,8 +107,6 @@ namespace SharpBroadcast.Framework
                 }
 
                 channel.SetWelcomeData(GetWelcomeData(sourceName));
-
-                //Queue<BufferData> cache = new Queue<BufferData>();
 
                 int inputBufferSize = mediaServer.InputBufferSize > 0 ? mediaServer.InputBufferSize : 1;
 

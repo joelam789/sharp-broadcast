@@ -47,6 +47,9 @@
 
 	var mediaServerIp = "127.0.0.1";
 	
+	var tryToUsePCM = true;
+	var audioChannelName = "test-audio";
+	
 	var isChromeOnAndroid = navigator.userAgent.indexOf('Chrome') >= 0
 							&& navigator.userAgent.indexOf('Android') >= 0;
 							
@@ -60,6 +63,11 @@
 	
 	
 	var audioCtx = new AudioContext();
+	if (tryToUsePCM) {
+		if (audioCtx.sampleRate == 44100 || audioCtx.sampleRate == 48000) {
+			audioChannelName = "pcm-" + audioCtx.sampleRate;
+		}
+	}
 	
 	var aplayer = null;
 	
@@ -77,14 +85,16 @@
 					});
 	}
 	
-	var asocket = new WebSocket("ws://" + mediaServerIp + ":9220/test-audio");
+	var asocket = new WebSocket("ws://" + mediaServerIp + ":9220/" + audioChannelName);
 	asocket.binaryType = "arraybuffer";
 	asocket.onmessage = function(event) {
 		var data = event.data;
 		if (typeof data != "string") {
 			aplayer.decode(data);
 		} else {
+			aplayer.updateMediaInfo(data);
 			console.log("audio info: " + data);
+			document.getElementById('msg').innerHTML = 'playing ' + aplayer.mediaInfo + ' (if still no sound, please click here)';
 		}
 	};
 	asocket.onopen = function() {
@@ -94,13 +104,13 @@
 		aplayer.close();
 		console.log('Audio player stopped');
 	};
-	
 
 	// video (by jsmpeg)
 	var vsocket = new WebSocket( "ws://" + mediaServerIp + ":9420/test-mpeg" );
 	var vplayer = new jsmpeg(vsocket, 
 							{canvas: document.getElementById('videoCanvas'),
 							 forceCanvas2D: false});
+	
 	
 	function ios_unlock_sound() {
 		if (!aplayer.isPlayingDummy) {

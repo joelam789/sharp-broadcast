@@ -24,6 +24,9 @@
   
 	var mediaServerIp = "192.168.0.50";
 	
+	var tryToUsePCM = true;
+	var audioChannelName = "test-audio";
+	
 	var isChromeOnAndroid = navigator.userAgent.indexOf('Chrome') >= 0
 							&& navigator.userAgent.indexOf('Android') >= 0;
 							
@@ -37,6 +40,11 @@
 	
 	
 	var audioCtx = new AudioContext();
+	if (tryToUsePCM) {
+		if (audioCtx.sampleRate == 44100 || audioCtx.sampleRate == 48000) {
+			audioChannelName = "pcm-" + audioCtx.sampleRate;
+		}
+	}
 	
 	var aplayer = null;
 	
@@ -56,6 +64,7 @@
 
 	aplayer.enabled = false;
 	
+	if (audioChannelName.indexOf('pcm') >= 0) aplayer.streamDataQueueSize = 2;
 	
 	// video
 	
@@ -68,7 +77,7 @@
 	
 	vplayer.onRenderFirstFrameComplete = function () {
 		aplayer.enabled = true;
-		document.getElementById('msg').innerHTML = 'Done(if no sound, click here)';
+		document.getElementById('msg').innerHTML = 'playing ' + aplayer.mediaInfo + ' (if still no sound, please click here)';
 	}
 	
 	var vsocket = new WebSocket("ws://" + mediaServerIp + ":9320/mobile-video");
@@ -89,13 +98,14 @@
 	
 	// audio
 	
-	var asocket = new WebSocket("ws://" + mediaServerIp + ":9220/test-audio");
+	var asocket = new WebSocket("ws://" + mediaServerIp + ":9220/" + audioChannelName);
 	asocket.binaryType = "arraybuffer";
 	asocket.onmessage = function(event) {
 		var data = event.data;
 		if (typeof data != "string") {
 			aplayer.decode(data);
 		} else {
+			aplayer.updateMediaInfo(data);
 			console.log("audio info: " + data);
 		}
 	};
@@ -126,7 +136,7 @@
 	<br/>
 
 	<div id="videoCanvas" style="-ms-transform: scale(1.5,1.5); -webkit-transform: scale(1.5,1.5); transform: scale(1.5,1.5); 
-									display: block; margin-top: 80px;">
+									display: block; margin-top: 70px;">
 	</div>
 	<br/>
 	<br/>

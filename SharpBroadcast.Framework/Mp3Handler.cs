@@ -49,6 +49,12 @@ namespace SharpBroadcast.Framework
         {
             try
             {
+                if (mediaInfo != null && mediaInfo.Length > 0)
+                {
+                    channel.SetWelcomeText(mediaInfo);
+                    channel.Process(new BufferData(channel.GetWelcomeText()));
+                }
+
                 bool foundFirstSyncWord = false;
 
                 List<byte> tagPart = new List<byte>();

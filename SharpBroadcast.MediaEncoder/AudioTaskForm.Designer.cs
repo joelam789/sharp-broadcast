@@ -46,6 +46,7 @@
             this.rbtOpus = new System.Windows.Forms.RadioButton();
             this.rbtAac = new System.Windows.Forms.RadioButton();
             this.rbtMp3 = new System.Windows.Forms.RadioButton();
+            this.rbtPcm = new System.Windows.Forms.RadioButton();
             this.gbAction.SuspendLayout();
             this.gbServerInfo.SuspendLayout();
             this.gbAudio.SuspendLayout();
@@ -57,7 +58,7 @@
             this.gbAction.Controls.Add(this.btnCancel);
             this.gbAction.Controls.Add(this.btnOK);
             this.gbAction.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.gbAction.Location = new System.Drawing.Point(0, 227);
+            this.gbAction.Location = new System.Drawing.Point(0, 257);
             this.gbAction.Name = "gbAction";
             this.gbAction.Size = new System.Drawing.Size(384, 54);
             this.gbAction.TabIndex = 6;
@@ -89,7 +90,7 @@
             this.gbServerInfo.Controls.Add(this.lblServerAddress);
             this.gbServerInfo.Controls.Add(this.edtChannelName);
             this.gbServerInfo.Controls.Add(this.lblChannelName);
-            this.gbServerInfo.Location = new System.Drawing.Point(12, 131);
+            this.gbServerInfo.Location = new System.Drawing.Point(12, 161);
             this.gbServerInfo.Name = "gbServerInfo";
             this.gbServerInfo.Size = new System.Drawing.Size(355, 90);
             this.gbServerInfo.TabIndex = 5;
@@ -132,6 +133,7 @@
             // 
             // gbAudio
             // 
+            this.gbAudio.Controls.Add(this.rbtPcm);
             this.gbAudio.Controls.Add(this.edtExtraParam);
             this.gbAudio.Controls.Add(this.lblExtraParam);
             this.gbAudio.Controls.Add(this.lblBitrateUnit);
@@ -143,14 +145,14 @@
             this.gbAudio.Controls.Add(this.rbtMp3);
             this.gbAudio.Location = new System.Drawing.Point(12, 15);
             this.gbAudio.Name = "gbAudio";
-            this.gbAudio.Size = new System.Drawing.Size(355, 110);
+            this.gbAudio.Size = new System.Drawing.Size(355, 140);
             this.gbAudio.TabIndex = 7;
             this.gbAudio.TabStop = false;
             this.gbAudio.Text = "Audio";
             // 
             // edtExtraParam
             // 
-            this.edtExtraParam.Location = new System.Drawing.Point(112, 74);
+            this.edtExtraParam.Location = new System.Drawing.Point(112, 103);
             this.edtExtraParam.Name = "edtExtraParam";
             this.edtExtraParam.Size = new System.Drawing.Size(120, 22);
             this.edtExtraParam.TabIndex = 14;
@@ -158,7 +160,7 @@
             // lblExtraParam
             // 
             this.lblExtraParam.AutoSize = true;
-            this.lblExtraParam.Location = new System.Drawing.Point(44, 77);
+            this.lblExtraParam.Location = new System.Drawing.Point(44, 106);
             this.lblExtraParam.Name = "lblExtraParam";
             this.lblExtraParam.Size = new System.Drawing.Size(62, 12);
             this.lblExtraParam.TabIndex = 13;
@@ -167,7 +169,7 @@
             // lblBitrateUnit
             // 
             this.lblBitrateUnit.AutoSize = true;
-            this.lblBitrateUnit.Location = new System.Drawing.Point(238, 47);
+            this.lblBitrateUnit.Location = new System.Drawing.Point(238, 76);
             this.lblBitrateUnit.Name = "lblBitrateUnit";
             this.lblBitrateUnit.Size = new System.Drawing.Size(34, 12);
             this.lblBitrateUnit.TabIndex = 12;
@@ -184,7 +186,7 @@
             // 
             // nudBitrate
             // 
-            this.nudBitrate.Location = new System.Drawing.Point(112, 45);
+            this.nudBitrate.Location = new System.Drawing.Point(112, 74);
             this.nudBitrate.Maximum = new decimal(new int[] {
             1000000,
             0,
@@ -202,7 +204,7 @@
             // lblBitrate
             // 
             this.lblBitrate.AutoSize = true;
-            this.lblBitrate.Location = new System.Drawing.Point(70, 47);
+            this.lblBitrate.Location = new System.Drawing.Point(70, 76);
             this.lblBitrate.Name = "lblBitrate";
             this.lblBitrate.Size = new System.Drawing.Size(36, 12);
             this.lblBitrate.TabIndex = 9;
@@ -211,7 +213,7 @@
             // rbtOpus
             // 
             this.rbtOpus.AutoSize = true;
-            this.rbtOpus.Location = new System.Drawing.Point(244, 21);
+            this.rbtOpus.Location = new System.Drawing.Point(112, 43);
             this.rbtOpus.Name = "rbtOpus";
             this.rbtOpus.Size = new System.Drawing.Size(106, 16);
             this.rbtOpus.TabIndex = 2;
@@ -240,11 +242,23 @@
             this.rbtMp3.Text = "MP3";
             this.rbtMp3.UseVisualStyleBackColor = true;
             // 
+            // rbtPcm
+            // 
+            this.rbtPcm.AutoSize = true;
+            this.rbtPcm.Location = new System.Drawing.Point(224, 43);
+            this.rbtPcm.Name = "rbtPcm";
+            this.rbtPcm.Size = new System.Drawing.Size(96, 16);
+            this.rbtPcm.TabIndex = 15;
+            this.rbtPcm.TabStop = true;
+            this.rbtPcm.Text = "PCM (Raw 8U)";
+            this.rbtPcm.UseVisualStyleBackColor = true;
+            this.rbtPcm.CheckedChanged += new System.EventHandler(this.rbtPcm_CheckedChanged);
+            // 
             // AudioTaskForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(384, 281);
+            this.ClientSize = new System.Drawing.Size(384, 311);
             this.Controls.Add(this.gbAudio);
             this.Controls.Add(this.gbAction);
             this.Controls.Add(this.gbServerInfo);
@@ -282,5 +296,6 @@
         private System.Windows.Forms.Label lblBitrate;
         private System.Windows.Forms.TextBox edtExtraParam;
         private System.Windows.Forms.Label lblExtraParam;
+        private System.Windows.Forms.RadioButton rbtPcm;
     }
 }

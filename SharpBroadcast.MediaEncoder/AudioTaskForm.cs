@@ -28,6 +28,7 @@ namespace SharpBroadcast.MediaEncoder
             if (task.AudioType == "mp3") rbtMp3.Checked = true;
             if (task.AudioType == "aac") rbtAac.Checked = true;
             if (task.AudioType == "opus") rbtOpus.Checked = true;
+            if (task.AudioType == "pcm") rbtPcm.Checked = true;
 
             nudBitrate.Value = task.Bitrate;
             edtExtraParam.Text = task.ExtraParam;
@@ -43,6 +44,7 @@ namespace SharpBroadcast.MediaEncoder
             if (rbtMp3.Checked) task.AudioType = "mp3";
             if (rbtAac.Checked) task.AudioType = "aac";
             if (rbtOpus.Checked) task.AudioType = "opus";
+            if (rbtPcm.Checked) task.AudioType = "pcm";
 
             task.Bitrate = Convert.ToInt32(nudBitrate.Value);
             task.ExtraParam = edtExtraParam.Text;
@@ -54,7 +56,18 @@ namespace SharpBroadcast.MediaEncoder
 
         private void AudioTaskForm_Load(object sender, EventArgs e)
         {
+            // ...
+        }
 
+        private void rbtPcm_CheckedChanged(object sender, EventArgs e)
+        {
+            if (rbtPcm.Checked)
+            {
+                if (edtExtraParam.Text == "")
+                {
+                    edtExtraParam.Text = "-ar 48000";
+                }
+            }
         }
 
         private void btnOK_Click(object sender, EventArgs e)
@@ -62,6 +75,8 @@ namespace SharpBroadcast.MediaEncoder
             SaveToTask();
             this.DialogResult = DialogResult.OK;
         }
+
+        
     }
 
     

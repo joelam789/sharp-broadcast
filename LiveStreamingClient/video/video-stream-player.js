@@ -69,8 +69,15 @@
 				if (typeof fps === "number") {
 					if (fps > 0) this.frameInterval = 1000 / fps;
 				} else if (typeof fps === "string" && fps.length > 0) {
+					
+					var videoInfo = fps;
+					var posLeft = videoInfo.indexOf("(");
+					var posRight = videoInfo.indexOf(")");
+					if (posLeft >= 0 && posRight > posLeft)
+						videoInfo = videoInfo.substring(posLeft+1, posRight);
+					
 					var vinfofps = 0;
-					var vinfoparts = fps.split('@');
+					var vinfoparts = videoInfo.split('@');
 					vinfoparts = vinfoparts[0].split('x');
 					if (vinfoparts.length >= 3) vinfofps = parseInt(vinfoparts[2]);
 					else if (vinfoparts.length == 1) vinfofps = parseInt(vinfoparts[0]);

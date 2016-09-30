@@ -104,6 +104,32 @@ namespace SharpBroadcast.MediaEncoder
                 output += " -f opus ";
                 output += serverUrl + "/" + task.ChannelName + "/" + task.AudioType;
             }
+            else if (task.AudioType == "pcm")
+            {
+                output += " -acodec pcm_u8 -ac 1 ";
+                if (task.ExtraParam.Length > 0) output += " " + task.ExtraParam + " ";
+                string sampleRate = "";
+                if (task.ExtraParam.Contains("-ar "))
+                {
+                    var extraParamParts = task.ExtraParam.Split(' ');
+                    bool foundAR = false;
+                    foreach (var item in extraParamParts)
+                    {
+                        var currentPart = item.Trim();
+                        if (currentPart.Length <= 0) continue;
+                        if (foundAR) sampleRate = currentPart;
+                        else
+                        {
+                            foundAR = currentPart == "-ar";
+                            if (foundAR) continue;
+                        }
+                        if (sampleRate.Length > 0) break;
+                    }
+                }
+                output += " -f u8 ";
+                output += serverUrl + "/" + task.ChannelName + "/" + task.AudioType
+                            + (sampleRate.Length > 0 ? ("/" + sampleRate) : "");
+            }
             else if (task.AudioType == "aac")
             {
                 output += " -codec:a libfdk_aac ";

@@ -31,6 +31,8 @@
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.gbMediaSource = new System.Windows.Forms.GroupBox();
+            this.edtAudioOption = new System.Windows.Forms.TextBox();
+            this.edtVideoOption = new System.Windows.Forms.TextBox();
             this.cbbMics = new System.Windows.Forms.ComboBox();
             this.edtUrlSource = new System.Windows.Forms.TextBox();
             this.cbbCams = new System.Windows.Forms.ComboBox();
@@ -74,8 +76,7 @@
             this.colAudioExtraParam = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
             this.colAudioServerAddress = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
             this.colAudioChannelName = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
-            this.edtVideoOption = new System.Windows.Forms.TextBox();
-            this.edtAudioOption = new System.Windows.Forms.TextBox();
+            this.ttDevice = new System.Windows.Forms.ToolTip(this.components);
             this.gbMediaSource.SuspendLayout();
             this.gbLog.SuspendLayout();
             this.gbAction.SuspendLayout();
@@ -101,6 +102,22 @@
             this.gbMediaSource.TabIndex = 0;
             this.gbMediaSource.TabStop = false;
             this.gbMediaSource.Text = "Media Source";
+            // 
+            // edtAudioOption
+            // 
+            this.edtAudioOption.Location = new System.Drawing.Point(208, 69);
+            this.edtAudioOption.Name = "edtAudioOption";
+            this.edtAudioOption.Size = new System.Drawing.Size(180, 22);
+            this.edtAudioOption.TabIndex = 6;
+            this.ttDevice.SetToolTip(this.edtAudioOption, "parameters for the device above");
+            // 
+            // edtVideoOption
+            // 
+            this.edtVideoOption.Location = new System.Drawing.Point(18, 69);
+            this.edtVideoOption.Name = "edtVideoOption";
+            this.edtVideoOption.Size = new System.Drawing.Size(180, 22);
+            this.edtVideoOption.TabIndex = 5;
+            this.ttDevice.SetToolTip(this.edtVideoOption, "parameters for the device above");
             // 
             // cbbMics
             // 
@@ -509,20 +526,6 @@
             this.colAudioChannelName.Text = "Channel";
             this.colAudioChannelName.Width = 100;
             // 
-            // edtVideoOption
-            // 
-            this.edtVideoOption.Location = new System.Drawing.Point(18, 69);
-            this.edtVideoOption.Name = "edtVideoOption";
-            this.edtVideoOption.Size = new System.Drawing.Size(180, 22);
-            this.edtVideoOption.TabIndex = 5;
-            // 
-            // edtAudioOption
-            // 
-            this.edtAudioOption.Location = new System.Drawing.Point(208, 69);
-            this.edtAudioOption.Name = "edtAudioOption";
-            this.edtAudioOption.Size = new System.Drawing.Size(180, 22);
-            this.edtAudioOption.TabIndex = 6;
-            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -600,6 +603,7 @@
         private System.Windows.Forms.Button btnReloadAudioTasks;
         private System.Windows.Forms.TextBox edtVideoOption;
         private System.Windows.Forms.TextBox edtAudioOption;
+        private System.Windows.Forms.ToolTip ttDevice;
     }
 }
 
