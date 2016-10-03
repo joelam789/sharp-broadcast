@@ -37,6 +37,7 @@
             this.edtChannelName = new System.Windows.Forms.TextBox();
             this.lblChannelName = new System.Windows.Forms.Label();
             this.gbAudio = new System.Windows.Forms.GroupBox();
+            this.rbtPcm = new System.Windows.Forms.RadioButton();
             this.edtExtraParam = new System.Windows.Forms.TextBox();
             this.lblExtraParam = new System.Windows.Forms.Label();
             this.lblBitrateUnit = new System.Windows.Forms.Label();
@@ -46,7 +47,7 @@
             this.rbtOpus = new System.Windows.Forms.RadioButton();
             this.rbtAac = new System.Windows.Forms.RadioButton();
             this.rbtMp3 = new System.Windows.Forms.RadioButton();
-            this.rbtPcm = new System.Windows.Forms.RadioButton();
+            this.rbtOgg = new System.Windows.Forms.RadioButton();
             this.gbAction.SuspendLayout();
             this.gbServerInfo.SuspendLayout();
             this.gbAudio.SuspendLayout();
@@ -133,6 +134,7 @@
             // 
             // gbAudio
             // 
+            this.gbAudio.Controls.Add(this.rbtOgg);
             this.gbAudio.Controls.Add(this.rbtPcm);
             this.gbAudio.Controls.Add(this.edtExtraParam);
             this.gbAudio.Controls.Add(this.lblExtraParam);
@@ -149,6 +151,18 @@
             this.gbAudio.TabIndex = 7;
             this.gbAudio.TabStop = false;
             this.gbAudio.Text = "Audio";
+            // 
+            // rbtPcm
+            // 
+            this.rbtPcm.AutoSize = true;
+            this.rbtPcm.Location = new System.Drawing.Point(224, 43);
+            this.rbtPcm.Name = "rbtPcm";
+            this.rbtPcm.Size = new System.Drawing.Size(96, 16);
+            this.rbtPcm.TabIndex = 15;
+            this.rbtPcm.TabStop = true;
+            this.rbtPcm.Text = "PCM (Raw 8U)";
+            this.rbtPcm.UseVisualStyleBackColor = true;
+            this.rbtPcm.CheckedChanged += new System.EventHandler(this.rbtPcm_CheckedChanged);
             // 
             // edtExtraParam
             // 
@@ -242,17 +256,16 @@
             this.rbtMp3.Text = "MP3";
             this.rbtMp3.UseVisualStyleBackColor = true;
             // 
-            // rbtPcm
+            // rbtOgg
             // 
-            this.rbtPcm.AutoSize = true;
-            this.rbtPcm.Location = new System.Drawing.Point(224, 43);
-            this.rbtPcm.Name = "rbtPcm";
-            this.rbtPcm.Size = new System.Drawing.Size(96, 16);
-            this.rbtPcm.TabIndex = 15;
-            this.rbtPcm.TabStop = true;
-            this.rbtPcm.Text = "PCM (Raw 8U)";
-            this.rbtPcm.UseVisualStyleBackColor = true;
-            this.rbtPcm.CheckedChanged += new System.EventHandler(this.rbtPcm_CheckedChanged);
+            this.rbtOgg.AutoSize = true;
+            this.rbtOgg.Location = new System.Drawing.Point(250, 21);
+            this.rbtOgg.Name = "rbtOgg";
+            this.rbtOgg.Size = new System.Drawing.Size(47, 16);
+            this.rbtOgg.TabIndex = 16;
+            this.rbtOgg.TabStop = true;
+            this.rbtOgg.Text = "OGG";
+            this.rbtOgg.UseVisualStyleBackColor = true;
             // 
             // AudioTaskForm
             // 
@@ -297,5 +310,6 @@
         private System.Windows.Forms.TextBox edtExtraParam;
         private System.Windows.Forms.Label lblExtraParam;
         private System.Windows.Forms.RadioButton rbtPcm;
+        private System.Windows.Forms.RadioButton rbtOgg;
     }
 }

@@ -24,7 +24,9 @@
 		this.dummyAudioSource = null;
 		this.isPlayingDummy = false;
 		
-		this.filterNode = null;
+		this.customNode = null;
+		this.gainNode = null;
+		
 		this.workerNode = null;
 		this.nodeWorker = null;
 		
@@ -170,9 +172,11 @@
 			}
 		};
 		
-		this.open = function() {
+		this.open = function(extraNode) {
 			
 			try {
+				
+				if (extraNode != undefined) this.customNode = extraNode;
 
 				if (this.context == null) {
 					window.AudioContext = window.AudioContext       ||
@@ -183,6 +187,9 @@
 
 					this.context = new AudioContext();
 				}
+				
+				this.gainNode = this.context.createGain();
+				//this.gainNode.gain.value = 0.5;
 
 				if (this.useWorker) {
 					var gotoload = this.context.createAudioWorker(this.audioWorkerFile);
@@ -192,25 +199,30 @@
 						
 						// we do not care about the input channels, so just let input get 2 channels by default
 						this.workerNode = this.nodeWorker.createNode(2, this.outputChannelCount);
-						
-						//this.filterNode = this.context.createBiquadFilter();
-						//this.filterNode.Q.value = 1;
-						//this.filterNode.frequency.value = 2000;
-						//this.filterNode.type = 'highpass';
-						
-						if (this.filterNode != null) {
-							this.workerNode.connect(this.filterNode);
-							this.filterNode.connect(this.context.destination);
+
+						if (this.customNode != null) {
+							this.workerNode.connect(this.customNode);
+							this.customNode.connect(this.gainNode);
 						} else {
-							this.workerNode.connect(this.context.destination);
+							this.workerNode.connect(this.gainNode);
 						}
+						
+						this.gainNode.connect(this.context.destination);
 
 					}.bind(this));
 				} else {
 					// just let input get 2 channels, since we would use only output channels in function "onaudioprocess"
 					this.workerNode = this.context.createScriptProcessor(this.audioDataBlockSize, 2, this.outputChannelCount);
 					this.workerNode.onaudioprocess = this.processAudioData.bind(this);
-					this.workerNode.connect(this.context.destination);
+					
+					if (this.customNode != null) {
+						this.workerNode.connect(this.customNode);
+						this.customNode.connect(this.gainNode);
+					} else {
+						this.workerNode.connect(this.gainNode);
+					}
+					
+					this.gainNode.connect(this.context.destination);
 				}
 				
 			} catch (e) {
@@ -254,7 +266,7 @@
 		this.playDummy = function() {
 			this.isPlayingDummy = true;
 			if (this.dummyAudioSource == null) {
-				this.dummyAudioBuffer = this.context.createBuffer(2, 1, 44100);
+				this.dummyAudioBuffer = this.context.createBuffer(2, 1, this.context.sampleRate);
 				this.dummyAudioSource = this.context.createBufferSource();
 				this.dummyAudioSource.buffer = this.dummyAudioBuffer;
 				this.dummyAudioSource.connect(this.workerNode);
@@ -276,6 +288,7 @@
 			}
 			if (this.nodeWorker != null) this.nodeWorker.terminate();
 			if (this.workerNode != null) this.workerNode.disconnect();
-			if (this.filterNode != null) this.filterNode.disconnect();
+			if (this.customNode != null) this.customNode.disconnect();
+			if (this.gainNode != null) this.gainNode.disconnect();
 		};
 	}

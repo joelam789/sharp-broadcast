@@ -97,6 +97,13 @@ namespace SharpBroadcast.MediaEncoder
                 output += " -f mp3 ";
                 output += serverUrl + "/" + task.ChannelName + "/" + task.AudioType;
             }
+            else if (task.AudioType == "ogg")
+            {
+                output += " -acodec libvorbis ";
+                if (task.ExtraParam.Length > 0) output += " " + task.ExtraParam + " ";
+                output += " -f ogg ";
+                output += serverUrl + "/" + task.ChannelName + "/" + task.AudioType;
+            }
             else if (task.AudioType == "opus")
             {
                 output += " -acodec libopus ";

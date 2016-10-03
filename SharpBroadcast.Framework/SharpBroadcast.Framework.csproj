@@ -63,6 +63,7 @@
     <Compile Include="MediaDispatcher.cs" />
     <Compile Include="Mp3Handler.cs" />
     <Compile Include="MpegHandler.cs" />
+    <Compile Include="OggHandler.cs" />
     <Compile Include="OpusHandler.cs" />
     <Compile Include="PcmHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

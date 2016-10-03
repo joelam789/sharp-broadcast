@@ -27,6 +27,7 @@ namespace SharpBroadcast.MediaEncoder
         {
             if (task.AudioType == "mp3") rbtMp3.Checked = true;
             if (task.AudioType == "aac") rbtAac.Checked = true;
+            if (task.AudioType == "ogg") rbtOgg.Checked = true;
             if (task.AudioType == "opus") rbtOpus.Checked = true;
             if (task.AudioType == "pcm") rbtPcm.Checked = true;
 
@@ -43,6 +44,7 @@ namespace SharpBroadcast.MediaEncoder
 
             if (rbtMp3.Checked) task.AudioType = "mp3";
             if (rbtAac.Checked) task.AudioType = "aac";
+            if (rbtOgg.Checked) task.AudioType = "ogg";
             if (rbtOpus.Checked) task.AudioType = "opus";
             if (rbtPcm.Checked) task.AudioType = "pcm";
 
