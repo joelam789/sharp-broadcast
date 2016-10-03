@@ -37,6 +37,7 @@
             this.edtChannelName = new System.Windows.Forms.TextBox();
             this.lblChannelName = new System.Windows.Forms.Label();
             this.gbAudio = new System.Windows.Forms.GroupBox();
+            this.rbtOgg = new System.Windows.Forms.RadioButton();
             this.rbtPcm = new System.Windows.Forms.RadioButton();
             this.edtExtraParam = new System.Windows.Forms.TextBox();
             this.lblExtraParam = new System.Windows.Forms.Label();
@@ -47,7 +48,6 @@
             this.rbtOpus = new System.Windows.Forms.RadioButton();
             this.rbtAac = new System.Windows.Forms.RadioButton();
             this.rbtMp3 = new System.Windows.Forms.RadioButton();
-            this.rbtOgg = new System.Windows.Forms.RadioButton();
             this.gbAction.SuspendLayout();
             this.gbServerInfo.SuspendLayout();
             this.gbAudio.SuspendLayout();
@@ -93,7 +93,7 @@
             this.gbServerInfo.Controls.Add(this.lblChannelName);
             this.gbServerInfo.Location = new System.Drawing.Point(12, 161);
             this.gbServerInfo.Name = "gbServerInfo";
-            this.gbServerInfo.Size = new System.Drawing.Size(355, 90);
+            this.gbServerInfo.Size = new System.Drawing.Size(362, 90);
             this.gbServerInfo.TabIndex = 5;
             this.gbServerInfo.TabStop = false;
             this.gbServerInfo.Text = "Server";
@@ -147,20 +147,31 @@
             this.gbAudio.Controls.Add(this.rbtMp3);
             this.gbAudio.Location = new System.Drawing.Point(12, 15);
             this.gbAudio.Name = "gbAudio";
-            this.gbAudio.Size = new System.Drawing.Size(355, 140);
+            this.gbAudio.Size = new System.Drawing.Size(362, 140);
             this.gbAudio.TabIndex = 7;
             this.gbAudio.TabStop = false;
             this.gbAudio.Text = "Audio";
+            // 
+            // rbtOgg
+            // 
+            this.rbtOgg.AutoSize = true;
+            this.rbtOgg.Location = new System.Drawing.Point(253, 21);
+            this.rbtOgg.Name = "rbtOgg";
+            this.rbtOgg.Size = new System.Drawing.Size(47, 16);
+            this.rbtOgg.TabIndex = 16;
+            this.rbtOgg.TabStop = true;
+            this.rbtOgg.Text = "OGG";
+            this.rbtOgg.UseVisualStyleBackColor = true;
             // 
             // rbtPcm
             // 
             this.rbtPcm.AutoSize = true;
             this.rbtPcm.Location = new System.Drawing.Point(224, 43);
             this.rbtPcm.Name = "rbtPcm";
-            this.rbtPcm.Size = new System.Drawing.Size(96, 16);
+            this.rbtPcm.Size = new System.Drawing.Size(133, 16);
             this.rbtPcm.TabIndex = 15;
             this.rbtPcm.TabStop = true;
-            this.rbtPcm.Text = "PCM (Raw 8U)";
+            this.rbtPcm.Text = "PCM (Raw, U8, Mono)";
             this.rbtPcm.UseVisualStyleBackColor = true;
             this.rbtPcm.CheckedChanged += new System.EventHandler(this.rbtPcm_CheckedChanged);
             // 
@@ -237,7 +248,7 @@
             // rbtAac
             // 
             this.rbtAac.AutoSize = true;
-            this.rbtAac.Location = new System.Drawing.Point(160, 21);
+            this.rbtAac.Location = new System.Drawing.Point(163, 21);
             this.rbtAac.Name = "rbtAac";
             this.rbtAac.Size = new System.Drawing.Size(84, 16);
             this.rbtAac.TabIndex = 1;
@@ -255,17 +266,6 @@
             this.rbtMp3.TabStop = true;
             this.rbtMp3.Text = "MP3";
             this.rbtMp3.UseVisualStyleBackColor = true;
-            // 
-            // rbtOgg
-            // 
-            this.rbtOgg.AutoSize = true;
-            this.rbtOgg.Location = new System.Drawing.Point(250, 21);
-            this.rbtOgg.Name = "rbtOgg";
-            this.rbtOgg.Size = new System.Drawing.Size(47, 16);
-            this.rbtOgg.TabIndex = 16;
-            this.rbtOgg.TabStop = true;
-            this.rbtOgg.Text = "OGG";
-            this.rbtOgg.UseVisualStyleBackColor = true;
             // 
             // AudioTaskForm
             // 
