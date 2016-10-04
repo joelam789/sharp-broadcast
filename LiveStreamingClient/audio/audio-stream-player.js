@@ -43,6 +43,12 @@
 		
 		this.audioDataQueueSize = 128; // audio cache size
 		
+		this.clear = function() {
+			this.streamDataQueue = [];
+			this.audioPlayingBuffers = [];
+			this.audioCurrentRemains = null;
+		};
+		
 		this.updateMediaInfo = function(infoText) {
 			if (this.context == null) return;
 			var posLeft = infoText.indexOf("(");
