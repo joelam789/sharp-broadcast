@@ -144,7 +144,7 @@
 	function aonopen() {
 		if (aplayer != null) aplayer.open(afilter);
 		if (slider != null && aplayer != null) {
-			if (aplayer.gainNode != null) aplayer.gainNode.gain.value = slider.getValue() / 100.0;
+			aplayer.volume(slider.getValue() / 100.0);
 		}
 	}
 	function aonclose() {
@@ -304,9 +304,7 @@
 		if (!isIE) {
 			slider = new Slider("#volume");
 			slider.on("slide", function(slideValue) {
-				var newVolume = parseInt(slideValue) / 100.0;
-				//console.log("change to volume: " + newVolume);
-				if (aplayer != null && aplayer.gainNode != null) aplayer.gainNode.gain.value = newVolume;
+				if (aplayer != null) aplayer.volume(parseInt(slideValue) / 100.0);
 			});
 		} else {
 			document.getElementById('volume').style.display = 'none';

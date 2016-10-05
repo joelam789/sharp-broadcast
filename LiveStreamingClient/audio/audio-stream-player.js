@@ -49,6 +49,18 @@
 			this.audioCurrentRemains = null;
 		};
 		
+		this.volume = function(value) {
+			if (value != undefined && value != null && !isNaN(value)) {
+				if (this.gainNode != null) {
+					this.gainNode.gain.value = value;
+					return value;
+				}
+			} else {
+				if (this.gainNode != null) return this.gainNode.gain.value;
+			}
+			return 0;
+		};
+		
 		this.updateMediaInfo = function(infoText) {
 			if (this.context == null) return;
 			var posLeft = infoText.indexOf("(");
