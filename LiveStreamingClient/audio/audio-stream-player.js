@@ -50,7 +50,7 @@
 		};
 		
 		this.volume = function(value) {
-			if (value != undefined && value != null && !isNaN(value)) {
+			if (!isNaN(value)) {
 				if (this.gainNode != null) {
 					this.gainNode.gain.value = value;
 					return value;
@@ -287,7 +287,8 @@
 				this.dummyAudioBuffer = this.context.createBuffer(2, 1, this.context.sampleRate);
 				this.dummyAudioSource = this.context.createBufferSource();
 				this.dummyAudioSource.buffer = this.dummyAudioBuffer;
-				this.dummyAudioSource.connect(this.workerNode);
+				if (this.gainNode != null) this.dummyAudioSource.connect(this.gainNode);
+				else this.dummyAudioSource.connect(this.context.destination);
 				if (this.dummyAudioSource != null) {
 					if (this.dummyAudioSource.start) this.dummyAudioSource.start();
 					else this.dummyAudioSource.noteOn();
@@ -308,5 +309,6 @@
 			if (this.workerNode != null) this.workerNode.disconnect();
 			if (this.customNode != null) this.customNode.disconnect();
 			if (this.gainNode != null) this.gainNode.disconnect();
+			this.clear();
 		};
 	}

@@ -70,10 +70,10 @@
 	
 		aplayer.streamDataQueueSize = 1;
 		
-		//afilter = audioCtx.createBiquadFilter();
-		//afilter.Q.value = 1.00;
-		//afilter.frequency.value = 1000;
-		//afilter.type = 'bandpass';
+		afilter = audioCtx.createBiquadFilter();
+		afilter.Q.value = 1.00;
+		afilter.frequency.value = 1000;
+		afilter.type = 'bandpass';
 		
 	}
 	
@@ -83,7 +83,7 @@
 		webgl: true,
 		useWorker: true,
 		workerFile : "video/Decoder.js",
-		size: {width: 256, height: 144}
+		size: {width: 640, height: 360}
 	});
 	
 	vplayer.onRenderFirstFrameComplete = function () {
@@ -99,7 +99,9 @@
 			vplayer.decode(data);
 		} else {
 			console.log("video info: " + data);
-			vplayer.updateFrameInterval(data);
+			if (vplayer.domNode != null && vplayer.domNode.parentNode != null) {
+				vplayer.updateMediaInfo(data);
+			}
 		}
 	};
 	vsocket.onopen = function() {
@@ -119,7 +121,7 @@
 			aplayer.updateMediaInfo(data);
 			if (aplayer.mediaInfo.indexOf("ogg") >= 0 || aplayer.mediaInfo.indexOf("opus") >= 0) vplayer.streamDataQueueSize = 20;
 			else vplayer.streamDataQueueSize = 0;
-			if (aplayer.mediaInfo.indexOf("pcm") >= 0) aplayer.streamDataQueueSize = 1;
+			if (aplayer.mediaInfo.indexOf("pcm") >= 0) aplayer.streamDataQueueSize = 2;
 			else aplayer.streamDataQueueSize = 0;
 			console.log("audio info: " + data);
 			document.getElementById('msg').innerHTML = 'audio format - ' + aplayer.mediaInfo;
@@ -149,18 +151,14 @@
   
 	<center>
 
+	<div id="videoCanvas" style="-ms-transform: scale(1.5,1.5); -webkit-transform: scale(1.5,1.5); transform: scale(1.5,1.5); 
+								display: block; -ms-transform-origin: top; -webkit-transform-origin: top; transform-origin: top">
+	</div>
+	
 	<br/>
 
-	<div id="videoCanvas" style="-ms-transform: scale(1.5,1.5); -webkit-transform: scale(1.5,1.5); transform: scale(1.5,1.5); 
-									display: block; margin-top: 70px;">
-	</div>
-	<br/>
-	<br/>
-	<br/>
-	<br/>
-	<br/>
 	<font color="red">
-	<span id="msg">Loading...</span>
+	<span id="msg" style="position: relative; top: 160px;" >Loading...</span>
 	</font>
 	
 	</center>

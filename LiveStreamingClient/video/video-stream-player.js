@@ -5,6 +5,8 @@
 		this.player = new Player(broadwayOptions);
 		this.player.proxyPlayer = this;
 		
+		this.initOptions = broadwayOptions;
+		
 		this.canvas = this.player.canvas;
 		this.domNode = this.player.domNode;
 		
@@ -24,13 +26,7 @@
 		this.videoDataQueue = [];
 		this.videoDataQueueSize = 8; // video cache size
 		
-		this.clear = function() {
-			this.streamDataQueue = [];
-			this.videoDataQueue = [];
-			this.incomingDataSizeQueue = [];
-		};
-		
-		this.player.renderFrame = function(vdata) {
+		this.playerRenderFrame = function(vdata) {
 			this.proxyPlayer.videoDataQueue[this.proxyPlayer.videoDataQueue.length] = vdata;
 			while (this.proxyPlayer.videoDataQueue.length > this.proxyPlayer.videoDataQueueSize) {
 				this.proxyPlayer.videoDataQueue.shift();
@@ -38,7 +34,7 @@
 			}
 		};
 		
-		this.player.onRenderFrameComplete = function(vdata) {
+		this.playerOnRenderFrameComplete = function(vdata) {
 			
 			if (this.proxyPlayer.isFirstFrameComplete === false) {
 				if (this.proxyPlayer.minKeyFrameDataSize <= 0
@@ -53,7 +49,55 @@
 			if (this.proxyPlayer.onRenderFrameComplete){
 				this.proxyPlayer.onRenderFrameComplete(vdata);
 			}
-		}
+		};
+		
+		this.player.renderFrame = this.playerRenderFrame.bind(this.player);
+		this.player.onRenderFrameComplete = this.playerOnRenderFrameComplete.bind(this.player);
+		
+		this.clear = function() {
+			this.streamDataQueue = [];
+			this.videoDataQueue = [];
+			this.incomingDataSizeQueue = [];
+		};
+		
+		this.reload = function(w, h) {
+			
+			if (this.player == null) return;
+			
+			var isactivenow = this.enabled;
+			this.enabled = false;
+			
+			this.streamDataQueue = [];
+			this.videoDataQueue = [];
+			this.incomingDataSizeQueue = [];
+			
+			var currentpnode = null;
+			
+			if (this.player.worker != undefined && this.player.worker != null) this.player.worker.terminate();
+			if (this.player.domNode != undefined && this.player.domNode != null && this.player.domNode.parentNode != null) {
+				currentpnode = this.player.domNode.parentNode;
+				currentpnode.removeChild(this.player.domNode);
+			}
+			
+			if (!isNaN(w) && !isNaN(h)) this.initOptions.size = {width: w, height: h};
+			
+			this.player = new Player(this.initOptions);
+			this.player.proxyPlayer = this;
+			
+			this.player.renderFrame = this.playerRenderFrame.bind(this.player);
+			this.player.onRenderFrameComplete = this.playerOnRenderFrameComplete.bind(this.player);
+			
+			this.isFirstFrameComplete = false;
+			
+			this.canvas = this.player.canvas;
+			this.domNode = this.player.domNode;
+			
+			if (currentpnode != null) currentpnode.appendChild(this.domNode);
+			
+			this.enabled = isactivenow;
+			
+		};
+		
 		
 		this.decode = function(data) {
 			
@@ -71,25 +115,9 @@
 		};
 		
 		this.updateFrameInterval = function(fps) {
-			if (fps != undefined && fps != null) {
-				if (typeof fps === "number") {
-					if (fps > 0) this.frameInterval = 1000 / fps;
-				} else if (typeof fps === "string" && fps.length > 0) {
-					
-					var videoInfo = fps;
-					var posLeft = videoInfo.indexOf("(");
-					var posRight = videoInfo.indexOf(")");
-					if (posLeft >= 0 && posRight > posLeft)
-						videoInfo = videoInfo.substring(posLeft+1, posRight);
-					
-					var vinfofps = 0;
-					var vinfoparts = videoInfo.split('@');
-					vinfoparts = vinfoparts[0].split('x');
-					if (vinfoparts.length >= 3) vinfofps = parseInt(vinfoparts[2]);
-					else if (vinfoparts.length == 1) vinfofps = parseInt(vinfoparts[0]);
-					if (vinfofps > 0) this.frameInterval = 1000 / vinfofps;
-				}
-			}
+			if (isNaN(fps)) return;
+			if (fps <= 0) return;
+			this.frameInterval = 1000 / fps;
 			if (this.renderTimer != null) {
 				clearInterval(this.renderTimer);
 				this.renderTimer = null;
@@ -97,6 +125,31 @@
 			console.log("video frame interval: " + this.frameInterval);
 			this.isFirstFrameComplete = false;
 			this.renderTimer = setInterval(this.renderFunc.bind(this), this.frameInterval);
+		};
+		
+		this.updateMediaInfo = function(mediaInfo) {
+			var videoInfo = mediaInfo + "";
+			var posLeft = videoInfo.indexOf("(");
+			var posRight = videoInfo.indexOf(")");
+			if (posLeft >= 0 && posRight > posLeft)
+				videoInfo = videoInfo.substring(posLeft+1, posRight);
+			
+			if (videoInfo.length <= 0) return;
+			
+			var vinfow = 0;
+			var vinfoh = 0;
+			var vinfofps = 0;
+			var vinfoparts = videoInfo.split('@');
+			vinfoparts = vinfoparts[0].split('x');
+			if (vinfoparts.length >= 3) {
+				vinfow = parseInt(vinfoparts[0]);
+				vinfoh = parseInt(vinfoparts[1]);
+				vinfofps = parseInt(vinfoparts[2]);
+			} else if (vinfoparts.length == 1) vinfofps = parseInt(vinfoparts[0]);
+
+			if (vinfofps > 0) this.updateFrameInterval(vinfofps);
+			if (vinfow > 0 && vinfoh > 0) this.reload(vinfow, vinfoh);
+			else this.reload();
 		};
 		
 		this.renderFunc = function() {

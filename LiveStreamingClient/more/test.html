@@ -45,6 +45,8 @@
 							
 	var isIE = navigator.userAgent.indexOf('MSIE') >= 0
 							|| navigator.userAgent.indexOf('Trident') >= 0;
+							
+	var isEdge = navigator.userAgent.indexOf('Edge') >= 0;
 	
 	var audioCtx = null;
 	var aplayer = null;
@@ -112,8 +114,6 @@
 		document.getElementById('loading').style.display = 'none';
 	}
 	
-	vplayer.minKeyFrameDataSize = 10000; // make switching a bit smooth
-	
 	var vsocket = null;
 	
 	function vonmessage(event) {
@@ -122,7 +122,10 @@
 			vplayer.decode(data);
 		} else {
 			console.log("video info: " + data);
-			vplayer.updateFrameInterval(data);
+			if (vplayer.domNode != null && vplayer.domNode.parentNode != null) {
+				vplayer.updateMediaInfo(data);
+				document.getElementById('loading').style.top = (0 - vplayer.initOptions.size.height / 2 - 60) + "px";
+			}
 		}
 	}
 	function vonopen() {
@@ -295,8 +298,8 @@
 		}
 	}
 	
-	//window.addEventListener("touchend", ios_unlock_sound, false);
-	//window.addEventListener("mousedown", ios_unlock_sound, false);
+	window.addEventListener("touchend", ios_unlock_sound, false);
+	window.addEventListener("mousedown", ios_unlock_sound, false);
 	
 	var slider = null;
 	
@@ -308,6 +311,10 @@
 			});
 		} else {
 			document.getElementById('volume').style.display = 'none';
+		}
+		
+		if (isIE || isEdge) {
+			document.getElementById('loading').src = 'spinner.gif';
 		}
 	}
 	
@@ -347,18 +354,22 @@
 	</table>
 
 	<br/>
-	<br/>
 
 	<div id="canvasContainer">
 	
+	<!--
 	<div id="videoCanvas" style="-ms-transform: scale(1.5,1.5); -webkit-transform: scale(1.5,1.5); transform: scale(1.5,1.5); 
 								display: none; -ms-transform-origin: top; -webkit-transform-origin: top; transform-origin: top">
+	-->
+	<div id="videoCanvas" style="display: none;">
 	</div>
 	
-	<img id="loading" src="spinner.gif" style="position: relative; z-index: 10; top: -150px; display: none;"/>
+	<img id="loading" src="loading.svg" style="position: relative; z-index: 10; top: -250px; display: none;"/>
 	
 	</div>
 	
+	<br/>
+
 	</center>
 	
 </body>

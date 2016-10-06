@@ -310,6 +310,9 @@ namespace SharpBroadcast.MediaEncoder
 
             if (allKeys.Contains("EncoderAAC")) m_EncoderAAC = appSettings["EncoderAAC"];
 
+            if (allKeys.Contains("VideoDeviceParam")) edtVideoOption.Text = appSettings["VideoDeviceParam"];
+            if (allKeys.Contains("AudioDeviceParam")) edtAudioOption.Text = appSettings["AudioDeviceParam"];
+
             if (allKeys.Contains("VideoPublishTasks"))
                 m_VideoOutputTaskGroup = JsonConvert.DeserializeObject<VideoOutputTaskGroup>(appSettings["VideoPublishTasks"].ToString());
 
