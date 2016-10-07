@@ -11,7 +11,7 @@ namespace SharpBroadcast.Framework
     {
         protected Dictionary<string, IMediaServer> m_Servers = new Dictionary<string, IMediaServer>();
         protected Dictionary<string, IMediaHandler> m_Handlers = new Dictionary<string, IMediaHandler>();
-        protected ConcurrentDictionary<string, MediaChannel> m_Channels = new ConcurrentDictionary<string, MediaChannel>();
+        protected Dictionary<string, MediaChannel> m_Channels = new Dictionary<string, MediaChannel>();
 
         protected List<string> m_AvailableChannelNames = new List<string>();
 
@@ -27,8 +27,9 @@ namespace SharpBroadcast.Framework
         {
             MediaChannel result = null;
             if (m_Channels.TryGetValue(channelName, out result)) return result;
-            else
+            else lock (m_Channels) // lock it just when we have to modify it
             {
+                if (m_Channels.TryGetValue(channelName, out result)) return result;
                 if (!allowToCreateNew) return null;
                 if (m_AvailableChannelNames.Count <= 0 || m_AvailableChannelNames.Contains(channelName))
                 {
@@ -129,13 +130,13 @@ namespace SharpBroadcast.Framework
         public void StopAll()
         {
             foreach (var item in m_Servers) item.Value.Stop();
-            foreach (var item in m_Channels) item.Value.Stop();
+            lock (m_Channels) foreach (var item in m_Channels) item.Value.Stop();
         }
 
         public void Clear()
         {
             StopAll();
-            m_Channels.Clear();
+            lock (m_Channels) m_Channels.Clear();
             m_Servers.Clear();
         }
     }

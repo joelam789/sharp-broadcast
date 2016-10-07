@@ -89,7 +89,8 @@ namespace SharpBroadcast.Framework
             if (text == null) return;
             lock (m_WelcomeText)
             {
-                m_WelcomeText = String.Copy(text);
+                if (text.Length > 0 && m_WelcomeText != null && m_WelcomeText.Length > 0) m_WelcomeText += "|" + text;
+                else m_WelcomeText = String.Copy(text);
             }
         }
     }

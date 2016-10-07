@@ -54,8 +54,6 @@
 	
 	if (audioChannelName.indexOf('pcm') >= 0) {
 	
-		aplayer.streamDataQueueSize = 2;
-		
 		afilter = audioCtx.createBiquadFilter();
 		afilter.Q.value = 1.00;
 		afilter.frequency.value = 1000;

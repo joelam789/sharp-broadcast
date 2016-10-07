@@ -594,6 +594,11 @@ namespace SharpBroadcast.Framework
                 handler.HandleInput(this, channel, ctx.Request.InputStream, mediainfo);
 
                 if (channelName.Length > 0) RemoveState(channelName);
+                if (channel != null)
+                {
+                    channel.SetWelcomeText("");
+                    channel.SetWelcomeData(new byte[0]);
+                }
             }
 
             try
