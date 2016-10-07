@@ -107,7 +107,7 @@
 			aplayer.updateMediaInfo(data);
 			if (aplayer.mediaInfo.indexOf("ogg") >= 0 || aplayer.mediaInfo.indexOf("opus") >= 0) vplayer.streamDataQueueSize = 48;
 			else vplayer.streamDataQueueSize = 0;
-			if (aplayer.mediaInfo.indexOf("pcm") >= 0) aplayer.streamDataQueueSize = 2;
+			if (aplayer.mediaInfo.indexOf("pcm") >= 0) aplayer.streamDataQueueSize = 1;
 			else aplayer.streamDataQueueSize = 0;
 			console.log("audio info: " + data);
 			document.getElementById('msg').innerHTML = 'audio format - ' + aplayer.mediaInfo;
