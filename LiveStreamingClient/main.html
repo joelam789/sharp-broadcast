@@ -11,7 +11,7 @@
 </head>
 
 <body>
-  
+    
   <script type="text/javascript" src="audio/audio-worker-shim.min.js"></script>
   <script type="text/javascript" src="audio/audio-stream-player.js"></script>
   
@@ -20,128 +20,93 @@
   <script type="text/javascript" src="video/Player.js"></script>
   <script type="text/javascript" src="video/video-stream-player.js"></script>
   
+  <script type="text/javascript" src="stream-player.js"></script>
+  
   <script type="text/javascript">
   
 	var mediaServerIp = "127.0.0.1";
 	
+	var needWSS = false;
 	var tryToUsePCM = true;
-	var audioChannelName = "test-audio";
+	var mixChannelName = "desktop";
 	
-	AudioWorkerShim.polyfill();
+	var isOnMobile = navigator.userAgent.indexOf('Mobile') >= 0
+							|| navigator.userAgent.indexOf('Android') >= 0;
 	
+	var isChromeOnAndroid = navigator.userAgent.indexOf('Chrome') >= 0
+							&& navigator.userAgent.indexOf('Android') >= 0;
+	
+	if (isOnMobile) mixChannelName = "mobile";
+	
+	// init web audio
+	if (!isChromeOnAndroid) AudioWorkerShim.polyfill();
 	window.AudioContext = window.AudioContext       ||
 						  window.webkitAudioContext ||
 						  window.mozAudioContext    ||
 						  window.oAudioContext      ||
 						  window.msAudioContext;
-	
-	
+						  
 	var audioCtx = new AudioContext();
 	if (tryToUsePCM) {
 		if (audioCtx.sampleRate == 44100 || audioCtx.sampleRate == 48000) {
-			audioChannelName = "pcm-" + audioCtx.sampleRate;
+			mixChannelName = mixChannelName + "-" + audioCtx.sampleRate;
 		}
 	}
 	
 	var afilter = null;
-	
-	var aplayer = new SimpleWebAudioStreamPlayer({
-						audioContext: audioCtx,
-						useWorker: true,
-						workerFile: "audio/audio-stream-process.js"
-					});
-	aplayer.enabled = false;
-	
-	if (audioChannelName.indexOf('pcm') >= 0) {
-	
+	if (tryToUsePCM) {
 		afilter = audioCtx.createBiquadFilter();
 		afilter.Q.value = 1.00;
 		afilter.frequency.value = 1000;
 		afilter.type = 'bandpass';
-		
 	}
 	
-	// video
-	
-	var vplayer = new SimpleWebVideoStreamPlayer({
-		webgl: true,
-		useWorker: true,
-		workerFile : "video/Decoder.js",
-		size: {width: 640, height: 360}
-	});
-	
-	vplayer.onRenderFirstFrameComplete = function () {
-		aplayer.enabled = true;
-		document.getElementById('msg').innerHTML = 'playing ' + aplayer.mediaInfo + ' (if still no sound, please click here)';
+	// audio options
+	var aoptions = { audioContext: audioCtx, useWorker: true,
+					 workerFile: "audio/audio-stream-process.js"
+				   };
+	if (isChromeOnAndroid) {
+		aoptions.useWorker = false;
+		aoptions.workerFile = "";
+		aoptions.audioDataBlockSize = 8192;
 	}
 	
-	var vsocket = new WebSocket("ws://" + mediaServerIp + ":9320/test-video");
-	vsocket.binaryType = "arraybuffer";
-	vsocket.onmessage = function(event) {
-		var data = event.data;
-		if (typeof data != "string") {
-			vplayer.decode(data);
-		} else {
-			console.log("video info: " + data);
-			if (vplayer.domNode != null && vplayer.domNode.parentNode != null) {
-				vplayer.updateMediaInfo(data);
-			}
-		}
-	};
-	vsocket.onopen = function() {
-		document.getElementById('videoCanvas').appendChild(vplayer.domNode);
-	};
+	// video options
+	var voptions = { webgl: true, useWorker: true,
+					 workerFile : "video/Decoder.js",
+					 size: {width: 640, height: 360}
+				   };
 	
+	// server url	
+	var serverUrl = "ws://" + mediaServerIp + ":9320/" + mixChannelName;
+	if (needWSS) serverUrl = "wss://" + mediaServerIp + ":9321/" + mixChannelName;
 	
-	// audio
+	// stream player
+	var streamPlayer = new SimpleWebSocketStreamPlayer(voptions, aoptions);
+	streamPlayer.onPlay = function() {
+		document.getElementById('msg').innerHTML = 'playing(click here if no sound) - ' + streamPlayer.mediaInfo;
+	}
 	
-	var asocket = new WebSocket("ws://" + mediaServerIp + ":9220/" + audioChannelName);
-	asocket.binaryType = "arraybuffer";
-	asocket.onmessage = function(event) {
-		var data = event.data;
-		if (typeof data != "string") {
-			aplayer.decode(data);
-		} else {
-			aplayer.updateMediaInfo(data);
-			if (aplayer.mediaInfo.indexOf("ogg") >= 0 || aplayer.mediaInfo.indexOf("opus") >= 0) vplayer.streamDataQueueSize = 48;
-			else vplayer.streamDataQueueSize = 0;
-			if (aplayer.mediaInfo.indexOf("pcm") >= 0) aplayer.streamDataQueueSize = 1;
-			else aplayer.streamDataQueueSize = 0;
-			console.log("audio info: " + data);
-			document.getElementById('msg').innerHTML = 'audio format - ' + aplayer.mediaInfo;
-		}
-	};
-	asocket.onopen = function() {
-		aplayer.open(afilter);
-	};
-	asocket.onclose = function() {
-		aplayer.close();
-		console.log('Audio player stopped');
-	};
-	
-	
+	// windows events
 	function ios_unlock_sound() {
-		if (!aplayer.isPlayingDummy) {
-			aplayer.playDummy();
-			if (!aplayer.enabled) aplayer.enabled = true;
-			document.getElementById('msg').innerHTML = 'Done';
-		}
+		streamPlayer.playDummySound();
 	}
 	
 	window.addEventListener("touchend", ios_unlock_sound, false);
 	window.addEventListener("mousedown", ios_unlock_sound, false);
 	
+	window.onload = function () {
+		streamPlayer.audioFilter = afilter;
+		streamPlayer.videoContainer = document.getElementById('videoCanvas');
+		streamPlayer.open(serverUrl);
+	};
 	
   </script>
   
-	<center>
-
-	<div id="videoCanvas">
-	</div>
-	<font color="red">
-	<span id="msg" style="position: relative; top: 10px;">Loading...</span>
-	</font>
-	</center>
+  <center>
+  <div id="videoCanvas"></div>
+  <span id="msg" style="position: relative; top: 10px;">Loading...</span>
+  </center>
 	
 </body>
 </html>

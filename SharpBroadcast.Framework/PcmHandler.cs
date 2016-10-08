@@ -24,14 +24,17 @@ namespace SharpBroadcast.Framework
             return MEDIA_TYPE;
         }
 
-        public void HandleInput(IMediaServer mediaServer, MediaChannel channel, Stream inputStream, string mediaInfo)
+        public void HandleInput(IMediaServer mediaServer, List<MediaChannel> channels, Stream inputStream, string mediaInfo)
         {
             try
             {
                 if (mediaInfo != null && mediaInfo.Length > 0)
                 {
-                    channel.SetWelcomeText(mediaInfo);
-                    channel.Process(new BufferData(channel.GetWelcomeText()));
+                    foreach (var channel in channels)
+                    {
+                        channel.SetWelcomeText(mediaInfo);
+                        channel.Process(new BufferData(channel.GetWelcomeText()));
+                    }
                 }
 
                 // PcmHandler will ignore MediaServer.InputBufferSize
@@ -55,7 +58,7 @@ namespace SharpBroadcast.Framework
 
                         if (realSize <= 0) break;
 
-                        channel.Process(new BufferData(data, realSize));
+                        foreach (var channel in channels) channel.Process(new BufferData(data, realSize));
                     }
                 }
                 catch (Exception ex)

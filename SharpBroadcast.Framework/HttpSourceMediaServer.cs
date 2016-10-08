@@ -553,51 +553,56 @@ namespace SharpBroadcast.Framework
             if (ctx == null) return;
 
             IMediaHandler handler = null;
-            MediaChannel channel = null;
+            List<MediaChannel> channels = new List<MediaChannel>();
 
             var urlSegments = ctx.Request.Url.Segments;
 
-            string channelName = "";
-            if (urlSegments.Length > 1) channelName = urlSegments[1].Replace("/", "");
+            string channelNames = "";
+            if (urlSegments.Length > 1) channelNames = urlSegments[1].Replace("/", "");
 
-            if (channelName.Length > 0)
+            if (channelNames.Length > 0)
             {
-                channel = GetChannel(channelName);
-                if (channel != null && channel.IsWorking() == false) channel.Start();
+                var names = channelNames.Split(',');
+                foreach (var channelName in names)
+                {
+                    var channel = GetChannel(channelName.Trim());
+                    if (channel != null && channel.IsWorking() == false) channel.Start();
+                    if (channel != null) channels.Add(channel);
+                }
             }
 
-            if (channel != null)
+            if (channels.Count > 0)
             {
                 string typeinfo = "";
                 if (urlSegments.Length > 2) typeinfo = urlSegments[2].Replace("/", "");
                 if (typeinfo.Length > 0) handler = m_ResourceManager.GetHandler(typeinfo);
             }
 
-            if (channel != null && handler != null)
+            if (channels.Count > 0 && handler != null)
             {
                 string mediainfo = "";
                 if (urlSegments.Length > 3) mediainfo = urlSegments[3].Replace("/", "");
                 if (mediainfo.Length > 0) mediainfo = handler.GetMediaType() + "(" + mediainfo + ")";
                 else mediainfo = handler.GetMediaType();
 
-                if (channelName.Length > 0)
+                foreach (var channel in channels)
                 {
                     MediaChannelState state = new MediaChannelState();
-                    state.ChannelName = channelName;
+                    state.ChannelName = channel.ChannelName;
                     state.AddressInfo = ctx.Request.RemoteEndPoint.ToString();
                     state.MediaInfo = mediainfo;
                     state.ClientCount = 0;
 
-                    UpdateState(channelName, state);
+                    UpdateState(channel.ChannelName, state);
                 }
 
-                handler.HandleInput(this, channel, ctx.Request.InputStream, mediainfo);
+                handler.HandleInput(this, channels, ctx.Request.InputStream, mediainfo);
 
-                if (channelName.Length > 0) RemoveState(channelName);
-                if (channel != null)
+                foreach (var channel in channels)
                 {
                     channel.SetWelcomeText("");
                     channel.SetWelcomeData(new byte[0]);
+                    RemoveState(channel.ChannelName);
                 }
             }
 

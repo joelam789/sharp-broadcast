@@ -60,10 +60,11 @@ namespace SharpBroadcast.Framework
             return data;
         }
 
-        public void HandleInput(IMediaServer mediaServer, MediaChannel channel, Stream inputStream, string mediaInfo)
+        public void HandleInput(IMediaServer mediaServer, List<MediaChannel> channels, Stream inputStream, string mediaInfo)
         {
             try
             {
+                var channel = channels.First();
                 string sourceName = channel.ChannelName;
 
                 if (sourceName.Length > 0)

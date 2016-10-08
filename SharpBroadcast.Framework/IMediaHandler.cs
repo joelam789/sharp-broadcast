@@ -11,6 +11,6 @@ namespace SharpBroadcast.Framework
     public interface IMediaHandler
     {
         string GetMediaType();
-        void HandleInput(IMediaServer mediaServer, MediaChannel channel, Stream inputStream, string mediaInfo);
+        void HandleInput(IMediaServer mediaServer, List<MediaChannel> channels, Stream inputStream, string mediaInfo);
     }
 }

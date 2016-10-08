@@ -26,14 +26,17 @@ namespace SharpBroadcast.Framework
             return MEDIA_TYPE;
         }
 
-        public void HandleInput(IMediaServer mediaServer, MediaChannel channel, Stream inputStream, string mediaInfo)
+        public void HandleInput(IMediaServer mediaServer, List<MediaChannel> channels, Stream inputStream, string mediaInfo)
         {
             try
             {
                 if (mediaInfo != null && mediaInfo.Length > 0)
                 {
-                    channel.SetWelcomeText(mediaInfo);
-                    channel.Process(new BufferData(channel.GetWelcomeText()));
+                    foreach (var channel in channels)
+                    {
+                        channel.SetWelcomeText(mediaInfo);
+                        channel.Process(new BufferData(channel.GetWelcomeText()));
+                    }
                 }
                 
                 bool foundFirstMagicTag = false;
@@ -87,7 +90,7 @@ namespace SharpBroadcast.Framework
                                     // here we would ignore MediaServer.OutputBufferSize ...
 
                                     byte[] data = cache.ToArray();
-                                    channel.Process(new BufferData(data, data.Length));
+                                    foreach (var channel in channels) channel.Process(new BufferData(data, data.Length));
                                 }
 
                                 cache.Clear();
