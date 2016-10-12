@@ -67,6 +67,7 @@
 					this.audioInfo = ainfopart;
 					console.log("audio info: " + ainfopart);
 					if (this.audio != null) this.audio.updateMediaInfo(ainfopart);
+					if (this.onMediaChange != null) this.onMediaChange();
 				}
 			}.bind(this);
 			this.socket.onopen = function() {
