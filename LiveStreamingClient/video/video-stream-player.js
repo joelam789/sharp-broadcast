@@ -20,8 +20,8 @@
 		this.frameInterval = 40; // 25fps by default
 		this.renderTimer = null;
 		
-		this.streamDataQueue = [];
-		this.streamDataQueueSize = 0; // set it > 0 if you need to make "delay" to sync audio (when video is faster)
+		this.preloadedDataQueue = [];
+		this.preloadedDataQueueSize = 0; // set it > 0 if you need to make "delay" to sync audio (when video is faster)
 		
 		this.videoDataQueue = [];
 		this.videoDataQueueSize = 8; // video cache size
@@ -55,7 +55,7 @@
 		this.player.onRenderFrameComplete = this.playerOnRenderFrameComplete.bind(this.player);
 		
 		this.clear = function() {
-			this.streamDataQueue = [];
+			this.preloadedDataQueue = [];
 			this.videoDataQueue = [];
 			this.incomingDataSizeQueue = [];
 		};
@@ -67,7 +67,7 @@
 			var isactivenow = this.enabled;
 			this.enabled = false;
 			
-			this.streamDataQueue = [];
+			this.preloadedDataQueue = [];
 			this.videoDataQueue = [];
 			this.incomingDataSizeQueue = [];
 			
@@ -103,12 +103,12 @@
 			
 			if (this.enabled == false) return;
 		
-			if (this.streamDataQueueSize > 0) {
-				this.streamDataQueue[this.streamDataQueue.length] = data;
-				if (this.streamDataQueue.length <= this.streamDataQueueSize) return;
+			if (this.preloadedDataQueueSize > 0) {
+				this.preloadedDataQueue[this.preloadedDataQueue.length] = data;
+				if (this.preloadedDataQueue.length <= this.preloadedDataQueueSize) return;
 			}
 			
-			var processingVideoData = this.streamDataQueue.length > 0 ? this.streamDataQueue.shift() : data;
+			var processingVideoData = this.preloadedDataQueue.length > 0 ? this.preloadedDataQueue.shift() : data;
 			this.incomingDataSizeQueue[this.incomingDataSizeQueue.length] = processingVideoData.byteLength;
 
 			this.player.decode(Array.prototype.slice.apply(new Uint8Array(processingVideoData)));

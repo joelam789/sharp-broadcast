@@ -9,8 +9,8 @@
 										? options.workerFile : "audio-stream-process.js";
 		
 		// set it > 0 if you need to make "delay" to sync video (when audio is faster)
-		this.streamDataQueueSize = options.streamDataQueueSize != undefined && options.streamDataQueueSize != null 
-										? options.streamDataQueueSize : 0;
+		this.preloadedDataQueueSize = options.preloadedDataQueueSize != undefined && options.preloadedDataQueueSize != null 
+										? options.preloadedDataQueueSize : 0;
 		
 		// for ScriptProcessorNode with no webworker
 		this.audioDataBlockSize = options.audioDataBlockSize != undefined && options.audioDataBlockSize != null 
@@ -37,14 +37,14 @@
 		this.audioCurrentRemains = null;
 		this.audioPlayingBuffers = [];
 		
-		this.streamDataQueue = [];
+		this.preloadedDataQueue = [];
 		
 		this.mediaInfo = "undefined";
 		
 		this.audioDataQueueSize = 128; // audio cache size
 		
 		this.clear = function() {
-			this.streamDataQueue = [];
+			this.preloadedDataQueue = [];
 			this.audioPlayingBuffers = [];
 			this.audioCurrentRemains = null;
 		};
@@ -163,23 +163,23 @@
 		
 			if (this.workerNode == null || this.enabled !== true) return;
 			
-			if (this.streamDataQueueSize > 0) {
-				this.streamDataQueue[this.streamDataQueue.length] = data;
-				if (this.streamDataQueue.length <= this.streamDataQueueSize) return;
+			if (this.preloadedDataQueueSize > 0) {
+				this.preloadedDataQueue[this.preloadedDataQueue.length] = data;
+				if (this.preloadedDataQueue.length <= this.preloadedDataQueueSize) return;
 			}
 			
 			if (this.useWorker) {
-				this.workerNode.postMessage( {streamData: this.streamDataQueue.length > 0 ? this.streamDataQueue.shift() : data, 
+				this.workerNode.postMessage( {streamData: this.preloadedDataQueue.length > 0 ? this.preloadedDataQueue.shift() : data, 
 												mediaDesc: this.mediaInfo,
 												maxQueueSize: this.audioDataQueueSize,
 												errorLogFlag: this.needErrorLog ? 1 : 0} );
 			} else {
 				
 				if (this.mediaInfo.indexOf('pcm') >= 0) {
-					this.prepareAudioBuffer(this.bufferToArray(this.streamDataQueue.length > 0 ? this.streamDataQueue.shift() : data),
+					this.prepareAudioBuffer(this.bufferToArray(this.preloadedDataQueue.length > 0 ? this.preloadedDataQueue.shift() : data),
 											this.inputChannelCount);
 				} else {
-					this.context.decodeAudioData(this.streamDataQueue.length > 0 ? this.streamDataQueue.shift() : data, function(buffer) {
+					this.context.decodeAudioData(this.preloadedDataQueue.length > 0 ? this.preloadedDataQueue.shift() : data, function(buffer) {
 						this.prepareAudioBuffer(buffer, 0);
 					}.bind(this),
 					function(err) {
