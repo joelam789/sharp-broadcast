@@ -19,7 +19,7 @@
 		
 		this.feedingDetectionTimes = 0;
 		this.hungryTimes = 0;
-		this.networkSpeedLevel = 0; // 0: unknown, 1: lagging, 2: normal, 3: smooth
+		this.networkSpeedScore = 0; // 0~100, small means lagging
 		
 		this.frameInterval = 40; // 25fps by default
 		this.renderTimer = null;
@@ -91,7 +91,7 @@
 			this.player.renderFrame = this.playerRenderFrame.bind(this.player);
 			this.player.onRenderFrameComplete = this.playerOnRenderFrameComplete.bind(this.player);
 			
-			this.networkSpeedLevel = 0;
+			this.networkSpeedScore = 0;
 			this.hungryTimes = 0;
 			this.feedingDetectionTimes = 0;
 			this.isFirstFrameComplete = false;
@@ -170,12 +170,8 @@
 			
 			if (vdataobj == null) this.hungryTimes++;
 			
-			if (this.feedingDetectionTimes * this.frameInterval >= 2000) { // check it every 2 seconds
-				var smoothrate = 1.00 - (this.hungryTimes + 0.01)/(this.feedingDetectionTimes + 0.01);
-				if (smoothrate < 0.02) this.networkSpeedLevel = 0; // too slow...
-				else if (smoothrate < 0.25) this.networkSpeedLevel = 1;
-				else if (smoothrate > 0.8) this.networkSpeedLevel = 3;
-				else this.networkSpeedLevel = 2;
+			if (this.feedingDetectionTimes * this.frameInterval >= 1000) { // check it every 1 second
+				this.networkSpeedScore = Math.round((this.feedingDetectionTimes - this.hungryTimes)/(this.feedingDetectionTimes + 0.01) * 100);
 				this.feedingDetectionTimes = 0;
 				this.hungryTimes = 0;
 			}

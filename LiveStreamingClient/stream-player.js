@@ -108,8 +108,8 @@
 			}
 		};
 		
-		this.getVideoStreamSpeedLevel = function() {
-			return this.isPlaying() && this.video.enabled ? this.video.networkSpeedLevel : 0;
+		this.getVideoStreamSpeedScore = function() {
+			return this.isPlaying() && this.video.enabled ? this.video.networkSpeedScore : 0;
 		};
 		
 		this.video.onRenderFirstFrameComplete = function () {

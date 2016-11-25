@@ -101,7 +101,7 @@
 		streamPlayer.open(serverUrl);
 		
 		setInterval(function() {
-			document.getElementById('speed').innerHTML = 'Video Stream Speed Level: ' + streamPlayer.getVideoStreamSpeedLevel();
+			document.getElementById('speed').innerHTML = 'Video Stream Speed Score: ' + streamPlayer.getVideoStreamSpeedScore();
 		}, 1000);
 	};
 	
@@ -111,7 +111,7 @@
   <div id="videoCanvas"></div>
   <span id="msg" style="position: relative; top: 10px;">Loading...</span>
   <br/>
-  <span id="speed" style="position: relative; top: 10px;">Video Stream Speed Level: ???</span>
+  <span id="speed" style="position: relative; top: 10px;">Video Stream Speed Score: ?</span>
   </center>
 	
 </body>
