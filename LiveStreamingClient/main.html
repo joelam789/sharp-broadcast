@@ -99,6 +99,10 @@
 		streamPlayer.audioFilter = afilter;
 		streamPlayer.videoContainer = document.getElementById('videoCanvas');
 		streamPlayer.open(serverUrl);
+		
+		setInterval(function() {
+			document.getElementById('speed').innerHTML = 'Video Stream Speed Level: ' + streamPlayer.getVideoStreamSpeedLevel();
+		}, 1000);
 	};
 	
   </script>
@@ -106,6 +110,8 @@
   <center>
   <div id="videoCanvas"></div>
   <span id="msg" style="position: relative; top: 10px;">Loading...</span>
+  <br/>
+  <span id="speed" style="position: relative; top: 10px;">Video Stream Speed Level: ???</span>
   </center>
 	
 </body>

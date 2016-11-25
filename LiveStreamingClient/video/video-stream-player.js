@@ -17,6 +17,10 @@
 		this.currentFrameDataSize = 0;
 		this.minKeyFrameDataSize = 0;
 		
+		this.feedingDetectionTimes = 0;
+		this.hungryTimes = 0;
+		this.networkSpeedLevel = 0; // 0: unknown, 1: lagging, 2: normal, 3: smooth
+		
 		this.frameInterval = 40; // 25fps by default
 		this.renderTimer = null;
 		
@@ -87,6 +91,9 @@
 			this.player.renderFrame = this.playerRenderFrame.bind(this.player);
 			this.player.onRenderFrameComplete = this.playerOnRenderFrameComplete.bind(this.player);
 			
+			this.networkSpeedLevel = 0;
+			this.hungryTimes = 0;
+			this.feedingDetectionTimes = 0;
 			this.isFirstFrameComplete = false;
 			
 			this.canvas = this.player.canvas;
@@ -123,6 +130,8 @@
 				this.renderTimer = null;
 			}
 			console.log("video frame interval: " + this.frameInterval);
+			this.hungryTimes = 0;
+			this.feedingDetectionTimes = 0;
 			this.isFirstFrameComplete = false;
 			this.renderTimer = setInterval(this.renderFunc.bind(this), this.frameInterval);
 		};
@@ -153,8 +162,24 @@
 		};
 		
 		this.renderFunc = function() {
+			
+			this.feedingDetectionTimes++;
+			
 			var vdataobj = this.videoDataQueue.shift();
 			var vdatasize = this.incomingDataSizeQueue.shift();
+			
+			if (vdataobj == null) this.hungryTimes++;
+			
+			if (this.feedingDetectionTimes * this.frameInterval >= 2000) { // check it every 2 seconds
+				var smoothrate = 1.00 - (this.hungryTimes + 0.01)/(this.feedingDetectionTimes + 0.01);
+				if (smoothrate < 0.02) this.networkSpeedLevel = 0; // too slow...
+				else if (smoothrate < 0.25) this.networkSpeedLevel = 1;
+				else if (smoothrate > 0.8) this.networkSpeedLevel = 3;
+				else this.networkSpeedLevel = 2;
+				this.feedingDetectionTimes = 0;
+				this.hungryTimes = 0;
+			}
+			
 			if (vdataobj == null) return;
 			
 			if (this.isFirstFrameComplete === false 
