@@ -37,7 +37,9 @@
 							&& navigator.userAgent.indexOf('Android') >= 0;
 							
 	var isIOS10 = navigator.userAgent.indexOf('OS 10') >= 0
-					&& (navigator.userAgent.indexOf('iPad') >= 0 || navigator.userAgent.indexOf('iPhone') >= 0);
+					&& (navigator.userAgent.indexOf('iPad') >= 0 
+						|| navigator.userAgent.indexOf('iPhone') >= 0
+						|| navigator.userAgent.indexOf('Mobile') >= 0);
 	
 	if (isOnMobile) mixChannelName = "mobile";
 	
