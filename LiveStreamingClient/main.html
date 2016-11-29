@@ -35,8 +35,13 @@
 	
 	var isChromeOnAndroid = navigator.userAgent.indexOf('Chrome') >= 0
 							&& navigator.userAgent.indexOf('Android') >= 0;
+							
+	var isIOS10 = navigator.userAgent.indexOf('OS 10') >= 0
+					&& (navigator.userAgent.indexOf('iPad') >= 0 || navigator.userAgent.indexOf('iPhone') >= 0);
 	
 	if (isOnMobile) mixChannelName = "mobile";
+	
+	if (isIOS10) tryToUsePCM = false;
 	
 	// init web audio
 	if (!isChromeOnAndroid) AudioWorkerShim.polyfill();
@@ -111,7 +116,7 @@
   <div id="videoCanvas"></div>
   <span id="msg" style="position: relative; top: 10px;">Loading...</span>
   <br/>
-  <span id="speed" style="position: relative; top: 10px;">Video Stream Speed Score: ?</span>
+  <p id="speed">Video Stream Speed Score: ?</p>
   </center>
 	
 </body>
