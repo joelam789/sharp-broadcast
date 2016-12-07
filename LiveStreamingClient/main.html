@@ -43,7 +43,7 @@
 	
 	if (isOnMobile) mixChannelName = "mobile";
 	
-	if (isIOS10) tryToUsePCM = false;
+	//if (isIOS10) tryToUsePCM = false; // iOS 10 could play PCM too
 	
 	// init web audio
 	if (!isChromeOnAndroid) AudioWorkerShim.polyfill();
