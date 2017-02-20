@@ -4,6 +4,16 @@
 		// normally we should share the context ...
 		this.context = options.audioContext != undefined && options.audioContext != null ? options.audioContext : null;
 		
+		if (this.context == null) {
+			window.AudioContext = window.AudioContext       ||
+								  window.webkitAudioContext ||
+								  window.mozAudioContext    ||
+								  window.oAudioContext      ||
+								  window.msAudioContext;
+
+			if (window.AudioContext) this.context = new AudioContext();
+		}
+		
 		this.useWorker = options.useWorker != undefined && options.useWorker != null ? options.useWorker : true;
 		this.audioWorkerFile = options.workerFile != undefined && options.workerFile != null && options.workerFile.length > 0 
 										? options.workerFile : "audio-stream-process.js";
@@ -25,7 +35,8 @@
 		this.isPlayingDummy = false;
 		
 		this.customNode = null;
-		this.gainNode = null;
+		this.gainNode = this.context != null ? this.context.createGain() : null;
+		if (this.gainNode) this.gainNode.connect(this.context.destination);
 		
 		this.workerNode = null;
 		this.nodeWorker = null;
@@ -194,20 +205,9 @@
 			
 			try {
 				
-				if (extraNode != undefined) this.customNode = extraNode;
-
-				if (this.context == null) {
-					window.AudioContext = window.AudioContext       ||
-										  window.webkitAudioContext ||
-										  window.mozAudioContext    ||
-										  window.oAudioContext      ||
-										  window.msAudioContext;
-
-					this.context = new AudioContext();
-				}
+				if (this.context == undefined || this.context == null) throw "Web Audio Context not found";
 				
-				this.gainNode = this.context.createGain();
-				//this.gainNode.gain.value = 0.5;
+				if (extraNode != undefined) this.customNode = extraNode;
 
 				if (this.useWorker) {
 					var gotoload = this.context.createAudioWorker(this.audioWorkerFile);
@@ -225,7 +225,7 @@
 							this.workerNode.connect(this.gainNode);
 						}
 						
-						this.gainNode.connect(this.context.destination);
+						//this.gainNode.connect(this.context.destination);
 
 					}.bind(this));
 				} else {
@@ -240,7 +240,7 @@
 						this.workerNode.connect(this.gainNode);
 					}
 					
-					this.gainNode.connect(this.context.destination);
+					//this.gainNode.connect(this.context.destination);
 				}
 				
 			} catch (e) {
@@ -296,19 +296,23 @@
 			}
 		};
 		
-		this.close = function() {
+		this.stopPlayingDummy = function() {
 			if (this.dummyAudioSource != null) {
 				if (this.dummyAudioSource.stop) this.dummyAudioSource.stop();
 				else this.dummyAudioSource.noteOff();
 				this.dummyAudioSource.disconnect();
 				this.dummyAudioBuffer = null;
 				this.dummyAudioSource = null;
-				this.isPlayingDummy = false;
 			}
+			this.isPlayingDummy = false;
+		};
+		
+		this.close = function() {
+			//this.stopPlayingDummy();
 			if (this.nodeWorker != null) this.nodeWorker.terminate();
 			if (this.workerNode != null) this.workerNode.disconnect();
 			if (this.customNode != null) this.customNode.disconnect();
-			if (this.gainNode != null) this.gainNode.disconnect();
+			//if (this.gainNode != null) this.gainNode.disconnect();
 			this.clear();
 		};
 	}

@@ -113,6 +113,12 @@
 			}
 		};
 		
+		this.stopPlayingDummySound = function() {
+			if (this.audio != null) {
+				if (this.audio.isPlayingDummy) this.audio.stopPlayingDummy();
+			}
+		};
+		
 		this.getVideoStreamSpeedScore = function() {
 			return this.isPlaying() && this.video != null && this.video.enabled ? this.video.networkSpeedScore : 0;
 		};
