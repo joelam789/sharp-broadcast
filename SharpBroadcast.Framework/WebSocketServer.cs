@@ -52,7 +52,7 @@ namespace SharpBroadcast.Framework
             base.OnConnect(session);
 
             session.SetMaxMessageQueueSize(Session.IO_SEND, m_MediaServer.OutputQueueSize);
-            session.SetQueueOverflowAction(Session.IO_SEND, Session.ACT_KEEP_NEW);
+            session.SetQueueOverflowAction(Session.IO_SEND, Session.ACT_KEEP_OLD);
             if (m_MediaServer.OutputSocketBufferSize > 0)
                 session.SetBufferSize(Session.IO_SEND, m_MediaServer.OutputSocketBufferSize);
         }
