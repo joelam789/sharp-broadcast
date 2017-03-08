@@ -77,6 +77,7 @@
             this.colAudioServerAddress = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
             this.colAudioChannelName = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
             this.ttDevice = new System.Windows.Forms.ToolTip(this.components);
+            this.timerAutoSet = new System.Windows.Forms.Timer(this.components);
             this.gbMediaSource.SuspendLayout();
             this.gbLog.SuspendLayout();
             this.gbAction.SuspendLayout();
@@ -96,6 +97,7 @@
             this.gbMediaSource.Controls.Add(this.cbbCams);
             this.gbMediaSource.Controls.Add(this.rbtnFromUrl);
             this.gbMediaSource.Controls.Add(this.rbtnFromDevice);
+            this.gbMediaSource.Enabled = false;
             this.gbMediaSource.Location = new System.Drawing.Point(12, 12);
             this.gbMediaSource.Name = "gbMediaSource";
             this.gbMediaSource.Size = new System.Drawing.Size(400, 173);
@@ -191,6 +193,7 @@
             // 
             this.gbAction.Controls.Add(this.btnStop);
             this.gbAction.Controls.Add(this.btnStart);
+            this.gbAction.Enabled = false;
             this.gbAction.Location = new System.Drawing.Point(12, 191);
             this.gbAction.Name = "gbAction";
             this.gbAction.Size = new System.Drawing.Size(400, 87);
@@ -526,6 +529,11 @@
             this.colAudioChannelName.Text = "Channel";
             this.colAudioChannelName.Width = 100;
             // 
+            // timerAutoSet
+            // 
+            this.timerAutoSet.Interval = 500;
+            this.timerAutoSet.Tick += new System.EventHandler(this.timerAutoSet_Tick);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -604,6 +612,7 @@
         private System.Windows.Forms.TextBox edtVideoOption;
         private System.Windows.Forms.TextBox edtAudioOption;
         private System.Windows.Forms.ToolTip ttDevice;
+        private System.Windows.Forms.Timer timerAutoSet;
     }
 }
 

@@ -117,6 +117,9 @@ namespace SharpBroadcast.MediaServer
                 if (allAvailableChannels.Length > 0) LogMsg("Available Channel Names: " + allAvailableChannels);
                 else LogMsg("Any channel name would be accepted");
 
+                if (remoteValidationURL.Length > 0) LogMsg("Remote Validation URL: " + remoteValidationURL);
+                else LogMsg("Remote validation has not been set (Any connection would be accepted)");
+
                 var startedServerCount = 0;
                 var servers = m_MediaResourceManager.GetServerList();
                 foreach (var server in servers)

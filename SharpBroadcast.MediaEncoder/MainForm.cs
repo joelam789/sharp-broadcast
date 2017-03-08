@@ -25,6 +25,9 @@ namespace SharpBroadcast.MediaEncoder
 
         private string m_EncoderAAC = "";
 
+        private string m_DefaultVideoDeviceName = "";
+        private string m_DefaultAudioDeviceName = "";
+
         private VideoOutputTaskGroup m_VideoOutputTaskGroup = new VideoOutputTaskGroup();
         private AudioOutputTaskGroup m_AudioOutputTaskGroup = new AudioOutputTaskGroup();
 
@@ -313,6 +316,9 @@ namespace SharpBroadcast.MediaEncoder
             if (allKeys.Contains("VideoDeviceParam")) edtVideoOption.Text = appSettings["VideoDeviceParam"];
             if (allKeys.Contains("AudioDeviceParam")) edtAudioOption.Text = appSettings["AudioDeviceParam"];
 
+            if (allKeys.Contains("VideoDeviceName")) m_DefaultVideoDeviceName = appSettings["VideoDeviceName"];
+            if (allKeys.Contains("AudioDeviceName")) m_DefaultAudioDeviceName = appSettings["AudioDeviceName"];
+
             if (allKeys.Contains("VideoPublishTasks"))
                 m_VideoOutputTaskGroup = JsonConvert.DeserializeObject<VideoOutputTaskGroup>(appSettings["VideoPublishTasks"].ToString());
 
@@ -338,6 +344,19 @@ namespace SharpBroadcast.MediaEncoder
 
             notifyIconMain.Icon = notifyIconStop.Icon;
             notifyIconMain.Text = this.Text + " (" + notifyIconStop.Text + ")";
+
+            if (m_DefaultVideoDeviceName.Length > 0 || m_DefaultAudioDeviceName.Length > 0)
+            {
+                gbAction.Enabled = false;
+                gbMediaSource.Enabled = false;
+                timerAutoSet.Enabled = true;
+            }
+            else
+            {
+                gbAction.Enabled = true;
+                gbMediaSource.Enabled = true;
+                timerAutoSet.Enabled = false;
+            }
 
             m_UpdatedUI4Start = true;
         }
@@ -365,6 +384,8 @@ namespace SharpBroadcast.MediaEncoder
 
         private void rbtnFromDevice_CheckedChanged(object sender, EventArgs e)
         {
+            if (!gbMediaSource.Enabled) return;
+
             if (rbtnFromDevice.Checked)
             {
                 cbbCams.Enabled = true;
@@ -683,6 +704,68 @@ namespace SharpBroadcast.MediaEncoder
         {
             SaveAudioTasks();
             MessageBox.Show("Saved all audio publish tasks successfully");
+        }
+
+        private void timerAutoSet_Tick(object sender, EventArgs e)
+        {
+            timerAutoSet.Enabled = false;
+
+            int idxAudio = -1;
+            int idxVideo = -1;
+
+            List<string> videoList = new List<string>();
+            List<string> audioList = new List<string>();
+
+            try
+            {
+                gbMediaSource.Enabled = false;
+                gbAction.Enabled = false;
+
+                GetDevices(videoList, audioList);
+
+                if (m_DefaultVideoDeviceName.Length > 0 && videoList.Count > 0) idxVideo = videoList.IndexOf(m_DefaultVideoDeviceName);
+                if (m_DefaultAudioDeviceName.Length > 0 && audioList.Count > 0) idxAudio = audioList.IndexOf(m_DefaultAudioDeviceName);
+
+                if (idxVideo >= 0 || idxAudio >= 0) rbtnFromDevice.Checked = true;
+            }
+            finally
+            {
+                gbAction.Enabled = true;
+                gbMediaSource.Enabled = true;
+            }
+
+            if (idxVideo >= 0 || idxAudio >= 0)
+            {
+                cbbCams.Enabled = true;
+                cbbCams.Items.Clear();
+
+                if (cbbMics.Visible)
+                {
+                    cbbMics.Enabled = true;
+                    cbbMics.Items.Clear();
+                }
+
+                edtVideoOption.Enabled = cbbCams.Enabled;
+                edtAudioOption.Enabled = cbbMics.Enabled;
+
+                foreach (var item in videoList) cbbCams.Items.Add(item);
+
+                if (cbbMics.Visible)
+                {
+                    foreach (var item in audioList) cbbMics.Items.Add(item);
+                }
+
+                if (idxVideo >= 0 && cbbCams.Enabled)
+                {
+                    cbbCams.SelectedIndex = idxVideo;
+                    cbbCams.Text = cbbCams.Items[cbbCams.SelectedIndex].ToString();
+                }
+                if (idxAudio >= 0 && cbbMics.Enabled)
+                {
+                    cbbMics.SelectedIndex = idxAudio;
+                    cbbMics.Text = cbbMics.Items[cbbMics.SelectedIndex].ToString();
+                }
+            }
         }
         
     }
