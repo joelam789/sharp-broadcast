@@ -9,6 +9,6 @@ namespace SharpBroadcast.Framework
 {
     public interface IClientValidator
     {
-        string Validate(string requestPath);
+        string Validate(string clientIp, string requestPath);
     }
 }

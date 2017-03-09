@@ -21,9 +21,12 @@ namespace SharpBroadcast.Framework
             m_ValidationURL = validationURL;
         }
 
-        public virtual string Validate(string requestPath)
+        public virtual string Validate(string clientIp, string requestPath)
         {
-            if (requestPath == null || requestPath.Length <= 0) return "";
+            if (clientIp == null || requestPath == null) return "";
+
+            string reqPath = requestPath.Trim();
+            if (reqPath.Length <= 0) return "";
 
             bool isRemoteValidationOK = true;
 
@@ -39,7 +42,7 @@ namespace SharpBroadcast.Framework
 
                     using (var streamWriter = new StreamWriter(httpWebRequest.GetRequestStream()))
                     {
-                        streamWriter.Write(requestPath.Trim());
+                        streamWriter.Write(clientIp.Trim() + (reqPath[0] == '/' ? "" : "/") + reqPath);
                         streamWriter.Flush();
                         streamWriter.Close();
                     }
@@ -63,7 +66,7 @@ namespace SharpBroadcast.Framework
             if (isRemoteValidationOK == false) return "";
 
             List<string> paramList = new List<string>();
-            string[] parts = requestPath.Split('/');
+            string[] parts = reqPath.Split('/');
             foreach (var part in parts)
             {
                 if (part.Trim().Length > 0)

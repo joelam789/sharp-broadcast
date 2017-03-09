@@ -287,7 +287,7 @@ namespace SharpBroadcast.Framework
 
                     if (m_ClientValidator != null)
                     {
-                        target = m_ClientValidator.Validate(reqpath);
+                        target = m_ClientValidator.Validate(session.GetRemoteIp(), reqpath);
                     }
                     else
                     {
