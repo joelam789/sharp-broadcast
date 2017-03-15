@@ -18,7 +18,7 @@ namespace SharpBroadcast.Framework
         {
             ActualServer = new Server();
             ActualServer.SetIoFilter(new MessageCodec());
-            ActualServer.SetIoHandler(new ServerNetworkEventHandler(new MessageDispatcher(), server));
+            ActualServer.SetIoHandler(new ServerNetworkEventHandler(server));
 
             try
             {
@@ -41,8 +41,7 @@ namespace SharpBroadcast.Framework
     {
         IMediaServer m_MediaServer = null;
 
-        public ServerNetworkEventHandler(MessageDispatcher dispatcher, IMediaServer mediaServer)
-            : base(dispatcher)
+        public ServerNetworkEventHandler(IMediaServer mediaServer): base()
         {
             m_MediaServer = mediaServer;
         }
