@@ -51,8 +51,8 @@ namespace SharpBroadcast.MediaServer
             {
                 string json = mediaServerSettings[key];
                 ServerSetting setting = JsonConvert.DeserializeObject<ServerSetting>(json);
-                HttpSourceMediaServer mediaServer = new HttpSourceMediaServer(key, m_MediaResourceManager, CommonLog.GetLogger(), 
-                    setting.InputPort, setting.OutputPort, setting.InputWhitelist, setting.CertFile, setting.CertKey);
+                HttpSourceMediaServer mediaServer = new HttpSourceMediaServer(key, m_MediaResourceManager, CommonLog.GetLogger(),
+                    setting.InputIp, setting.InputPort, setting.OutputIp, setting.OutputPort, setting.InputWhitelist, setting.CertFile, setting.CertKey);
                 mediaServer.InputQueueSize = setting.InputQueueSize;
                 mediaServer.InputBufferSize = setting.InputBufferSize;
                 mediaServer.OutputQueueSize = setting.OutputQueueSize;

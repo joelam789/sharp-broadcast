@@ -22,7 +22,9 @@ namespace SharpBroadcast.Framework
         
         protected string m_ServerName = "";
 
+        protected string m_InputIp = "0.0.0.0"; // any ip
         protected int m_InputPort = 9210;
+        protected string m_OutputIp = "0.0.0.0"; // any ip
         protected int m_OutputPort = 9220;
 
         protected string m_CertFile = "";
@@ -54,7 +56,9 @@ namespace SharpBroadcast.Framework
         public int OutputBufferSize { get; set; }
         public int OutputSocketBufferSize { get; set; }
 
+        public string InputIp { get { return m_InputIp; } }
         public int InputPort { get { return m_InputPort; } }
+        public string OutputIp { get { return m_OutputIp; } }
         public int OutputPort { get { return m_OutputPort; } }
 
         public string ServerName { get { return m_ServerName; } }
@@ -62,8 +66,8 @@ namespace SharpBroadcast.Framework
         public IServerLogger Logger { get { return m_Logger; } }
 
         public HttpSourceMediaServer(string serverName, MediaResourceManager resourceManager, IServerLogger logger = null,
-                            int inputPort = -1, int outputPort = -1, List<string> inputWhiteList = null, 
-                            string certFile = "", string certKey = "")
+                            string inputIp = "", int inputPort = -1, string outputIp = "", int outputPort = -1, 
+                            List<string> inputWhiteList = null, string certFile = "", string certKey = "")
         {
             InputQueueSize = DEFAULT_INPUT_QUEUE_SIZE;
             InputBufferSize = DEFAULT_INPUT_BUFFER_SIZE;
@@ -82,6 +86,9 @@ namespace SharpBroadcast.Framework
 
             m_ResourceManager = resourceManager;
             m_ResourceManager.AddServer(this);
+
+            if (inputIp.Length > 0) m_InputIp = inputIp;
+            if (outputIp.Length > 0) m_OutputIp = outputIp;
 
             if (inputPort >= 0) m_InputPort = inputPort;
             if (outputPort >= 0) m_OutputPort = outputPort;
@@ -201,7 +208,7 @@ namespace SharpBroadcast.Framework
             lock (m_States)
             {
                 if (m_States.ContainsKey(channelName)) m_States.Remove(channelName); // refresh it
-                state.ServerInfo = ServerName + "(" + InputPort + "/" + OutputPort + ")";
+                state.ServerInfo = ServerName + "(" + InputIp + ":" + InputPort + "/" + OutputIp + ":" + OutputPort + ")";
                 m_States.Add(channelName, state);
             }
         }
@@ -354,7 +361,7 @@ namespace SharpBroadcast.Framework
                                         var channelState = new MediaChannelState();
                                         channelState.ChannelName = target;
                                         channelState.ClientCount = channelClientCount;
-                                        channelState.ServerInfo = m_ServerName + "(" + m_InputPort + "/" + m_OutputPort + ")";
+                                        channelState.ServerInfo = m_ServerName + "(" + m_InputIp + ":" + m_InputPort + "/" + m_OutputIp + ":" + m_OutputPort + ")";
                                         m_States.Add(target, channelState);
                                     }
                                 }
@@ -392,9 +399,12 @@ namespace SharpBroadcast.Framework
             return clients;
         }
 
-        public bool Start(int inputPort = -1, int outputPort = -1, List<string> inputWhiteList = null)
+        public bool Start(string inputIp = "", int inputPort = -1, string outputIp = "", int outputPort = -1, List<string> inputWhiteList = null)
         {
             if (m_InputServer != null || m_OutputServer != null) Stop();
+
+            if (inputIp.Length > 0) m_InputIp = inputIp;
+            if (outputIp.Length > 0) m_OutputIp = outputIp;
 
             if (inputPort >= 0) m_InputPort = inputPort;
             if (outputPort >= 0) m_OutputPort = outputPort;
@@ -419,7 +429,15 @@ namespace SharpBroadcast.Framework
                 {
                     m_InputServer = new HttpListener();
 
-                    m_InputServer.Prefixes.Add(String.Format(@"http://+:{0}/", m_InputPort));
+                    if (m_InputIp.Length > 0 && m_InputIp != "0.0.0.0")
+                    {
+                        var uri = new Uri("http://" + m_InputIp + ":" + m_InputPort, UriKind.Absolute);
+                        m_InputServer.Prefixes.Add(uri.AbsoluteUri);
+                    }
+                    else
+                    {
+                        m_InputServer.Prefixes.Add(String.Format(@"http://+:{0}/", m_InputPort));
+                    }
 
                     m_InputServer.Start();
                     m_InputListenerThread = new Thread(HandleInputRequests);
@@ -447,8 +465,16 @@ namespace SharpBroadcast.Framework
                 try
                 {
                     m_OutputServer = new WebSocketServer(this, m_CertFile, m_CertKey);
-                    m_OutputServer.ActualServer.Start(m_OutputPort);
 
+                    if (m_OutputIp.Length > 0 && m_OutputIp != "0.0.0.0")
+                    {
+                        m_OutputServer.ActualServer.Start(m_OutputIp, m_OutputPort);
+                    }
+                    else
+                    {
+                        m_OutputServer.ActualServer.Start(m_OutputPort);
+                    }
+                    
                     isServerOK = true;
                 }
                 catch (Exception ex)

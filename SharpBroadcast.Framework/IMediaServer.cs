@@ -16,7 +16,9 @@ namespace SharpBroadcast.Framework
         int OutputBufferSize { get; set; }
         int OutputSocketBufferSize { get; set; }
 
+        string InputIp { get; }
         int InputPort { get; }
+        string OutputIp { get; }
         int OutputPort { get; }
 
         IServerLogger Logger { get; }
@@ -40,7 +42,7 @@ namespace SharpBroadcast.Framework
 
         bool IsWorking();
 
-        bool Start(int inputPort = -1, int outputPort = -1, List<string> inputWhiteList = null);
+        bool Start(string inputIp = "", int inputPort = -1, string outputIp = "", int outputPort = -1, List<string> inputWhiteList = null);
         void Stop();
 
         

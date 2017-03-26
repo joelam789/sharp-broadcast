@@ -72,10 +72,11 @@
             this.colClientCount});
             this.olvClients.FullRowSelect = true;
             this.olvClients.HasCollapsibleGroups = false;
-            this.olvClients.Location = new System.Drawing.Point(12, 12);
+            this.olvClients.Location = new System.Drawing.Point(16, 15);
+            this.olvClients.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.olvClients.Name = "olvClients";
             this.olvClients.ShowGroups = false;
-            this.olvClients.Size = new System.Drawing.Size(760, 225);
+            this.olvClients.Size = new System.Drawing.Size(1012, 280);
             this.olvClients.TabIndex = 3;
             this.olvClients.UseCompatibleStateImageBehavior = false;
             this.olvClients.View = System.Windows.Forms.View.Details;
@@ -91,19 +92,19 @@
             // 
             this.colAddressInfo.AspectName = "AddressInfo";
             this.colAddressInfo.Text = "Media Source Address";
-            this.colAddressInfo.Width = 150;
+            this.colAddressInfo.Width = 130;
             // 
             // colMediaInfo
             // 
             this.colMediaInfo.AspectName = "MediaInfo";
             this.colMediaInfo.Text = "Media Info";
-            this.colMediaInfo.Width = 200;
+            this.colMediaInfo.Width = 190;
             // 
             // colServerInfo
             // 
             this.colServerInfo.AspectName = "ServerInfo";
             this.colServerInfo.Text = "Server Info";
-            this.colServerInfo.Width = 200;
+            this.colServerInfo.Width = 240;
             // 
             // colClientCount
             // 
@@ -115,28 +116,31 @@
             // 
             this.tcMain.Controls.Add(this.pageLog);
             this.tcMain.Controls.Add(this.pageWhite);
-            this.tcMain.Location = new System.Drawing.Point(12, 243);
+            this.tcMain.Location = new System.Drawing.Point(16, 304);
+            this.tcMain.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.tcMain.Name = "tcMain";
             this.tcMain.SelectedIndex = 0;
-            this.tcMain.Size = new System.Drawing.Size(760, 190);
+            this.tcMain.Size = new System.Drawing.Size(1013, 238);
             this.tcMain.TabIndex = 5;
             // 
             // pageLog
             // 
             this.pageLog.Controls.Add(this.mmLogger);
-            this.pageLog.Location = new System.Drawing.Point(4, 22);
+            this.pageLog.Location = new System.Drawing.Point(4, 25);
+            this.pageLog.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.pageLog.Name = "pageLog";
-            this.pageLog.Padding = new System.Windows.Forms.Padding(3);
-            this.pageLog.Size = new System.Drawing.Size(752, 164);
+            this.pageLog.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.pageLog.Size = new System.Drawing.Size(1005, 209);
             this.pageLog.TabIndex = 0;
             this.pageLog.Text = "Log";
             this.pageLog.UseVisualStyleBackColor = true;
             // 
             // mmLogger
             // 
-            this.mmLogger.Location = new System.Drawing.Point(6, 6);
+            this.mmLogger.Location = new System.Drawing.Point(8, 8);
+            this.mmLogger.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.mmLogger.Name = "mmLogger";
-            this.mmLogger.Size = new System.Drawing.Size(740, 149);
+            this.mmLogger.Size = new System.Drawing.Size(985, 185);
             this.mmLogger.TabIndex = 5;
             this.mmLogger.Text = "";
             // 
@@ -144,10 +148,11 @@
             // 
             this.pageWhite.Controls.Add(this.listWhitelist);
             this.pageWhite.Controls.Add(this.pnlTop);
-            this.pageWhite.Location = new System.Drawing.Point(4, 22);
+            this.pageWhite.Location = new System.Drawing.Point(4, 25);
+            this.pageWhite.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.pageWhite.Name = "pageWhite";
-            this.pageWhite.Padding = new System.Windows.Forms.Padding(3);
-            this.pageWhite.Size = new System.Drawing.Size(752, 164);
+            this.pageWhite.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.pageWhite.Size = new System.Drawing.Size(1005, 209);
             this.pageWhite.TabIndex = 1;
             this.pageWhite.Text = "Whitelist";
             this.pageWhite.UseVisualStyleBackColor = true;
@@ -155,26 +160,29 @@
             // listWhitelist
             // 
             this.listWhitelist.FormattingEnabled = true;
-            this.listWhitelist.ItemHeight = 12;
-            this.listWhitelist.Location = new System.Drawing.Point(6, 42);
+            this.listWhitelist.ItemHeight = 15;
+            this.listWhitelist.Location = new System.Drawing.Point(8, 52);
+            this.listWhitelist.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.listWhitelist.Name = "listWhitelist";
-            this.listWhitelist.Size = new System.Drawing.Size(740, 112);
+            this.listWhitelist.Size = new System.Drawing.Size(985, 139);
             this.listWhitelist.TabIndex = 2;
             // 
             // pnlTop
             // 
             this.pnlTop.Controls.Add(this.btnDel);
             this.pnlTop.Controls.Add(this.btnAdd);
-            this.pnlTop.Location = new System.Drawing.Point(6, 6);
+            this.pnlTop.Location = new System.Drawing.Point(8, 8);
+            this.pnlTop.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.pnlTop.Name = "pnlTop";
-            this.pnlTop.Size = new System.Drawing.Size(740, 30);
+            this.pnlTop.Size = new System.Drawing.Size(987, 38);
             this.pnlTop.TabIndex = 1;
             // 
             // btnDel
             // 
-            this.btnDel.Location = new System.Drawing.Point(84, 3);
+            this.btnDel.Location = new System.Drawing.Point(112, 4);
+            this.btnDel.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.btnDel.Name = "btnDel";
-            this.btnDel.Size = new System.Drawing.Size(75, 23);
+            this.btnDel.Size = new System.Drawing.Size(100, 29);
             this.btnDel.TabIndex = 1;
             this.btnDel.Text = "Delete";
             this.btnDel.UseVisualStyleBackColor = true;
@@ -182,9 +190,10 @@
             // 
             // btnAdd
             // 
-            this.btnAdd.Location = new System.Drawing.Point(3, 3);
+            this.btnAdd.Location = new System.Drawing.Point(4, 4);
+            this.btnAdd.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.btnAdd.Name = "btnAdd";
-            this.btnAdd.Size = new System.Drawing.Size(75, 23);
+            this.btnAdd.Size = new System.Drawing.Size(100, 29);
             this.btnAdd.TabIndex = 0;
             this.btnAdd.Text = "Add";
             this.btnAdd.UseVisualStyleBackColor = true;
@@ -209,30 +218,31 @@
             this.toolStripMenuItem1,
             this.toolStripMenuItem2});
             this.menuNotify.Name = "menuNotify";
-            this.menuNotify.Size = new System.Drawing.Size(106, 48);
+            this.menuNotify.Size = new System.Drawing.Size(119, 52);
             this.menuNotify.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.menuNotify_ItemClicked);
             // 
             // toolStripMenuItem1
             // 
             this.toolStripMenuItem1.Name = "toolStripMenuItem1";
-            this.toolStripMenuItem1.Size = new System.Drawing.Size(105, 22);
+            this.toolStripMenuItem1.Size = new System.Drawing.Size(118, 24);
             this.toolStripMenuItem1.Tag = "1";
             this.toolStripMenuItem1.Text = "Show";
             // 
             // toolStripMenuItem2
             // 
             this.toolStripMenuItem2.Name = "toolStripMenuItem2";
-            this.toolStripMenuItem2.Size = new System.Drawing.Size(105, 22);
+            this.toolStripMenuItem2.Size = new System.Drawing.Size(118, 24);
             this.toolStripMenuItem2.Tag = "2";
             this.toolStripMenuItem2.Text = "Exit";
             // 
             // MainForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(784, 441);
+            this.ClientSize = new System.Drawing.Size(1045, 551);
             this.Controls.Add(this.tcMain);
             this.Controls.Add(this.olvClients);
+            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.Name = "MainForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Media Server";
