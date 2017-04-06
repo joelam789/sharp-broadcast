@@ -39,7 +39,7 @@
             this.rbtnFromUrl = new System.Windows.Forms.RadioButton();
             this.rbtnFromDevice = new System.Windows.Forms.RadioButton();
             this.gbLog = new System.Windows.Forms.GroupBox();
-            this.mmLogger = new System.Windows.Forms.RichTextBox();
+            this.mmVideoLogger = new System.Windows.Forms.RichTextBox();
             this.gbAction = new System.Windows.Forms.GroupBox();
             this.btnStop = new System.Windows.Forms.Button();
             this.btnStart = new System.Windows.Forms.Button();
@@ -78,6 +78,11 @@
             this.colAudioChannelName = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
             this.ttDevice = new System.Windows.Forms.ToolTip(this.components);
             this.timerAutoSet = new System.Windows.Forms.Timer(this.components);
+            this.mmAudioLogger = new System.Windows.Forms.RichTextBox();
+            this.ckbAutoRestart = new System.Windows.Forms.CheckBox();
+            this.lblRestartInterval = new System.Windows.Forms.Label();
+            this.timerRestartVideo = new System.Windows.Forms.Timer(this.components);
+            this.timerRestartAudio = new System.Windows.Forms.Timer(this.components);
             this.gbMediaSource.SuspendLayout();
             this.gbLog.SuspendLayout();
             this.gbAction.SuspendLayout();
@@ -100,7 +105,7 @@
             this.gbMediaSource.Enabled = false;
             this.gbMediaSource.Location = new System.Drawing.Point(12, 12);
             this.gbMediaSource.Name = "gbMediaSource";
-            this.gbMediaSource.Size = new System.Drawing.Size(400, 173);
+            this.gbMediaSource.Size = new System.Drawing.Size(400, 161);
             this.gbMediaSource.TabIndex = 0;
             this.gbMediaSource.TabStop = false;
             this.gbMediaSource.Text = "Media Source";
@@ -132,7 +137,7 @@
             // 
             // edtUrlSource
             // 
-            this.edtUrlSource.Location = new System.Drawing.Point(18, 136);
+            this.edtUrlSource.Location = new System.Drawing.Point(18, 129);
             this.edtUrlSource.Name = "edtUrlSource";
             this.edtUrlSource.Size = new System.Drawing.Size(370, 22);
             this.edtUrlSource.TabIndex = 3;
@@ -150,7 +155,7 @@
             // rbtnFromUrl
             // 
             this.rbtnFromUrl.AutoSize = true;
-            this.rbtnFromUrl.Location = new System.Drawing.Point(18, 114);
+            this.rbtnFromUrl.Location = new System.Drawing.Point(18, 107);
             this.rbtnFromUrl.Name = "rbtnFromUrl";
             this.rbtnFromUrl.Size = new System.Drawing.Size(74, 16);
             this.rbtnFromUrl.TabIndex = 1;
@@ -173,39 +178,42 @@
             // 
             // gbLog
             // 
-            this.gbLog.Controls.Add(this.mmLogger);
+            this.gbLog.Controls.Add(this.mmAudioLogger);
+            this.gbLog.Controls.Add(this.mmVideoLogger);
             this.gbLog.Location = new System.Drawing.Point(12, 284);
             this.gbLog.Name = "gbLog";
-            this.gbLog.Size = new System.Drawing.Size(986, 230);
+            this.gbLog.Size = new System.Drawing.Size(986, 370);
             this.gbLog.TabIndex = 3;
             this.gbLog.TabStop = false;
             this.gbLog.Text = "Log";
             // 
-            // mmLogger
+            // mmVideoLogger
             // 
-            this.mmLogger.Location = new System.Drawing.Point(8, 21);
-            this.mmLogger.Name = "mmLogger";
-            this.mmLogger.Size = new System.Drawing.Size(971, 200);
-            this.mmLogger.TabIndex = 0;
-            this.mmLogger.Text = "";
+            this.mmVideoLogger.Location = new System.Drawing.Point(6, 19);
+            this.mmVideoLogger.Name = "mmVideoLogger";
+            this.mmVideoLogger.Size = new System.Drawing.Size(974, 170);
+            this.mmVideoLogger.TabIndex = 0;
+            this.mmVideoLogger.Text = "";
             // 
             // gbAction
             // 
+            this.gbAction.Controls.Add(this.lblRestartInterval);
+            this.gbAction.Controls.Add(this.ckbAutoRestart);
             this.gbAction.Controls.Add(this.btnStop);
             this.gbAction.Controls.Add(this.btnStart);
             this.gbAction.Enabled = false;
-            this.gbAction.Location = new System.Drawing.Point(12, 191);
+            this.gbAction.Location = new System.Drawing.Point(12, 179);
             this.gbAction.Name = "gbAction";
-            this.gbAction.Size = new System.Drawing.Size(400, 87);
+            this.gbAction.Size = new System.Drawing.Size(400, 99);
             this.gbAction.TabIndex = 4;
             this.gbAction.TabStop = false;
             this.gbAction.Text = "Action";
             // 
             // btnStop
             // 
-            this.btnStop.Location = new System.Drawing.Point(208, 21);
+            this.btnStop.Location = new System.Drawing.Point(208, 43);
             this.btnStop.Name = "btnStop";
-            this.btnStop.Size = new System.Drawing.Size(180, 50);
+            this.btnStop.Size = new System.Drawing.Size(180, 45);
             this.btnStop.TabIndex = 1;
             this.btnStop.Text = "STOP";
             this.btnStop.UseVisualStyleBackColor = true;
@@ -213,9 +221,9 @@
             // 
             // btnStart
             // 
-            this.btnStart.Location = new System.Drawing.Point(18, 21);
+            this.btnStart.Location = new System.Drawing.Point(18, 43);
             this.btnStart.Name = "btnStart";
-            this.btnStart.Size = new System.Drawing.Size(180, 50);
+            this.btnStart.Size = new System.Drawing.Size(180, 45);
             this.btnStart.TabIndex = 0;
             this.btnStart.Text = "START";
             this.btnStart.UseVisualStyleBackColor = true;
@@ -534,11 +542,46 @@
             this.timerAutoSet.Interval = 500;
             this.timerAutoSet.Tick += new System.EventHandler(this.timerAutoSet_Tick);
             // 
+            // mmAudioLogger
+            // 
+            this.mmAudioLogger.Location = new System.Drawing.Point(6, 195);
+            this.mmAudioLogger.Name = "mmAudioLogger";
+            this.mmAudioLogger.Size = new System.Drawing.Size(974, 170);
+            this.mmAudioLogger.TabIndex = 1;
+            this.mmAudioLogger.Text = "";
+            // 
+            // ckbAutoRestart
+            // 
+            this.ckbAutoRestart.AutoSize = true;
+            this.ckbAutoRestart.Location = new System.Drawing.Point(20, 21);
+            this.ckbAutoRestart.Name = "ckbAutoRestart";
+            this.ckbAutoRestart.Size = new System.Drawing.Size(78, 16);
+            this.ckbAutoRestart.TabIndex = 2;
+            this.ckbAutoRestart.Text = "Auto restart";
+            this.ckbAutoRestart.UseVisualStyleBackColor = true;
+            // 
+            // lblRestartInterval
+            // 
+            this.lblRestartInterval.AutoSize = true;
+            this.lblRestartInterval.Location = new System.Drawing.Point(97, 22);
+            this.lblRestartInterval.Name = "lblRestartInterval";
+            this.lblRestartInterval.Size = new System.Drawing.Size(165, 12);
+            this.lblRestartInterval.TabIndex = 5;
+            this.lblRestartInterval.Text = "(restart in 5 seconds once stopped)";
+            // 
+            // timerRestartVideo
+            // 
+            this.timerRestartVideo.Tick += new System.EventHandler(this.timerRestartVideo_Tick);
+            // 
+            // timerRestartAudio
+            // 
+            this.timerRestartAudio.Tick += new System.EventHandler(this.timerRestartAudio_Tick);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1004, 521);
+            this.ClientSize = new System.Drawing.Size(1004, 661);
             this.Controls.Add(this.gbAudioTask);
             this.Controls.Add(this.gbVideoTask);
             this.Controls.Add(this.gbAction);
@@ -554,6 +597,7 @@
             this.gbMediaSource.PerformLayout();
             this.gbLog.ResumeLayout(false);
             this.gbAction.ResumeLayout(false);
+            this.gbAction.PerformLayout();
             this.menuNotify.ResumeLayout(false);
             this.gbVideoTask.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.olvVideoTasks)).EndInit();
@@ -571,7 +615,7 @@
         private System.Windows.Forms.ComboBox cbbCams;
         private System.Windows.Forms.TextBox edtUrlSource;
         private System.Windows.Forms.GroupBox gbLog;
-        private System.Windows.Forms.RichTextBox mmLogger;
+        private System.Windows.Forms.RichTextBox mmVideoLogger;
         private System.Windows.Forms.GroupBox gbAction;
         private System.Windows.Forms.Button btnStart;
         private System.Windows.Forms.Button btnStop;
@@ -613,6 +657,11 @@
         private System.Windows.Forms.TextBox edtAudioOption;
         private System.Windows.Forms.ToolTip ttDevice;
         private System.Windows.Forms.Timer timerAutoSet;
+        private System.Windows.Forms.RichTextBox mmAudioLogger;
+        private System.Windows.Forms.CheckBox ckbAutoRestart;
+        private System.Windows.Forms.Label lblRestartInterval;
+        private System.Windows.Forms.Timer timerRestartVideo;
+        private System.Windows.Forms.Timer timerRestartAudio;
     }
 }
 

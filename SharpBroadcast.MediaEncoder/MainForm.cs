@@ -19,7 +19,8 @@ namespace SharpBroadcast.MediaEncoder
 {
     public partial class MainForm : Form
     {
-        private ProcessIoWrapper m_ProcessIoWrapper = null;
+        private ProcessIoWrapper m_VideoProcess = null;
+        private ProcessIoWrapper m_AudioProcess = null;
 
         private bool m_UpdatedUI4Start = false;
 
@@ -27,6 +28,9 @@ namespace SharpBroadcast.MediaEncoder
 
         private string m_DefaultVideoDeviceName = "";
         private string m_DefaultAudioDeviceName = "";
+
+        private string m_VideoArgs = "";
+        private string m_AudioArgs = "";
 
         private VideoOutputTaskGroup m_VideoOutputTaskGroup = new VideoOutputTaskGroup();
         private AudioOutputTaskGroup m_AudioOutputTaskGroup = new AudioOutputTaskGroup();
@@ -138,50 +142,81 @@ namespace SharpBroadcast.MediaEncoder
 
         }
 
-        private void StopRunningProcess()
+        private void StopRunningProcesses()
         {
             try
             {
-                if (m_ProcessIoWrapper != null) m_ProcessIoWrapper.StopRunningProcess();
+                if (m_VideoProcess != null) m_VideoProcess.StopRunningProcess();
             }
             catch { }
-  
-            m_ProcessIoWrapper = null;
+
+            m_VideoProcess = null;
+
+            try
+            {
+                if (m_AudioProcess != null) m_AudioProcess.StopRunningProcess();
+            }
+            catch { }
+
+            m_AudioProcess = null;
         }
 
-        private void Log(string text)
+        private void Log4Video(string text)
         {
-            if (mmLogger.Lines.Length > 1024)
+            if (mmVideoLogger.Lines.Length > 1024)
             {
-                List<string> finalLines = mmLogger.Lines.ToList();
+                List<string> finalLines = mmVideoLogger.Lines.ToList();
                 finalLines.RemoveRange(0, 512);
-                mmLogger.Lines = finalLines.ToArray();
+                mmVideoLogger.Lines = finalLines.ToArray();
             }
 
             //mmLogger.AppendText("[" + DateTime.Now.ToString("HH:mm:ss") + "] " + text);
-            mmLogger.AppendText(text);
-            mmLogger.SelectionStart = mmLogger.Text.Length;
-            mmLogger.ScrollToCaret();
+            mmVideoLogger.AppendText(text);
+            mmVideoLogger.SelectionStart = mmVideoLogger.Text.Length;
+            mmVideoLogger.ScrollToCaret();
         }
 
-        public void LogMsg(string msg)
+        public void LogVideoMsg(string msg)
         {
             BeginInvoke((Action)(() =>
             {
-                Log(msg);
+                Log4Video(msg);
             }));
         }
 
-        public string GenInputPart()
+        private void Log4Audio(string text)
         {
-            string input = "";
+            if (mmAudioLogger.Lines.Length > 1024)
+            {
+                List<string> finalLines = mmAudioLogger.Lines.ToList();
+                finalLines.RemoveRange(0, 512);
+                mmAudioLogger.Lines = finalLines.ToArray();
+            }
+
+            //mmLogger.AppendText("[" + DateTime.Now.ToString("HH:mm:ss") + "] " + text);
+            mmAudioLogger.AppendText(text);
+            mmAudioLogger.SelectionStart = mmAudioLogger.Text.Length;
+            mmAudioLogger.ScrollToCaret();
+        }
+
+        public void LogAudioMsg(string msg)
+        {
+            BeginInvoke((Action)(() =>
+            {
+                Log4Audio(msg);
+            }));
+        }
+
+        public List<string> GenInputPart()
+        {
+            List<string> inputList = new List<string>();
 
             if (rbtnFromDevice.Checked)
             {
                 if (cbbCams.SelectedIndex < 0 && cbbMics.SelectedIndex < 0)
                 {
                     MessageBox.Show("Please select a device.");
-                    return "";
+                    return inputList;
                 }
                 else
                 {
@@ -195,7 +230,13 @@ namespace SharpBroadcast.MediaEncoder
                     string audioOptions = (audioDevice.Length > 0 && edtAudioOption.Enabled)
                                             ? edtAudioOption.Text : "";
 
-                    input = CommandGenerator.GenInputPart(videoDevice, audioDevice, videoOptions, audioOptions);
+                    //input = CommandGenerator.GenInputPart(videoDevice, audioDevice, videoOptions, audioOptions);
+
+                    var videoInput = CommandGenerator.GenInputPart(videoDevice, "", videoOptions, "");
+                    var audioInput = CommandGenerator.GenInputPart("", audioDevice, "", audioOptions);
+
+                    inputList.Add(videoInput.Trim());
+                    inputList.Add(audioInput.Trim());
                 }
             }
 
@@ -204,15 +245,17 @@ namespace SharpBroadcast.MediaEncoder
                 if (edtUrlSource.Text.Trim().Length <= 0)
                 {
                     MessageBox.Show("Please input the URL source.");
-                    return "";
+                    return inputList;
                 }
                 else
                 {
-                    input = CommandGenerator.GenInputPart(edtUrlSource.Text.Trim());
+                    var input = CommandGenerator.GenInputPart(edtUrlSource.Text.Trim());
+
+                    inputList.Add(input.Trim());
                 }
             }
 
-            return input;
+            return inputList;
 
         }
 
@@ -265,34 +308,104 @@ namespace SharpBroadcast.MediaEncoder
         //    LogMsg(text);
         //}
 
-        private void OnStderrTextRead(string text)
+        private void OnVideoStderrTextRead(string text)
         {
-            LogMsg(text);
+            LogVideoMsg(text);
         }
 
-        private void OnProcessExited()
+        private void OnVideoProcessExited()
         {
-            BeginInvoke((Action)(() =>
+            if (m_VideoProcess != null && m_VideoProcess.HasExited())
             {
-                try
+                if (ckbAutoRestart.Checked && timerRestartVideo.Interval >= 1000)
                 {
-                    if (!m_UpdatedUI4Start)
+                    BeginInvoke((Action)(() =>
                     {
-                        m_UpdatedUI4Start = true;
-
-                        gbMediaSource.Enabled = true;
-                        gbVideoTask.Enabled = true;
-                        gbAudioTask.Enabled = true;
-
-                        btnStart.Enabled = true;
-                        btnStop.Enabled = false;
-
-                        notifyIconMain.Icon = notifyIconStop.Icon;
-                        notifyIconMain.Text = this.Text + " (" + notifyIconStop.Text + ")";
-                    }
+                        timerRestartVideo.Enabled = true;
+                        timerRestartVideo.Start();
+                    }));
+                    
+                    LogVideoMsg("\n");
+                    LogVideoMsg("Video process will be restarted in " + (timerRestartVideo.Interval / 1000) + " second(s) ... \n");
+                    return;
                 }
-                catch { }
-            }));
+            }
+
+            if ((m_VideoProcess == null || m_VideoProcess.HasExited())
+                && (m_AudioProcess == null || m_AudioProcess.HasExited()))
+            {
+                BeginInvoke((Action)(() =>
+                {
+                    try
+                    {
+                        if (!m_UpdatedUI4Start)
+                        {
+                            m_UpdatedUI4Start = true;
+
+                            gbMediaSource.Enabled = true;
+                            gbVideoTask.Enabled = true;
+                            gbAudioTask.Enabled = true;
+
+                            btnStart.Enabled = true;
+                            btnStop.Enabled = true;
+
+                            notifyIconMain.Icon = notifyIconStop.Icon;
+                            notifyIconMain.Text = this.Text + " (" + notifyIconStop.Text + ")";
+                        }
+                    }
+                    catch { }
+                }));
+            }
+        }
+
+        private void OnAudioStderrTextRead(string text)
+        {
+            LogAudioMsg(text);
+        }
+
+        private void OnAudioProcessExited()
+        {
+            if (m_AudioProcess != null && m_AudioProcess.HasExited())
+            {
+                if (ckbAutoRestart.Checked && timerRestartAudio.Interval >= 1000)
+                {
+                    BeginInvoke((Action)(() =>
+                    {
+                        timerRestartAudio.Enabled = true;
+                        timerRestartAudio.Start();
+                    }));
+
+                    LogAudioMsg("\n");
+                    LogAudioMsg("Audio process will be restarted in " + (timerRestartAudio.Interval / 1000) + " second(s) ... \n");
+                    return;
+                }
+            }
+
+            if ((m_VideoProcess == null || m_VideoProcess.HasExited())
+                && (m_AudioProcess == null || m_AudioProcess.HasExited()))
+            {
+                BeginInvoke((Action)(() =>
+                {
+                    try
+                    {
+                        if (!m_UpdatedUI4Start)
+                        {
+                            m_UpdatedUI4Start = true;
+
+                            gbMediaSource.Enabled = true;
+                            gbVideoTask.Enabled = true;
+                            gbAudioTask.Enabled = true;
+
+                            btnStart.Enabled = true;
+                            btnStop.Enabled = true;
+
+                            notifyIconMain.Icon = notifyIconStop.Icon;
+                            notifyIconMain.Text = this.Text + " (" + notifyIconStop.Text + ")";
+                        }
+                    }
+                    catch { }
+                }));
+            }
         }
 
         private void MainForm_Load(object sender, EventArgs e)
@@ -304,7 +417,7 @@ namespace SharpBroadcast.MediaEncoder
             edtUrlSource.Enabled = true;
 
             btnStart.Enabled = true;
-            btnStop.Enabled = false;
+            btnStop.Enabled = true;
 
             bool needAudio = false;
 
@@ -312,6 +425,28 @@ namespace SharpBroadcast.MediaEncoder
             var allKeys = appSettings.AllKeys;
 
             if (allKeys.Contains("EncoderAAC")) m_EncoderAAC = appSettings["EncoderAAC"];
+
+            int interval = 0;
+            if (allKeys.Contains("AutoRestartInterval")) int.TryParse(appSettings["AutoRestartInterval"], out interval);
+            if (interval > 0)
+            {
+                timerRestartVideo.Interval = 1000 * interval;
+                timerRestartAudio.Interval = 1000 * interval;
+                ckbAutoRestart.Checked = true;
+                ckbAutoRestart.Enabled = true;
+
+                if (interval <= 1) lblRestartInterval.Text = "(restart in 1 second once stopped)";
+                else lblRestartInterval.Text = "(restart in " + interval + " seconds once stopped)";
+            }
+            else
+            {
+                timerRestartVideo.Interval = 100;
+                timerRestartAudio.Interval = 100;
+                ckbAutoRestart.Checked = false;
+                ckbAutoRestart.Enabled = false;
+
+                lblRestartInterval.Text = "(disabled)";
+            }
 
             if (allKeys.Contains("VideoDeviceParam")) edtVideoOption.Text = appSettings["VideoDeviceParam"];
             if (allKeys.Contains("AudioDeviceParam")) edtAudioOption.Text = appSettings["AudioDeviceParam"];
@@ -365,7 +500,7 @@ namespace SharpBroadcast.MediaEncoder
         {
             if (MessageBox.Show("Are you sure you want to quit ?", this.Text, MessageBoxButtons.YesNo) == DialogResult.Yes)
             {
-                StopRunningProcess();
+                StopRunningProcesses();
                 e.Cancel = false;
             }
             else
@@ -435,23 +570,44 @@ namespace SharpBroadcast.MediaEncoder
 
         private void btnStart_Click(object sender, EventArgs e)
         {
-            string input = "";
+            if (ckbAutoRestart.Enabled && !ckbAutoRestart.Checked)
+            {
+                if (MessageBox.Show("Do you want to enable 'auto-restart' at the same time ?", this.Text, MessageBoxButtons.YesNo) == DialogResult.Yes)
+                {
+                    ckbAutoRestart.Checked = true;
+                }
+            }
+
+            List<string> input = new List<string>();
 
             string outputVideo = "";
             string outputAudio = "";
 
             input = GenInputPart();
-            if (input.Length <= 0) return;
+            if (input.Count <= 0) return;
 
             outputVideo = CommandGenerator.GenVideoOutputPart(m_VideoOutputTaskGroup.Tasks);
             outputAudio = CommandGenerator.GenAudioOutputPart(m_AudioOutputTaskGroup.Tasks, m_EncoderAAC);
 
             if (outputVideo.Length <= 0 && outputAudio.Length <= 0) return;
 
-            string args = input + " " + outputVideo + " " + outputAudio;
+            if (input.Count <= 1)
+            {
+                m_VideoArgs = input[0] + " " + outputVideo + " " + outputAudio;
+                m_AudioArgs = "";
+            }
+            else
+            {
+                m_VideoArgs = outputVideo.Trim().Length <= 0 ? "" : (input[0].Trim().Length > 0 ? input[0] + " " + outputVideo : "");
+                m_AudioArgs = outputAudio.Trim().Length <= 0 ? "" : (input[1].Trim().Length > 0 ? input[1] + " " + outputAudio : "");
+            }
+
+            m_VideoArgs = m_VideoArgs.Trim();
+            m_AudioArgs = m_AudioArgs.Trim();
 
             //MessageBox.Show(args);
-            Console.WriteLine(args);
+            Console.WriteLine(m_VideoArgs);
+            Console.WriteLine(m_AudioArgs);
 
             gbMediaSource.Enabled = false;
             gbVideoTask.Enabled = false;
@@ -464,23 +620,44 @@ namespace SharpBroadcast.MediaEncoder
 
             try
             {
-                StopRunningProcess();
+                StopRunningProcesses();
 
-                mmLogger.Clear();
+                mmVideoLogger.Clear();
+                mmAudioLogger.Clear();
 
-                if (args.Contains("-f nut pipe:1"))
+                if (m_VideoArgs.Length > 0)
                 {
-                    m_ProcessIoWrapper = new ProcessIoWrapper("cmd", "/C ffmpeg " + args, ProcessIoWrapper.FLAG_INPUT | ProcessIoWrapper.FLAG_ERROR);
+                    if (m_VideoArgs.Contains("-f nut pipe:1"))
+                    {
+                        m_VideoProcess = new ProcessIoWrapper("cmd", "/C ffmpeg " + m_VideoArgs, ProcessIoWrapper.FLAG_INPUT | ProcessIoWrapper.FLAG_ERROR);
+                    }
+                    else
+                    {
+                        m_VideoProcess = new ProcessIoWrapper("ffmpeg", m_VideoArgs, ProcessIoWrapper.FLAG_INPUT | ProcessIoWrapper.FLAG_ERROR);
+                    }
+
+                    //m_ProcessIoWrapper.OnStandardOutputTextRead = new Action<string>((text) => { OnStderrTextRead(text); });
+                    m_VideoProcess.OnStandardErrorTextRead = new Action<string>((text) => { OnVideoStderrTextRead(text); });
+                    m_VideoProcess.OnProcessExited = new Action(() => { OnVideoProcessExited(); });
+                    m_VideoProcess.StartProcess();
                 }
-                else
+
+                if (m_AudioArgs.Length > 0)
                 {
-                    m_ProcessIoWrapper = new ProcessIoWrapper("ffmpeg", args, ProcessIoWrapper.FLAG_INPUT | ProcessIoWrapper.FLAG_ERROR);
+                    if (m_AudioArgs.Contains("-f nut pipe:1"))
+                    {
+                        m_AudioProcess = new ProcessIoWrapper("cmd", "/C ffmpeg " + m_AudioArgs, ProcessIoWrapper.FLAG_INPUT | ProcessIoWrapper.FLAG_ERROR);
+                    }
+                    else
+                    {
+                        m_AudioProcess = new ProcessIoWrapper("ffmpeg", m_AudioArgs, ProcessIoWrapper.FLAG_INPUT | ProcessIoWrapper.FLAG_ERROR);
+                    }
+
+                    //m_ProcessIoWrapper.OnStandardOutputTextRead = new Action<string>((text) => { OnStderrTextRead(text); });
+                    m_AudioProcess.OnStandardErrorTextRead = new Action<string>((text) => { OnAudioStderrTextRead(text); });
+                    m_AudioProcess.OnProcessExited = new Action(() => { OnAudioProcessExited(); });
+                    m_AudioProcess.StartProcess();
                 }
-                
-                //m_ProcessIoWrapper.OnStandardOutputTextRead = new Action<string>((text) => { OnStderrTextRead(text); });
-                m_ProcessIoWrapper.OnStandardErrorTextRead = new Action<string>((text) => { OnStderrTextRead(text); });
-                m_ProcessIoWrapper.OnProcessExited = new Action(() => { OnProcessExited(); });
-                m_ProcessIoWrapper.StartProcess();
 
                 btnStop.Enabled = true;
 
@@ -505,9 +682,17 @@ namespace SharpBroadcast.MediaEncoder
 
             btnStop.Enabled = false;
 
-            if (m_ProcessIoWrapper != null)
+            if (ckbAutoRestart.Enabled) ckbAutoRestart.Checked = false;
+
+            if (m_VideoProcess != null)
             {
-                m_ProcessIoWrapper.WriteStandardInput("q\n");
+                m_VideoProcess.WriteStandardInput("q\n");
+                //Thread.Sleep(500);
+            }
+
+            if (m_AudioProcess != null)
+            {
+                m_AudioProcess.WriteStandardInput("q\n");
                 //Thread.Sleep(500);
             }
 
@@ -517,9 +702,10 @@ namespace SharpBroadcast.MediaEncoder
             })
             .ContinueWith((x) =>
             {
-                if (m_ProcessIoWrapper != null && !m_ProcessIoWrapper.HasExited())
+                if ((m_VideoProcess != null && !m_VideoProcess.HasExited())
+                    || (m_AudioProcess != null && !m_AudioProcess.HasExited()))
                 {
-                    StopRunningProcess();
+                    StopRunningProcesses();
 
                     Task.Factory.StartNew(() =>
                     {
@@ -562,6 +748,7 @@ namespace SharpBroadcast.MediaEncoder
                 }
             });
 
+            btnStop.Enabled = true;
         }
 
         private void notifyIconMain_DoubleClick(object sender, EventArgs e)
@@ -765,6 +952,78 @@ namespace SharpBroadcast.MediaEncoder
                     cbbMics.SelectedIndex = idxAudio;
                     cbbMics.Text = cbbMics.Items[cbbMics.SelectedIndex].ToString();
                 }
+            }
+        }
+
+        private void timerRestartVideo_Tick(object sender, EventArgs e)
+        {
+            timerRestartVideo.Stop();
+            timerRestartVideo.Enabled = false;
+
+            if (!ckbAutoRestart.Checked || timerRestartVideo.Interval < 1000)
+            {
+                LogVideoMsg("Cancelled video restart.\n");
+                return;
+            }
+            if (m_VideoProcess != null && !m_VideoProcess.HasExited()) return;
+
+            if (m_VideoArgs.Length > 0)
+            {
+                try
+                {
+                    if (m_VideoProcess != null) m_VideoProcess.StopRunningProcess();
+                }
+                catch { }
+
+                if (m_VideoArgs.Contains("-f nut pipe:1"))
+                {
+                    m_VideoProcess = new ProcessIoWrapper("cmd", "/C ffmpeg " + m_VideoArgs, ProcessIoWrapper.FLAG_INPUT | ProcessIoWrapper.FLAG_ERROR);
+                }
+                else
+                {
+                    m_VideoProcess = new ProcessIoWrapper("ffmpeg", m_VideoArgs, ProcessIoWrapper.FLAG_INPUT | ProcessIoWrapper.FLAG_ERROR);
+                }
+
+                //m_ProcessIoWrapper.OnStandardOutputTextRead = new Action<string>((text) => { OnStderrTextRead(text); });
+                m_VideoProcess.OnStandardErrorTextRead = new Action<string>((text) => { OnVideoStderrTextRead(text); });
+                m_VideoProcess.OnProcessExited = new Action(() => { OnVideoProcessExited(); });
+                m_VideoProcess.StartProcess();
+            }
+        }
+
+        private void timerRestartAudio_Tick(object sender, EventArgs e)
+        {
+            timerRestartAudio.Stop();
+            timerRestartAudio.Enabled = false;
+
+            if (!ckbAutoRestart.Checked || timerRestartAudio.Interval < 1000)
+            {
+                LogAudioMsg("Cancelled audio restart.\n");
+                return;
+            }
+            if (m_AudioProcess != null && !m_AudioProcess.HasExited()) return;
+
+            if (m_AudioArgs.Length > 0)
+            {
+                try
+                {
+                    if (m_AudioProcess != null) m_AudioProcess.StopRunningProcess();
+                }
+                catch { }
+
+                if (m_AudioArgs.Contains("-f nut pipe:1"))
+                {
+                    m_AudioProcess = new ProcessIoWrapper("cmd", "/C ffmpeg " + m_AudioArgs, ProcessIoWrapper.FLAG_INPUT | ProcessIoWrapper.FLAG_ERROR);
+                }
+                else
+                {
+                    m_AudioProcess = new ProcessIoWrapper("ffmpeg", m_AudioArgs, ProcessIoWrapper.FLAG_INPUT | ProcessIoWrapper.FLAG_ERROR);
+                }
+
+                //m_ProcessIoWrapper.OnStandardOutputTextRead = new Action<string>((text) => { OnStderrTextRead(text); });
+                m_AudioProcess.OnStandardErrorTextRead = new Action<string>((text) => { OnAudioStderrTextRead(text); });
+                m_AudioProcess.OnProcessExited = new Action(() => { OnAudioProcessExited(); });
+                m_AudioProcess.StartProcess();
             }
         }
         
