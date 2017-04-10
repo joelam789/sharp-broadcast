@@ -14,7 +14,7 @@ Features:
 5. Support latest versions of Chrome/Firefox/Safari/Edge\*\* on both desktop and mobile platforms
 
 
-\* jsmpeg supports both MPEG1 video and MP2 audio since v0.2
+\* jsmpeg supports both MPEG1 video and MP2 audio since v1.0
 
 \*\* video (both MPEG-1 and H.264) could be played even on IE11
 
