@@ -74,6 +74,8 @@ namespace SharpBroadcast.Framework
 
                     string vinfo = "";
 
+                    // new jsmepg would not need "header" message anymore
+                    /*
                     lock (m_Headers)
                     {
                         if (m_Headers.ContainsKey(sourceName)) m_Headers.Remove(sourceName); // refresh it
@@ -103,11 +105,35 @@ namespace SharpBroadcast.Framework
                         byte[] header = GenHeader(width, height);
                         m_Headers.Add(sourceName, header);
                     }
+                    */
+
+                    if (mediaInfo.Length > 0)
+                    {
+                        try
+                        {
+                            var mpegInfo = mediaInfo.Replace("/", "");
+                            if (mpegInfo.Contains('(') && mpegInfo.Contains(')'))
+                                mpegInfo = mpegInfo.Substring(mpegInfo.IndexOf('(') + 1,
+                                    mpegInfo.IndexOf(')') - mpegInfo.IndexOf('(') - 1);
+
+                            vinfo = mpegInfo;
+                            var parts = (vinfo.Split('@')[0]).Split('x');
+
+                            if (parts.Length > 0) width = Convert.ToInt16(parts[0]);
+                            if (parts.Length > 1) height = Convert.ToInt16(parts[1]);
+                        }
+                        catch
+                        {
+                            width = VIDEO_DEFAULT_WIDTH;
+                            height = VIDEO_DEFAULT_HEIGHT;
+                        }
+                    }
 
                     if (vinfo.Length <= 0) vinfo = width + "x" + height;
                 }
 
-                channel.SetWelcomeData(GetWelcomeData(sourceName));
+                // new jsmepg would not need "header" message anymore
+                //channel.SetWelcomeData(GetWelcomeData(sourceName));
 
                 int inputBufferSize = mediaServer.InputBufferSize > 0 ? mediaServer.InputBufferSize : 1;
 

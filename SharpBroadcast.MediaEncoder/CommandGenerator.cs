@@ -39,7 +39,7 @@ namespace SharpBroadcast.MediaEncoder
 
         public static string GenVideoOutputPart(VideoOutputTask task)
         {
-            string output = " -an -s " + task.Resolution 
+            string output = " -s " + task.Resolution 
                             + (task.FPS > 0 ? (" -r " + task.FPS) : "")
                             + (task.Bitrate > 0 ? (" -b:v " + task.Bitrate + "k ") : "") 
                             ;
@@ -51,8 +51,9 @@ namespace SharpBroadcast.MediaEncoder
 
             if (task.VideoType == "mpeg")
             {
+                output += " -codec:v mpeg1video -bf 0 ";
                 if (task.ExtraParam.Length > 0) output += " " + task.ExtraParam + " ";
-                output += " -f mpeg1video ";
+                output += " -f mpegts ";
                 output += serverUrl + "/" + task.ChannelName + "/" + task.VideoType + "/" + task.Resolution 
                             + (task.FPS > 0 ? ("x" + task.FPS) : "")
                             + (task.Bitrate > 0 ? ("" + '@' + task.Bitrate + "kbps") : "") 
@@ -60,7 +61,7 @@ namespace SharpBroadcast.MediaEncoder
             }
             else if (task.VideoType == "h264")
             {
-                output += " -vcodec libx264 -tune zerolatency -pass 1 -coder 0 -bf 0 -flags -loop -wpredp 0 ";
+                output += " -an -vcodec libx264 -tune zerolatency -pass 1 -coder 0 -bf 0 -flags -loop -wpredp 0 ";
                 if (task.PixelFormat.Length > 0) output += " -pix_fmt " + task.PixelFormat;
                 if (task.ExtraParam.Length > 0) output += " " + task.ExtraParam + " ";
                 output += " -f h264 ";

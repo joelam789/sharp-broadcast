@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             this.gbVideoSetting = new System.Windows.Forms.GroupBox();
+            this.btnAttach = new System.Windows.Forms.Button();
             this.btnRefresh = new System.Windows.Forms.Button();
             this.nudFps = new System.Windows.Forms.NumericUpDown();
             this.lblFps = new System.Windows.Forms.Label();
@@ -61,6 +62,7 @@
             // 
             // gbVideoSetting
             // 
+            this.gbVideoSetting.Controls.Add(this.btnAttach);
             this.gbVideoSetting.Controls.Add(this.btnRefresh);
             this.gbVideoSetting.Controls.Add(this.nudFps);
             this.gbVideoSetting.Controls.Add(this.lblFps);
@@ -82,6 +84,16 @@
             this.gbVideoSetting.TabIndex = 2;
             this.gbVideoSetting.TabStop = false;
             this.gbVideoSetting.Text = "Video";
+            // 
+            // btnAttach
+            // 
+            this.btnAttach.Location = new System.Drawing.Point(258, 156);
+            this.btnAttach.Name = "btnAttach";
+            this.btnAttach.Size = new System.Drawing.Size(75, 23);
+            this.btnAttach.TabIndex = 16;
+            this.btnAttach.Text = "Attach audio";
+            this.btnAttach.UseVisualStyleBackColor = true;
+            this.btnAttach.Click += new System.EventHandler(this.btnAttach_Click);
             // 
             // btnRefresh
             // 
@@ -379,5 +391,6 @@
         private System.Windows.Forms.NumericUpDown nudFps;
         private System.Windows.Forms.Label lblFps;
         private System.Windows.Forms.Button btnRefresh;
+        private System.Windows.Forms.Button btnAttach;
     }
 }

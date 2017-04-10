@@ -61,6 +61,8 @@ namespace SharpBroadcast.MediaEncoder
             edtExtraParam.Text = task.ExtraParam;
             edtChannelName.Text = task.ChannelName;
             edtVideoServerUrl.Text = task.ServerAddress;
+
+            btnAttach.Visible = rbtMpeg1.Checked;
         }
 
         public VideoOutputTask SaveToTask(VideoOutputTask videoOutputTask = null)
@@ -89,6 +91,7 @@ namespace SharpBroadcast.MediaEncoder
             {
                 if (cbbResolution.Items.Count > 0) cbbResolution.SelectedIndex = 0;
             }
+            btnAttach.Visible = rbtMpeg1.Checked;
         }
 
         private void rbtH264_CheckedChanged(object sender, EventArgs e)
@@ -100,6 +103,7 @@ namespace SharpBroadcast.MediaEncoder
                     edtPixelFormat.Text = "yuv420p";
                 }
             }
+            btnAttach.Visible = rbtMpeg1.Checked;
         }
 
         private void btnOK_Click(object sender, EventArgs e)
@@ -129,6 +133,14 @@ namespace SharpBroadcast.MediaEncoder
                 }
             }
             
+        }
+
+        private void btnAttach_Click(object sender, EventArgs e)
+        {
+            if (rbtMpeg1.Checked && !edtExtraParam.Text.ToLower().Contains("mp2"))
+            {
+                edtExtraParam.Text += " -codec:a mp2 -b:a 128k ";
+            }
         }
 
 

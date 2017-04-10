@@ -1,123 +1,22 @@
 <html>
 <head>
 <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
-<meta name="viewport" content="width=640, initial-scale=1"/>
 <title>Live Streaming Example (MPEG1)</title>
 <style type="text/css">
-		body {
-			background: #333;
-			text-align: center;
-			margin-top: 2%;
-		}
-		#videoCanvas {
-			/* Always stretch the canvas to 640x360, regardless of its internal size. */
-			width: 640px;
-			height: 360px;
-		}
+	html, body {
+		background-color: #111;
+		text-align: center;
+	}
 </style>
-<script type="text/javascript" src="audio/audio-worker-shim.min.js"></script>
-<script type="text/javascript" src="audio/audio-stream-player.js"></script>
-<script type="text/javascript" src="jsmpg.js"></script>
+<script type="text/javascript" src="jsmpeg.min.js"></script>
 </head>
 
 <body>
-
-	<canvas id="videoCanvas">
-	<!--
-	<canvas id="videoCanvas" style="-ms-transform: scale(1.5,1.5); -webkit-transform: scale(1.5,1.5); transform: scale(1.5,1.5); 
-								display: block; -ms-transform-origin: top; -webkit-transform-origin: top; transform-origin: top">
-	-->
-
-	</canvas>
-
-	<br/>
-	<font color="red">
-	<span id="msg">(if no sound playing, please click here)</span>
-	</font>
-	
-
-
-<script language="JavaScript">
-
-	var mediaServerIp = "127.0.0.1";
-	
-	var tryToUsePCM = true;
-	var audioChannelName = "test-audio";
-	
-	var isChromeOnAndroid = navigator.userAgent.indexOf('Chrome') >= 0
-							&& navigator.userAgent.indexOf('Android') >= 0;
-							
-	if (!isChromeOnAndroid) AudioWorkerShim.polyfill();
-	
-	window.AudioContext = window.AudioContext       ||
-						  window.webkitAudioContext ||
-						  window.mozAudioContext    ||
-						  window.oAudioContext      ||
-						  window.msAudioContext;
-	
-	
-	var audioCtx = new AudioContext();
-	if (tryToUsePCM) {
-		if (audioCtx.sampleRate == 44100 || audioCtx.sampleRate == 48000) {
-			audioChannelName = "pcm-" + audioCtx.sampleRate;
-		}
-	}
-	
-	var aplayer = null;
-	
-	if (isChromeOnAndroid) {
-		aplayer = new SimpleWebAudioStreamPlayer({
-						audioContext: audioCtx,
-						useWorker: false,
-						audioDataBlockSize: 8192
-					});
-	} else {
-		aplayer = new SimpleWebAudioStreamPlayer({
-						audioContext: audioCtx,
-						useWorker: true,
-						workerFile: "audio/audio-stream-process.js"
-					});
-	}
-	
-	var asocket = new WebSocket("ws://" + mediaServerIp + ":9220/" + audioChannelName);
-	asocket.binaryType = "arraybuffer";
-	asocket.onmessage = function(event) {
-		var data = event.data;
-		if (typeof data != "string") {
-			aplayer.decode(data);
-		} else {
-			aplayer.updateMediaInfo(data);
-			console.log("audio info: " + data);
-			document.getElementById('msg').innerHTML = 'playing ' + aplayer.mediaInfo + ' (if still no sound, please click here)';
-		}
-	};
-	asocket.onopen = function() {
-		aplayer.open();
-	};
-	asocket.onclose = function() {
-		aplayer.close();
-		console.log('Audio player stopped');
-	};
-	
-
-	// video (by jsmpeg)
-	var vsocket = new WebSocket( "ws://" + mediaServerIp + ":9420/test-mpeg" );
-	var vplayer = new jsmpeg(vsocket, 
-							{canvas: document.getElementById('videoCanvas'),
-							 forceCanvas2D: false});
-	
-	function ios_unlock_sound() {
-		if (!aplayer.isPlayingDummy) {
-			aplayer.playDummy();
-			if (!aplayer.enabled) aplayer.enabled = true;
-			document.getElementById('msg').innerHTML = 'Done';
-		}
-	}
-	
-	window.addEventListener("touchend", ios_unlock_sound, false);
-	window.addEventListener("mousedown", ios_unlock_sound, false);
-	
+<canvas id="video-canvas"></canvas>
+<script type="text/javascript">
+	var canvas = document.getElementById('video-canvas');
+	var url = 'ws://127.0.0.1:9420/test-mpeg';
+	var player = new JSMpeg.Player(url, {canvas: canvas});
 </script>
-
 </body>
 </html>
