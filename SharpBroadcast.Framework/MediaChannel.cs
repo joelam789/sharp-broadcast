@@ -93,6 +93,35 @@ namespace SharpBroadcast.Framework
                 else m_WelcomeText = String.Copy(text);
             }
         }
+
+        public void RemoveWelcomeText(string text)
+        {
+            if (text == null || text.Length <= 0) return;
+            lock (m_WelcomeText)
+            {
+                string removing = text.Trim();
+                if (removing.Length > 0 && m_WelcomeText != null && m_WelcomeText.Length > 0)
+                {
+                    bool found = false;
+                    string newtext = "";
+                    var lines = m_WelcomeText.Split('|');
+                    foreach (var line in lines)
+                    {
+                        if (!found && line == removing)
+                        {
+                            found = true;
+                            continue;
+                        }
+                        else
+                        {
+                            if (newtext.Length > 0) newtext += "|" + line;
+                            else newtext = line;
+                        }
+                    }
+                    m_WelcomeText = newtext;
+                }
+            }
+        }
     }
 
     public class ChannelServerItem
@@ -132,6 +161,8 @@ namespace SharpBroadcast.Framework
 
         public int ClientCount { get; set; }
 
+        public int SourceCount { get; set; }
+
         public MediaChannelState()
         {
             ChannelName = "";
@@ -139,6 +170,7 @@ namespace SharpBroadcast.Framework
             ServerInfo = "";
             MediaInfo = "";
             ClientCount = 0;
+            SourceCount = 0;
         }
 
         public MediaChannelState(MediaChannelState src)
@@ -148,6 +180,7 @@ namespace SharpBroadcast.Framework
             ServerInfo = src.ServerInfo;
             MediaInfo = src.MediaInfo;
             ClientCount = src.ClientCount;
+            SourceCount = src.SourceCount;
         }
     }
 }

@@ -207,18 +207,38 @@ namespace SharpBroadcast.Framework
             // update state
             lock (m_States)
             {
-                if (m_States.ContainsKey(channelName)) m_States.Remove(channelName); // refresh it
+                int streams = 1;
+                if (m_States.ContainsKey(channelName))
+                {
+                    streams += m_States[channelName].SourceCount;
+                    m_States.Remove(channelName); // refresh it
+                }
                 state.ServerInfo = ServerName + "(" + InputIp + ":" + InputPort + "/" + OutputIp + ":" + OutputPort + ")";
+                state.SourceCount = streams;
                 m_States.Add(channelName, state);
             }
         }
 
-        public void RemoveState(string channelName)
+        public int RemoveState(string channelName)
         {
+            int left = 0;
             lock (m_States)
             {
-                if (m_States.ContainsKey(channelName)) m_States.Remove(channelName);
+                if (m_States.ContainsKey(channelName))
+                {
+                    left = m_States[channelName].SourceCount - 1;
+                    if (left <= 0)
+                    {
+                        left = 0;
+                        m_States.Remove(channelName);
+                    }
+                    else
+                    {
+                        m_States[channelName].SourceCount = left;
+                    }
+                }
             }
+            return left;
         }
 
         public void SetClientValidator(IClientValidator validator)
@@ -626,7 +646,8 @@ namespace SharpBroadcast.Framework
 
                 foreach (var channel in channels)
                 {
-                    channel.SetWelcomeText("");
+                    //channel.SetWelcomeText("");
+                    channel.RemoveWelcomeText(mediainfo);
                     channel.SetWelcomeData(new byte[0]);
                     RemoveState(channel.ChannelName);
                 }

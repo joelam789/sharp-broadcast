@@ -27,7 +27,7 @@ namespace SharpBroadcast.Framework
 
         List<MediaChannelState> GetChannelStates();
         void UpdateState(string channelName, MediaChannelState state);
-        void RemoveState(string channelName);
+        int RemoveState(string channelName);
 
         List<string> GetSourceWhitelist();
         void SetSourceWhitelist(List<string> list);
