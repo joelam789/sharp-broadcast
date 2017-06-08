@@ -242,16 +242,24 @@ namespace SharpBroadcast.MediaEncoder
 
             if (rbtnFromUrl.Checked)
             {
-                if (edtUrlSource.Text.Trim().Length <= 0)
+                if (edtVideoUrlSource.Text.Trim().Length <= 0 && edtAudioUrlSource.Text.Trim().Length <= 0)
                 {
                     MessageBox.Show("Please input the URL source.");
                     return inputList;
                 }
                 else
                 {
-                    var input = CommandGenerator.GenInputPart(edtUrlSource.Text.Trim());
-
-                    inputList.Add(input.Trim());
+                    if (edtVideoUrlSource.Text.Trim().Length > 0)
+                    {
+                        var input = CommandGenerator.GenInputPart(edtVideoUrlSource.Text.Trim());
+                        inputList.Add(input.Trim());
+                    }
+                    else inputList.Add("");
+                    if (edtAudioUrlSource.Text.Trim().Length > 0)
+                    {
+                        var input = CommandGenerator.GenInputPart(edtAudioUrlSource.Text.Trim());
+                        inputList.Add(input.Trim());
+                    }
                 }
             }
 
@@ -414,7 +422,8 @@ namespace SharpBroadcast.MediaEncoder
             cbbCams.Enabled = false;
             cbbMics.Enabled = false;
             rbtnFromUrl.Checked = true;
-            edtUrlSource.Enabled = true;
+            edtVideoUrlSource.Enabled = true;
+            edtAudioUrlSource.Enabled = true;
 
             btnStart.Enabled = true;
             btnStop.Enabled = true;
@@ -460,6 +469,9 @@ namespace SharpBroadcast.MediaEncoder
             if (allKeys.Contains("AudioPublishTasks"))
                 m_AudioOutputTaskGroup = JsonConvert.DeserializeObject<AudioOutputTaskGroup>(appSettings["AudioPublishTasks"].ToString());
 
+            if (allKeys.Contains("VideoUrlSource")) edtVideoUrlSource.Text = appSettings["VideoUrlSource"];
+            if (allKeys.Contains("AudioUrlSource")) edtAudioUrlSource.Text = appSettings["AudioUrlSource"];
+
             if (allKeys.Contains("EnableAudio")) needAudio = Convert.ToBoolean(appSettings["EnableAudio"]);
 
             needAudio = true; // always enable audio ...
@@ -469,10 +481,11 @@ namespace SharpBroadcast.MediaEncoder
 
             if (!needAudio)
             {
-                cbbCams.Width = edtUrlSource.Width;
+                cbbCams.Width = edtVideoUrlSource.Width;
+                edtAudioUrlSource.Text = "";
+                edtAudioUrlSource.Enabled = false;
+                edtAudioUrlSource.Visible = false;
             }
-
-            if (allKeys.Contains("UrlSource")) edtUrlSource.Text = appSettings["UrlSource"];
 
             olvVideoTasks.SetObjects(m_VideoOutputTaskGroup.Tasks);
             olvAudioTasks.SetObjects(m_AudioOutputTaskGroup.Tasks);
@@ -565,7 +578,8 @@ namespace SharpBroadcast.MediaEncoder
 
         private void rbtnFromUrl_CheckedChanged(object sender, EventArgs e)
         {
-            edtUrlSource.Enabled = rbtnFromUrl.Checked;
+            edtVideoUrlSource.Enabled = rbtnFromUrl.Checked;
+            edtAudioUrlSource.Enabled = rbtnFromUrl.Checked;
         }
 
         private void btnStart_Click(object sender, EventArgs e)
