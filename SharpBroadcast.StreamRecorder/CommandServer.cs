@@ -102,7 +102,7 @@ namespace SharpBroadcast.StreamRecorder
 
                     return true;
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     try
                     {
@@ -194,7 +194,7 @@ namespace SharpBroadcast.StreamRecorder
                             foreach (var item in msg) reqestParams.Add(item.Key.Trim().ToLower(), item.Value.ToString().Trim());
 
                             ProcessRequest(reqestParams);
-                            
+
                         }
                     }
 
@@ -220,13 +220,33 @@ namespace SharpBroadcast.StreamRecorder
 
             if (!reqestParams.ContainsKey("command")) return;
 
+            CommonLog.Info("Request: " + JsonConvert.SerializeObject(reqestParams));
+
             if (reqestParams["command"] == "record")
             {
                 if (!reqestParams.ContainsKey("channel")) return;
                 if (!reqestParams.ContainsKey("filename")) return;
 
                 var client = m_RecordServer.GetClient(reqestParams["channel"]);
-                if (client != null) client.Record(reqestParams["filename"]);
+                if (client != null)
+                {
+                    if (client.IsRecording && client.StreamDataFileName.Length > 0)
+                    {
+                        bool needToEndCurrentRecord = true;
+                        if (client.StreamDataFileName == reqestParams["filename"]) needToEndCurrentRecord = false;
+                        else if (reqestParams.ContainsKey("mainpart"))
+                        {
+                            string mainPart = reqestParams["mainpart"];
+                            if (mainPart.Length >= 4 && client.StreamDataFileName.Contains(mainPart)) needToEndCurrentRecord = false;
+                        }
+                        if (needToEndCurrentRecord)
+                        {
+                            client.Export();
+                            Thread.Sleep(500);
+                        }
+                    }
+                    client.Record(reqestParams["filename"]);
+                }
             }
             else if (reqestParams["command"] == "stop")
             {

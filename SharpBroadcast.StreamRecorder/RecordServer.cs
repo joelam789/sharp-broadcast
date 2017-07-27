@@ -66,8 +66,20 @@ namespace SharpBroadcast.StreamRecorder
             m_Config.VideoStartOffset = Decimal.Round(m_Config.VideoStartOffset, 2);
             m_Config.AudioStartOffset = Decimal.Round(m_Config.AudioStartOffset, 2);
 
-            if (appSettings.AllKeys.Contains("MaxCacheSize")) m_Config.MaxCacheSize = Convert.ToInt32(appSettings["MaxCacheSize"].ToString());
-            if (appSettings.AllKeys.Contains("MaxRecordSize")) m_Config.MaxRecordSize = Convert.ToInt32(appSettings["MaxRecordSize"].ToString());
+            if (appSettings.AllKeys.Contains("MaxCacheSize"))
+            {
+                var cacheSize = appSettings["MaxCacheSize"].ToString().ToLower();
+                if (cacheSize.Last() == 'k') m_Config.MaxCacheSize = Convert.ToInt32(cacheSize.Substring(0, cacheSize.Length - 1)) * 1024;
+                else if (cacheSize.Last() == 'm') m_Config.MaxCacheSize = Convert.ToInt32(cacheSize.Substring(0, cacheSize.Length - 1)) * 1024 * 1024;
+                else m_Config.MaxCacheSize = Convert.ToInt32(cacheSize);
+            }
+            if (appSettings.AllKeys.Contains("MaxRecordSize"))
+            {
+                var recordSize = appSettings["MaxRecordSize"].ToString().ToLower();
+                if (recordSize.Last() == 'k') m_Config.MaxRecordSize = Convert.ToInt32(recordSize.Substring(0, recordSize.Length - 1)) * 1024;
+                else if (recordSize.Last() == 'm') m_Config.MaxRecordSize = Convert.ToInt32(recordSize.Substring(0, recordSize.Length - 1)) * 1024 * 1024;
+                else m_Config.MaxRecordSize = Convert.ToInt32(recordSize);
+            }
 
             string streamDataFolder = Path.GetFullPath(m_Config.StreamDataFolder);
             string recordFileFolder = Path.GetFullPath(m_Config.RecordFileFolder);
@@ -76,7 +88,7 @@ namespace SharpBroadcast.StreamRecorder
             if (appSettings.AllKeys.Contains("Whitelist"))
             {
                 var list = appSettings["Whitelist"].ToString().Split(',');
-                foreach(var item in list) whitelist.Add(item.Trim());
+                foreach (var item in list) whitelist.Add(item.Trim());
             }
 
             int httpPort = 9009;

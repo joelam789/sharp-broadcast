@@ -245,7 +245,7 @@ namespace SharpBroadcast.StreamRecorder
             }
         }
 
-        public void Export()
+        public void Export(string specificTarget = "")
         {
             lock (StreamDataFileName)
             {
@@ -253,6 +253,8 @@ namespace SharpBroadcast.StreamRecorder
                 if (Info.MediaInfo.Length <= 0) return;
 
                 if (!IsRecording || StreamDataFileName.Length <= 0) return;
+
+                if (specificTarget.Length > 0 && specificTarget != StreamDataFileName) return;
 
                 StreamDataFileName = ""; // stop writing received stream data to cache
 
@@ -413,7 +415,7 @@ namespace SharpBroadcast.StreamRecorder
                     convertParamLine2 += "-f mp4 \"" + outputFile + "\"";
                     convertParamList.Add(convertParamLine2);
                 }
-                
+
             }
             else if (inputVideoFile.Length > 1)
             {
@@ -524,13 +526,13 @@ namespace SharpBroadcast.StreamRecorder
                     CommonLog.Info("Failed to convert live stream to MP4!");
                 }
 
-                
+
             }
             catch (Exception ex)
             {
                 CommonLog.Error("Failed to convert live stream to MP4: " + ex.ToString());
             }
-            
+
         }
 
         private void WhenOpened(object sender, EventArgs e)
@@ -579,6 +581,8 @@ namespace SharpBroadcast.StreamRecorder
             IsReceiving = true;
             Info.LastDataTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
 
+            string overloadFileName = "";
+
             lock (StreamDataFileName)
             {
                 Info.Status = IsRecording ? "recording" : "receiving";
@@ -586,71 +590,83 @@ namespace SharpBroadcast.StreamRecorder
                 if (!IsRecording || StreamDataFileName.Length <= 0) return;
 
                 m_CurrentRecordSize += e.Data.Length;
-                if (m_CurrentRecordSize > MaxRecordSize) return;
-
-                if (e.Data.Length > 4
+                if (m_CurrentRecordSize > MaxRecordSize)
+                {
+                    overloadFileName = String.Copy(StreamDataFileName);
+                    CommonLog.Info("Exceeded max size limit of " + MaxRecordSize + " - " + overloadFileName);
+                }
+                else
+                {
+                    if (e.Data.Length > 4
                     && (e.Data[0] == 0 && e.Data[1] == 0 && e.Data[2] == 0 && e.Data[3] == 1)
                     && m_RawVideoFilePath.Length > 0)
-                {
-                    m_VideoCache.Write(e.Data, 0, e.Data.Length);
-                    m_VideoCacheSize += e.Data.Length;
-
-                    if (m_VideoCacheSize >= MaxCacheSize)
                     {
-                        if (m_RawVideoFilePath.Length > 0 && File.Exists(m_RawVideoFilePath))
+                        m_VideoCache.Write(e.Data, 0, e.Data.Length);
+                        m_VideoCacheSize += e.Data.Length;
+
+                        if (m_VideoCacheSize >= MaxCacheSize)
                         {
-                            try
+                            if (m_RawVideoFilePath.Length > 0 && File.Exists(m_RawVideoFilePath))
                             {
-                                using (var fs = new FileStream(m_RawVideoFilePath, FileMode.Append, FileAccess.Write))
+                                try
                                 {
-                                    var writer = new BinaryWriter(fs);
-                                    writer.Write(m_VideoCache.ToArray());
-                                    writer.Close();
+                                    using (var fs = new FileStream(m_RawVideoFilePath, FileMode.Append, FileAccess.Write))
+                                    {
+                                        var writer = new BinaryWriter(fs);
+                                        writer.Write(m_VideoCache.ToArray());
+                                        writer.Close();
+                                    }
+                                }
+                                catch (Exception ex)
+                                {
+                                    CommonLog.Error(ex.ToString());
                                 }
                             }
-                            catch (Exception ex)
-                            {
-                                CommonLog.Error(ex.ToString());
-                            }
+                            else CommonLog.Error("Video stream data file not found: " + m_RawVideoFilePath);
+
+                            m_VideoCacheSize = 0;
+                            if (m_VideoCache != null) m_VideoCache.Dispose();
+                            m_VideoCache = new MemoryStream();
                         }
-                        else CommonLog.Error("Video stream data file not found: " + m_RawVideoFilePath);
-
-                        m_VideoCacheSize = 0;
-                        if (m_VideoCache != null) m_VideoCache.Dispose();
-                        m_VideoCache = new MemoryStream();
                     }
-                }
-                else if (e.Data.Length > 0 && m_RawAudioFilePath.Length > 0)
-                {
-                    m_AudioCache.Write(e.Data, 0, e.Data.Length);
-                    m_AudioCacheSize += e.Data.Length;
-
-                    if (m_AudioCacheSize >= MaxCacheSize)
+                    else if (e.Data.Length > 0 && m_RawAudioFilePath.Length > 0)
                     {
-                        if (m_RawAudioFilePath.Length > 0 && File.Exists(m_RawAudioFilePath))
+                        m_AudioCache.Write(e.Data, 0, e.Data.Length);
+                        m_AudioCacheSize += e.Data.Length;
+
+                        if (m_AudioCacheSize >= MaxCacheSize)
                         {
-                            try
+                            if (m_RawAudioFilePath.Length > 0 && File.Exists(m_RawAudioFilePath))
                             {
-                                using (var fs = new FileStream(m_RawAudioFilePath, FileMode.Append, FileAccess.Write))
+                                try
                                 {
-                                    var writer = new BinaryWriter(fs);
-                                    writer.Write(m_AudioCache.ToArray());
-                                    writer.Close();
+                                    using (var fs = new FileStream(m_RawAudioFilePath, FileMode.Append, FileAccess.Write))
+                                    {
+                                        var writer = new BinaryWriter(fs);
+                                        writer.Write(m_AudioCache.ToArray());
+                                        writer.Close();
+                                    }
+                                }
+                                catch (Exception ex)
+                                {
+                                    CommonLog.Error(ex.ToString());
                                 }
                             }
-                            catch (Exception ex)
-                            {
-                                CommonLog.Error(ex.ToString());
-                            }
+                            else CommonLog.Error("Audio stream data file not found: " + m_RawAudioFilePath);
+
+                            m_AudioCacheSize = 0;
+                            if (m_AudioCache != null) m_AudioCache.Dispose();
+                            m_AudioCache = new MemoryStream();
                         }
-                        else CommonLog.Error("Audio stream data file not found: " + m_RawAudioFilePath);
-
-                        m_AudioCacheSize = 0;
-                        if (m_AudioCache != null) m_AudioCache.Dispose();
-                        m_AudioCache = new MemoryStream();
                     }
-                }
 
+                } // end if filesize ok
+
+            } // end of lock
+
+            if (overloadFileName.Length > 0)
+            {
+                Task.Factory.StartNew(() => Export(overloadFileName));
             }
         }
 
@@ -668,7 +684,7 @@ namespace SharpBroadcast.StreamRecorder
                 m_RawAudioType = parts[1].Trim();
                 if (parts[1].IndexOf('x') > 0 && parts[1].Length > 4) m_RawAudioType = parts[0].Trim();
             }
-            else if(parts.Length >= 1)
+            else if (parts.Length >= 1)
             {
                 if (Info.MediaInfo.IndexOf('x') > 0 && Info.MediaInfo.Length > 4)
                 {
