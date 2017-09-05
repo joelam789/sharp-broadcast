@@ -31,6 +31,20 @@ namespace SharpBroadcast.Framework
                     if (certFilepath[0] != '/' && certFilepath.IndexOf(":/") != 1) // if it is not abs path
                     {
                         string folder = Path.GetDirectoryName(AppDomain.CurrentDomain.BaseDirectory);
+                        if (folder == null || folder.Trim().Length <= 0)
+                        {
+                            var entry = Assembly.GetEntryAssembly();
+                            var location = "";
+                            try
+                            {
+                                if (entry != null) location = entry.Location;
+                            }
+                            catch { }
+                            if (location != null && location.Length > 0)
+                            {
+                                folder = Path.GetDirectoryName(location);
+                            }
+                        }
                         if (folder != null && folder.Length > 0) certFilepath = folder.Replace('\\', '/') + "/" + certFilepath;
                     }
 
