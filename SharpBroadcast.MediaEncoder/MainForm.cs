@@ -612,7 +612,20 @@ namespace SharpBroadcast.MediaEncoder
             }
             else
             {
-                m_VideoArgs = outputVideo.Trim().Length <= 0 ? "" : (input[0].Trim().Length > 0 ? input[0] + " " + outputVideo : "");
+                var mpegItemCount = 0;
+                foreach (var taskItem in m_VideoOutputTaskGroup.Tasks)
+                {
+                    if (taskItem.VideoType == "mpeg") mpegItemCount++;
+                }
+                if (mpegItemCount > 0 && mpegItemCount == m_VideoOutputTaskGroup.Tasks.Count)
+                {
+                    m_VideoArgs = input[0] + " " + input[1] + " " + outputVideo;
+                }
+                else
+                {
+                    m_VideoArgs = outputVideo.Trim().Length <= 0 ? "" : (input[0].Trim().Length > 0 ? input[0] + " " + outputVideo : "");
+                }
+                
                 m_AudioArgs = outputAudio.Trim().Length <= 0 ? "" : (input[1].Trim().Length > 0 ? input[1] + " " + outputAudio : "");
             }
 
