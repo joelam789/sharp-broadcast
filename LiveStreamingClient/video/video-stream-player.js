@@ -30,6 +30,9 @@
 		this.videoDataQueue = [];
 		this.videoDataQueueSize = 8; // video cache size
 		
+		this.videoWidth = 0;
+		this.videoHeight = 0;
+		
 		this.playerRenderFrame = function(vdata) {
 			this.proxyPlayer.videoDataQueue[this.proxyPlayer.videoDataQueue.length] = vdata;
 			while (this.proxyPlayer.videoDataQueue.length > this.proxyPlayer.videoDataQueueSize) {
@@ -99,7 +102,15 @@
 			this.canvas = this.player.canvas;
 			this.domNode = this.player.domNode;
 			
-			if (currentpnode != null) currentpnode.appendChild(this.domNode);
+			this.videoWidth = this.initOptions.size.width;
+			this.videoHeight = this.initOptions.size.height;
+			
+			if (currentpnode != null) {
+				currentpnode.appendChild(this.domNode);
+				currentpnode.style.overflow = "hidden";
+				currentpnode.style.width = this.videoWidth + "px";
+				currentpnode.style.height = this.videoHeight + "px";
+			}
 			
 			this.enabled = isactivenow;
 			
