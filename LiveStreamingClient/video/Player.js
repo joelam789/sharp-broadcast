@@ -113,7 +113,9 @@ p.decode(<binary>);
         canvasObj: self.canvasObj,
         data: buffer,
         width: width,
-        height: height
+        height: height,
+		visibleWidth: self._config.visibleSize ? self._config.visibleSize.width : 0,
+		visibleHeight: self._config.visibleSize ? self._config.visibleSize.height : 0,
       });
       
       if (self.onRenderFrameComplete){
@@ -275,8 +277,8 @@ p.decode(<binary>);
       var height = options.height || canvasObj.canvas.height;
       
       if (canvasObj.canvas.width !== width || canvasObj.canvas.height !== height || !canvasObj.webGLCanvas){
-        canvasObj.canvas.width = width;
-        canvasObj.canvas.height = height;
+        canvasObj.canvas.width = options.visibleWidth || width;
+        canvasObj.canvas.height = options.visibleHeight || height;
         canvasObj.webGLCanvas = new WebGLCanvas({
           canvas: canvasObj.canvas,
           contextOptions: canvasObj.contextOptions,
@@ -291,7 +293,9 @@ p.decode(<binary>);
       canvasObj.webGLCanvas.drawNextOutputPicture({
         yData: options.data.subarray(0, ylen),
         uData: options.data.subarray(ylen, ylen + uvlen),
-        vData: options.data.subarray(ylen + uvlen, ylen + uvlen + uvlen)
+        vData: options.data.subarray(ylen + uvlen, ylen + uvlen + uvlen),
+		visibleWidth: options.visibleWidth,
+		visibleHeight: options.visibleHeight,
       });
       
       var self = this;

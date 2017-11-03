@@ -30,8 +30,8 @@
 		this.videoDataQueue = [];
 		this.videoDataQueueSize = 8; // video cache size
 		
-		this.videoWidth = 0;
-		this.videoHeight = 0;
+		this.width = 0;
+		this.height = 0;
 		
 		this.playerRenderFrame = function(vdata) {
 			this.proxyPlayer.videoDataQueue[this.proxyPlayer.videoDataQueue.length] = vdata;
@@ -86,7 +86,10 @@
 				currentpnode.removeChild(this.player.domNode);
 			}
 			
-			if (!isNaN(w) && !isNaN(h)) this.initOptions.size = {width: w, height: h};
+			if (!isNaN(w) && !isNaN(h)) {
+				this.initOptions.size = {width: w, height: h};
+				this.initOptions.visibleSize = {width: w, height: h};
+			}
 			
 			this.player = new Player(this.initOptions);
 			this.player.proxyPlayer = this;
@@ -102,14 +105,16 @@
 			this.canvas = this.player.canvas;
 			this.domNode = this.player.domNode;
 			
-			this.videoWidth = this.initOptions.size.width;
-			this.videoHeight = this.initOptions.size.height;
+			this.width = this.canvas.width;
+			this.height = this.canvas.height;
 			
 			if (currentpnode != null) {
+				if (currentpnode.style.width) this.domNode.style.width = "100%";
+				if (currentpnode.style.height) this.domNode.style.height = "100%";
 				currentpnode.appendChild(this.domNode);
-				currentpnode.style.overflow = "hidden";
-				currentpnode.style.width = this.videoWidth + "px";
-				currentpnode.style.height = this.videoHeight + "px";
+				//currentpnode.style.overflow = "hidden";
+				//currentpnode.style.width = this.videoWidth + "px";
+				//currentpnode.style.height = this.videoHeight + "px";
 			}
 			
 			this.enabled = isactivenow;
