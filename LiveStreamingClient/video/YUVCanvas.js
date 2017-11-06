@@ -102,7 +102,7 @@
         var vDataPerRow = par.vDataPerRow || uDataPerRow;
         var vRowCnt     = par.vRowCnt || uRowCnt;
         
-        gl.viewport(0, 0, width, height);
+        gl.viewport(0, 0, par.visibleWidth || width, par.visibleHeight || height);
 
         var tTop = 0;
         var tLeft = 0;
@@ -169,7 +169,7 @@
         var dataPerRow = par.dataPerRow || (width * 2);
         var rowCnt     = par.rowCnt || height;
 
-        gl.viewport(0, 0, width, height);
+        gl.viewport(0, 0, par.visibleWidth || width, par.visibleHeight || height);
 
         var tTop = 0;
         var tLeft = 0;

@@ -27,7 +27,8 @@
 	var mediaServerIp = "127.0.0.1";
 	
 	var needWSS = false;
-	var tryToUsePCM = true;
+	var tryToUsePCM = false;
+	var oneSampleRateOneChannel = true;
 	var mixChannelName = "desktop";
 	
 	var isOnMobile = navigator.userAgent.indexOf('Mobile') >= 0
@@ -36,14 +37,12 @@
 	var isChromeOnAndroid = navigator.userAgent.indexOf('Chrome') >= 0
 							&& navigator.userAgent.indexOf('Android') >= 0;
 							
-	var isIOS10 = navigator.userAgent.indexOf('OS 10') >= 0
-					&& (navigator.userAgent.indexOf('iPad') >= 0 
-						|| navigator.userAgent.indexOf('iPhone') >= 0
-						|| navigator.userAgent.indexOf('Mobile') >= 0);
+	var isIOS = isOnMobile && (navigator.userAgent.indexOf('iPad') >= 0 
+									|| navigator.userAgent.indexOf('iPhone') >= 0);
 	
 	if (isOnMobile) mixChannelName = "mobile";
 	
-	//if (isIOS10) tryToUsePCM = false; // iOS 10 could play PCM too
+	if (tryToUsePCM) oneSampleRateOneChannel = true;
 	
 	// init web audio
 	if (!isChromeOnAndroid) AudioWorkerShim.polyfill();
@@ -54,7 +53,7 @@
 						  window.msAudioContext;
 						  
 	var audioCtx = new AudioContext();
-	if (tryToUsePCM) {
+	if (oneSampleRateOneChannel) {
 		if (audioCtx.sampleRate == 44100 || audioCtx.sampleRate == 48000) {
 			mixChannelName = mixChannelName + "-" + audioCtx.sampleRate;
 		}
@@ -108,7 +107,27 @@
 		streamPlayer.open(serverUrl);
 		
 		setInterval(function() {
+		
 			document.getElementById('speed').innerHTML = 'Video Stream Speed Score: ' + streamPlayer.getVideoStreamSpeedScore();
+			
+			/*
+			if (streamPlayer.videoContainer != null) {
+				document.getElementById('speed').innerHTML += "<br>" + "Video container size: " 
+												+ streamPlayer.videoContainer.style.width + " , " 
+												+ streamPlayer.videoContainer.style.height;
+			}
+			if (streamPlayer.videoContainer != null && streamPlayer.videoContainer.childNodes.length > 0) {
+				document.getElementById('speed').innerHTML += "<br>" + "Video canvas real size: " 
+												+ streamPlayer.videoContainer.childNodes[0].width + "x" 
+												+ streamPlayer.videoContainer.childNodes[0].height;
+				if (streamPlayer.video.player.webgl) {
+					document.getElementById('speed').innerHTML += "<br>" + "Video canvas is WebGL canvas." 
+				} else {
+					document.getElementById('speed').innerHTML += "<br>" + "Video canvas is normal canvas." 
+				}
+			}
+			*/
+												
 		}, 1000);
 	};
 	
@@ -116,6 +135,7 @@
   
   <center>
   <div id="videoCanvas"></div>
+  <!-- <div id="videoCanvas" style="width: 800px; height: 450px;"></div> -->
   <span id="msg" style="position: relative; top: 10px;">Loading...</span>
   <br/>
   <p id="speed">Video Stream Speed Score: ?</p>

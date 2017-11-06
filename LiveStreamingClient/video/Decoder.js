@@ -446,8 +446,8 @@ var wa=[Db,rb];var xa=[Eb,qb,sb,pb];var ya=[Fb,Ya,Xa,Fb];var za=[Gb,tb];return{_
 
       for (i = 0|0; ((i|0) < (s|0))|0; i = (i + 4)|0){
         mem32[((cacheStart + i)|0) >> 2] = 0;
-      };
-    };
+      }
+    }
 
     function doit(){
       var ystart = 0;
@@ -539,9 +539,9 @@ var wa=[Db,rb];var xa=[Eb,qb,sb,pb];var ya=[Fb,Ya,Xa,Fb];var za=[Gb,tb];return{_
         ostart = (ostart + widthFour)|0;
         ystart = (ystart + width)|0;
 
-      };
+      }
 
-    };
+    }
 
     function yuv2rgbcalc(y, u, v){
       y = y|0;
@@ -590,7 +590,7 @@ var wa=[Db,rb];var xa=[Eb,qb,sb,pb];var ya=[Fb,Ya,Xa,Fb];var za=[Gb,tb];return{_
 
       return o|0;
 
-    };
+    }
 
 
 

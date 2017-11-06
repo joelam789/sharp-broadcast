@@ -304,28 +304,30 @@ p.decode(<binary>);
     },
     renderFrameRGB: function(options){
       var canvasObj = options.canvasObj;
-
+	  
+	  var ctx = canvasObj.ctx;
+	  if (!ctx){
+        canvasObj.ctx = canvasObj.canvas.getContext('2d');
+        ctx = canvasObj.ctx;
+	  }
+	  
       var width = options.width || canvasObj.canvas.width;
       var height = options.height || canvasObj.canvas.height;
       
       if (canvasObj.canvas.width !== width || canvasObj.canvas.height !== height){
-        canvasObj.canvas.width = width;
-        canvasObj.canvas.height = height;
+        canvasObj.canvas.width = options.visibleWidth || width;
+        canvasObj.canvas.height = options.visibleHeight || height;
+		canvasObj.imgData = ctx.createImageData(width, height);
       };
       
-      var ctx = canvasObj.ctx;
       var imgData = canvasObj.imgData;
-
-      if (!ctx){
-        canvasObj.ctx = canvasObj.canvas.getContext('2d');
-        ctx = canvasObj.ctx;
-
+      if (!imgData){
         canvasObj.imgData = ctx.createImageData(width, height);
         imgData = canvasObj.imgData;
       };
 
       imgData.data.set(options.data);
-      ctx.putImageData(imgData, 0, 0);
+      ctx.putImageData(imgData, 0, 0, 0, 0, options.visibleWidth || width, options.visibleHeight || height);
       var self = this;
       self.recycleMemory(options.data);
       
