@@ -24,13 +24,17 @@ namespace SharpBroadcast.StreamRecorder
 
         private int m_Port = 9009;
 
+        private string m_AllowOrigin = "";
+
         private List<string> m_WhiteList = new List<string>();
 
-        public CommandServer(RecordServer recordServer, int port = 0, List<string> whiteList = null)
+        public CommandServer(RecordServer recordServer, 
+            int port = 0, List<string> whiteList = null, string allowOrigin = null)
         {
             if (port > 0) m_Port = port;
             if (whiteList != null) m_WhiteList.AddRange(whiteList);
             if (m_WhiteList.Count <= 0) m_WhiteList.Add("127.0.0.1");
+            if (allowOrigin != null) m_AllowOrigin = allowOrigin.Trim();
 
             m_RecordServer = recordServer;
         }
@@ -208,7 +212,20 @@ namespace SharpBroadcast.StreamRecorder
             {
                 try
                 {
-                    if (context != null) context.Response.OutputStream.Close();
+                    if (context != null)
+                    {
+                        if (m_AllowOrigin != null && m_AllowOrigin.Length > 0)
+                        {
+                            try
+                            {
+                                context.Response.AppendHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+                                context.Response.AppendHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, HEAD, DELETE, CONNECT");
+                                context.Response.AppendHeader("Access-Control-Allow-Origin", m_AllowOrigin);
+                            }
+                            catch { }
+                        }
+                        context.Response.OutputStream.Close();
+                    }
                 }
                 catch { }
             }

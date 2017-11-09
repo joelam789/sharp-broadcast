@@ -91,13 +91,16 @@ namespace SharpBroadcast.StreamRecorder
                 foreach (var item in list) whitelist.Add(item.Trim());
             }
 
+            string allowOrigin = "";
+            if (appSettings.AllKeys.Contains("AllowOrigin")) allowOrigin = appSettings["AllowOrigin"].ToString();
+
             int httpPort = 9009;
             if (appSettings.AllKeys.Contains("ServerPort")) httpPort = Convert.ToInt32(appSettings["ServerPort"].ToString());
             if (httpPort > 0)
             {
                 try
                 {
-                    m_CommandServer = new CommandServer(this, httpPort, whitelist);
+                    m_CommandServer = new CommandServer(this, httpPort, whitelist, allowOrigin);
                     if (!m_CommandServer.Start())
                     {
                         CommonLog.Error("Failed to start command server on port: " + httpPort);

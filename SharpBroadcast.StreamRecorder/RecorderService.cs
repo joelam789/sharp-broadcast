@@ -15,6 +15,7 @@ namespace SharpBroadcast.StreamRecorder
 {
     partial class RecorderService : ServiceBase
     {
+        private RecordServer m_Server = new RecordServer();
 
         public RecorderService()
         {
@@ -25,17 +26,17 @@ namespace SharpBroadcast.StreamRecorder
         {
             // TODO: Add code here to start your service.
 
-            ConfigurationManager.RefreshSection("appSettings");
-
             CommonLog.Info("=== Stream Recorder is starting ===");
 
-            //var appSettings = ConfigurationManager.AppSettings;
+            m_Server.Start();
 
         }
 
         protected override void OnStop()
         {
             // TODO: Add code here to perform any tear-down necessary to stop your service.
+
+            m_Server.Stop();
 
             CommonLog.Info("=== Stream Recorder stopped ===");
         }

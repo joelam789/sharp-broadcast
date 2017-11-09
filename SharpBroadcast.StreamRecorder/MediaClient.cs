@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -75,8 +76,29 @@ namespace SharpBroadcast.StreamRecorder
             m_ConverterCmd = config != null && config.Converter.Length > 0 ? config.Converter : DEFAULT_CONVERTER_CMD;
             m_CallbackUrl = config != null && config.Callback.Length > 0 ? config.Callback : "?";
 
+            string currentFolder = GetCurrentFolder();
+
             m_StreamDataFolder = config != null ? config.StreamDataFolder : DEFAULT_STREAM_DATA_FOLDER;
+            if (m_StreamDataFolder.Length > 0)
+            {
+                m_StreamDataFolder = m_StreamDataFolder.Replace('\\', '/');
+                if (m_StreamDataFolder[0] != '/' && m_StreamDataFolder.IndexOf(":/") != 1) // if it is not abs path
+                {
+                    if (currentFolder != null && currentFolder.Length > 0)
+                        m_StreamDataFolder = currentFolder.Replace('\\', '/') + "/" + m_StreamDataFolder;
+                }
+            }
+
             m_RecordFileFolder = config != null ? config.RecordFileFolder : DEFAULT_RECORD_FILE_FOLDER;
+            if (m_RecordFileFolder.Length > 0)
+            {
+                m_RecordFileFolder = m_RecordFileFolder.Replace('\\', '/');
+                if (m_RecordFileFolder[0] != '/' && m_RecordFileFolder.IndexOf(":/") != 1) // if it is not abs path
+                {
+                    if (currentFolder != null && currentFolder.Length > 0)
+                        m_RecordFileFolder = currentFolder.Replace('\\', '/') + "/" + m_RecordFileFolder;
+                }
+            }
 
             m_VideoStartOffset = config != null && config.VideoStartOffset > 0 ? config.VideoStartOffset : 0;
             m_AudioStartOffset = config != null && config.AudioStartOffset > 0 ? config.AudioStartOffset : 0;
@@ -110,6 +132,26 @@ namespace SharpBroadcast.StreamRecorder
             Socket.MessageReceived += new EventHandler<WebSocket4Net.MessageReceivedEventArgs>(WhenMessageReceived);
             Socket.Opened += new EventHandler(WhenOpened);
 
+        }
+
+        public static string GetCurrentFolder()
+        {
+            string folder = Path.GetDirectoryName(AppDomain.CurrentDomain.BaseDirectory);
+            if (folder == null || folder.Trim().Length <= 0)
+            {
+                var entry = Assembly.GetEntryAssembly();
+                var location = "";
+                try
+                {
+                    if (entry != null) location = entry.Location;
+                }
+                catch { }
+                if (location != null && location.Length > 0)
+                {
+                    folder = Path.GetDirectoryName(location);
+                }
+            }
+            return (folder != null && folder.Length > 0) ? folder : "";
         }
 
         public void Open()

@@ -93,6 +93,48 @@
 		document.getElementById('msg').innerHTML = 'playing(click here if no sound) - ' + streamPlayer.mediaInfo;
 	}
 	
+	// for recorder server test
+	/*
+	var recorderServerUrl = "http://127.0.0.1:9009";
+	function sendRequest(reqParams) {
+		var httpActionRequest = new XMLHttpRequest();
+		var httpActionUrl = recorderServerUrl;
+		var httpActionParams = "" + reqParams;
+		httpActionRequest.open("POST", httpActionUrl, true);
+		httpActionRequest.setRequestHeader("Content-type", "text/plain");
+		httpActionRequest.onreadystatechange = function() {
+			if (httpActionRequest.readyState == 4) {
+				var httpRequestResultCode = (httpActionRequest.status + '')[0]; // make sure we get a successful response back.
+				if (httpRequestResultCode !== '0' && httpRequestResultCode !== '2' && httpRequestResultCode !== '3') {
+					console.error("Failed to get response from server - " + recorderServerUrl);
+				}
+			}
+		}
+		httpActionRequest.onload = function() {
+			console.log("Sent request to server - " + recorderServerUrl);
+		}
+		httpActionRequest.onerror = function() {
+			console.error("Failed to send request to server - " + recorderServerUrl);
+		}
+		httpActionRequest.send(httpActionParams);
+	}
+	function sendStartRecordRequest(channelName, fileName) {
+		var req = {
+			command: "record",
+			channel: channelName ? channelName : mixChannelName,
+			filename: fileName ? fileName : ""
+		};
+		sendRequest(JSON.stringify(req));
+	}
+	function sendStopRecordRequest(channelName) {
+		var req = {
+			command: "stop",
+			channel: channelName ? channelName : mixChannelName
+		};
+		sendRequest(JSON.stringify(req));
+	}
+	*/
+	
 	// windows events
 	function ios_unlock_sound() {
 		streamPlayer.playDummySound();
@@ -134,11 +176,22 @@
   </script>
   
   <center>
+  
   <div id="videoCanvas"></div>
   <!-- <div id="videoCanvas" style="width: 800px; height: 450px;"></div> -->
+  
   <span id="msg" style="position: relative; top: 10px;">Loading...</span>
   <br/>
   <p id="speed">Video Stream Speed Score: ?</p>
+  
+  <!--
+  <p>
+   <button type="button" onclick="sendStartRecordRequest()">Start recording</button>
+   &nbsp;&nbsp;&nbsp;&nbsp;
+   <button type="button" onclick="sendStopRecordRequest()">Stop recording</button>
+  </p>
+  -->
+  
   </center>
 	
 </body>
