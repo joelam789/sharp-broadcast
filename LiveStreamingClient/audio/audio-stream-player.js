@@ -63,7 +63,9 @@
 		this.volume = function(value) {
 			if (!isNaN(value)) {
 				if (this.gainNode != null) {
-					this.gainNode.gain.value = value;
+					if (this.gainNode.gain.setValueAtTime && this.context)
+						this.gainNode.gain.setValueAtTime(value, this.context.currentTime);
+					else this.gainNode.gain.value = value;
 					return value;
 				}
 			} else {
