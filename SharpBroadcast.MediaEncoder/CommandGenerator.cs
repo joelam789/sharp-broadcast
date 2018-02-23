@@ -28,10 +28,19 @@ namespace SharpBroadcast.MediaEncoder
         public static string GenInputPart(string sourceURL)
         {
             string input = "";
+            string url = sourceURL == null ? "" : sourceURL.Trim();
 
-            if (sourceURL.Length > 0)
+            if (url.Length > 0)
             {
-                input = " -re -i \"" + sourceURL + "\"";
+                if (url.StartsWith("[") && url.EndsWith("]"))
+                {
+                    input = url.Substring(1, url.Length - 2).Trim();
+                    if (input.Length > 0) input = " " + input;
+                }
+                else
+                {
+                    input = " -re -i \"" + url + "\"";
+                }
             }
 
             return input;
