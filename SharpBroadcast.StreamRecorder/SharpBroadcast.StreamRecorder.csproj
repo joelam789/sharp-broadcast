@@ -41,8 +41,8 @@
     <Reference Include="Common.Logging.Core">
       <HintPath>..\Lib\Common.Logging.Core.dll</HintPath>
     </Reference>
-    <Reference Include="Common.Logging.Log4Net1213">
-      <HintPath>..\Lib\Common.Logging.Log4Net1213.dll</HintPath>
+    <Reference Include="Common.Logging.Log4Net1210">
+      <HintPath>..\Lib\Common.Logging.Log4Net1210.dll</HintPath>
     </Reference>
     <Reference Include="log4net">
       <HintPath>..\Lib\log4net.dll</HintPath>

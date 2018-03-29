@@ -34,8 +34,8 @@
     <Reference Include="ParallelExtensionsExtras">
       <HintPath>..\Lib\ParallelExtensionsExtras.dll</HintPath>
     </Reference>
-    <Reference Include="SharpNetwork">
-      <HintPath>..\Lib\SharpNetwork.dll</HintPath>
+    <Reference Include="SharpNetwork.Core">
+      <HintPath>..\Lib\SharpNetwork.Core.dll</HintPath>
     </Reference>
     <Reference Include="SharpNetwork.SimpleWebSocket">
       <HintPath>..\Lib\SharpNetwork.SimpleWebSocket.dll</HintPath>

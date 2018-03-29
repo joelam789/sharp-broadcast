@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-using SharpNetwork;
+using SharpNetwork.Core;
 using SharpNetwork.SimpleWebSocket;
 
 namespace SharpBroadcast.Framework

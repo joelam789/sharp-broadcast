@@ -6,7 +6,7 @@ using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 
-using SharpNetwork;
+using SharpNetwork.Core;
 using SharpNetwork.SimpleWebSocket;
 
 namespace SharpBroadcast.Framework
@@ -89,10 +89,11 @@ namespace SharpBroadcast.Framework
         {
             base.OnConnect(session);
 
-            session.SetMaxMessageQueueSize(Session.IO_SEND, m_MediaServer.OutputQueueSize);
-            session.SetQueueOverflowAction(Session.IO_SEND, Session.ACT_KEEP_OLD);
+            session.MaxWriteQueueSize = m_MediaServer.OutputQueueSize;
+            session.FitWriteQueueAction = Session.ACT_KEEP_OLD;
+
             if (m_MediaServer.OutputSocketBufferSize > 0)
-                session.SetBufferSize(Session.IO_SEND, m_MediaServer.OutputSocketBufferSize);
+                session.SetSendBufferSize(m_MediaServer.OutputSocketBufferSize);
         }
 
         public override void OnHandshake(Session session)
@@ -113,12 +114,12 @@ namespace SharpBroadcast.Framework
             base.OnDisconnect(session);
         }
 
-        public override void OnError(Session session, int errortype, string errormsg)
+        public override void OnError(Session session, int errortype, Exception error)
         {
-            base.OnError(session, errortype, errormsg);
+            base.OnError(session, errortype, error);
 
-            if (errormsg != null && errormsg.Length > 0)
-                m_MediaServer.Logger.Error(errormsg);
+            if (Session.IsProcessError(errortype)) m_MediaServer.Logger.Error(error.ToString());
+            else m_MediaServer.Logger.Error(error.Message);
         }
 
     }

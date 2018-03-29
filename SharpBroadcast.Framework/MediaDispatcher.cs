@@ -6,7 +6,7 @@ using System.Net;
 using System.Text;
 using System.Threading;
 
-using SharpNetwork;
+using SharpNetwork.Core;
 using SharpNetwork.SimpleWebSocket;
 
 namespace SharpBroadcast.Framework
