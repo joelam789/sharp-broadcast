@@ -35,6 +35,8 @@ namespace SharpBroadcast.MediaEncoder
         private VideoOutputTaskGroup m_VideoOutputTaskGroup = new VideoOutputTaskGroup();
         private AudioOutputTaskGroup m_AudioOutputTaskGroup = new AudioOutputTaskGroup();
 
+        private bool m_NeedToStopAll = false;
+
         public MainForm()
         {
             InitializeComponent();
@@ -142,15 +144,49 @@ namespace SharpBroadcast.MediaEncoder
 
         }
 
+        public void StopAll()
+        {
+            m_NeedToStopAll = true;
+
+            timerRestartVideo.Stop();
+            timerRestartVideo.Enabled = false;
+
+            timerRestartAudio.Stop();
+            timerRestartAudio.Enabled = false;
+
+            StopRunningProcesses();
+        }
+
         private void StopRunningProcesses()
         {
             try
             {
+                if (m_VideoProcess != null)
+                {
+                    m_VideoProcess.WriteStandardInput("q\n");
+                    Thread.Sleep(200);
+                }
+            }
+            catch { }
+
+            try
+            {
+                
                 if (m_VideoProcess != null) m_VideoProcess.StopRunningProcess();
             }
             catch { }
 
             m_VideoProcess = null;
+
+            try
+            {
+                if (m_AudioProcess != null)
+                {
+                    m_AudioProcess.WriteStandardInput("q\n");
+                    Thread.Sleep(200);
+                }
+            }
+            catch { }
 
             try
             {
@@ -522,6 +558,11 @@ namespace SharpBroadcast.MediaEncoder
             }
         }
 
+        private void MainForm_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            StopAll();
+        }
+
         private void MainForm_Resize(object sender, EventArgs e)
         {
             if (this.WindowState == FormWindowState.Minimized)
@@ -584,6 +625,8 @@ namespace SharpBroadcast.MediaEncoder
 
         private void btnStart_Click(object sender, EventArgs e)
         {
+            if (m_NeedToStopAll) return;
+
             if (ckbAutoRestart.Enabled && !ckbAutoRestart.Checked)
             {
                 if (MessageBox.Show("Do you want to enable 'auto-restart' at the same time ?", this.Text, MessageBoxButtons.YesNo) == DialogResult.Yes)
@@ -656,6 +699,7 @@ namespace SharpBroadcast.MediaEncoder
                 {
                     if (m_VideoArgs.Contains("-f nut pipe:1"))
                     {
+                        // in this case, Process.Kill() will just kill "cmd", but not "ffmpeg" ...
                         m_VideoProcess = new ProcessIoWrapper("cmd", "/C ffmpeg " + m_VideoArgs, ProcessIoWrapper.FLAG_INPUT | ProcessIoWrapper.FLAG_ERROR);
                     }
                     else
@@ -673,6 +717,7 @@ namespace SharpBroadcast.MediaEncoder
                 {
                     if (m_AudioArgs.Contains("-f nut pipe:1"))
                     {
+                        // in this case, Process.Kill() will just kill "cmd", but not "ffmpeg" ...
                         m_AudioProcess = new ProcessIoWrapper("cmd", "/C ffmpeg " + m_AudioArgs, ProcessIoWrapper.FLAG_INPUT | ProcessIoWrapper.FLAG_ERROR);
                     }
                     else
@@ -987,6 +1032,8 @@ namespace SharpBroadcast.MediaEncoder
             timerRestartVideo.Stop();
             timerRestartVideo.Enabled = false;
 
+            if (m_NeedToStopAll) return;
+
             if (!ckbAutoRestart.Checked || timerRestartVideo.Interval < 1000)
             {
                 LogVideoMsg("Cancelled video restart.\n");
@@ -1004,6 +1051,7 @@ namespace SharpBroadcast.MediaEncoder
 
                 if (m_VideoArgs.Contains("-f nut pipe:1"))
                 {
+                    // in this case, Process.Kill() will just kill "cmd", but not "ffmpeg" ...
                     m_VideoProcess = new ProcessIoWrapper("cmd", "/C ffmpeg " + m_VideoArgs, ProcessIoWrapper.FLAG_INPUT | ProcessIoWrapper.FLAG_ERROR);
                 }
                 else
@@ -1023,6 +1071,8 @@ namespace SharpBroadcast.MediaEncoder
             timerRestartAudio.Stop();
             timerRestartAudio.Enabled = false;
 
+            if (m_NeedToStopAll) return;
+
             if (!ckbAutoRestart.Checked || timerRestartAudio.Interval < 1000)
             {
                 LogAudioMsg("Cancelled audio restart.\n");
@@ -1040,6 +1090,7 @@ namespace SharpBroadcast.MediaEncoder
 
                 if (m_AudioArgs.Contains("-f nut pipe:1"))
                 {
+                    // in this case, Process.Kill() will just kill "cmd", but not "ffmpeg" ...
                     m_AudioProcess = new ProcessIoWrapper("cmd", "/C ffmpeg " + m_AudioArgs, ProcessIoWrapper.FLAG_INPUT | ProcessIoWrapper.FLAG_ERROR);
                 }
                 else
@@ -1053,6 +1104,8 @@ namespace SharpBroadcast.MediaEncoder
                 m_AudioProcess.StartProcess();
             }
         }
+
+        
         
     }
 }

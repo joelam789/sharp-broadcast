@@ -39,7 +39,7 @@ namespace SharpBroadcast.MediaEncoder
             {
                 Application.EnableVisualStyles();
                 Application.SetCompatibleTextRenderingDefault(false);
-                Application.Run(new MainForm());
+                Application.Run(new AppMainForm());
             }
             finally
             {
@@ -49,6 +49,15 @@ namespace SharpBroadcast.MediaEncoder
                     mutex = null;
                 }
             }
+        }
+    }
+
+    class AppMainForm : MainForm
+    {
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing) StopAll();
+            base.Dispose(disposing);
         }
     }
 }

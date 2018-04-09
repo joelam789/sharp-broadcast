@@ -579,6 +579,7 @@ namespace SharpBroadcast.Framework
             {
                 if (context != null && remoteIp.Length > 0 && isValidAddress && context.Request.Url.Segments.Length > 1)
                 {
+                    Logger.Info("Accepted Input from [" + remoteIp + "] - " + context.Request.Url.ToString());
                     Thread thread = new Thread(ProcessInputData);
                     thread.Start(context);
                 }
