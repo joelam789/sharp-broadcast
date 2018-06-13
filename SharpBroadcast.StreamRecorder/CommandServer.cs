@@ -264,6 +264,10 @@ namespace SharpBroadcast.StreamRecorder
                     }
                     client.Record(reqestParams["filename"]);
                 }
+                else
+                {
+                    CommonLog.Error("Failed to record stream: channel [" + reqestParams["channel"] + "] is not found.");
+                }
             }
             else if (reqestParams["command"] == "stop")
             {

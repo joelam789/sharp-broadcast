@@ -169,11 +169,53 @@ namespace SharpBroadcast.StreamRecorder
             if (list == null) return;
             lock (list)
             {
+                var currentTime = DateTime.Now;
+                List<MediaClient> badlist = new List<MediaClient>();
+                List<MediaClient> newlist = new List<MediaClient>();
+                List<MediaClient> idlelist = new List<MediaClient>();
                 foreach (var client in list)
                 {
-                    if (client.Info.Status == "closed")
+                    if (client.Info.ErrorTimes > 5)
+                    {
+                        badlist.Add(client);
+                    }
+                    else if (client.Info.Status == "closed")
                     {
                         client.Open();
+                    }
+                    else if (client.Info.Status == "opened")
+                    {
+                        if (currentTime.Subtract(client.Info.LastActiveTime).TotalSeconds > 60)
+                        {
+                            idlelist.Add(client);
+                        }
+                    }
+                }
+                if (idlelist.Count > 0)
+                {
+                    foreach (var client in idlelist)
+                    {
+                        client.Close();
+                    }
+                }
+                if (badlist.Count > 0)
+                {
+                    foreach (var client in badlist)
+                    {
+                        newlist.Add(new MediaClient(client.ChannelName, client.ChannelURL, m_Config));
+                        client.Close();
+                        list.Remove(client);
+                    }
+                }
+                if (newlist.Count > 0)
+                {
+                    foreach (var client in newlist)
+                    {
+                        list.Add(client);
+                    }
+                    foreach (var client in newlist)
+                    {
+                        if (client.Info.Status == "closed") client.Open();
                     }
                 }
             }

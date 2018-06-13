@@ -121,7 +121,9 @@ namespace SharpBroadcast.StreamRecorder
             {
                 ChannelName = channelName,
                 ChannelURL = url,
-                Status = "closed"
+                ErrorTimes = 0,
+                Status = "closed",
+                LastActiveTime = DateTime.Now
             };
 
             Socket = new WebSocket(url);
@@ -159,13 +161,16 @@ namespace SharpBroadcast.StreamRecorder
             if (Info.Status != "closed") return;
 
             Info.Status = "opening";
+            Info.LastActiveTime = DateTime.Now;
             try
             {
                 Socket.Open();
             }
-            catch
+            catch (Exception ex)
             {
+                Info.ErrorTimes += 1;
                 Info.Status = "closed";
+                CommonLog.Error("Failed to open socket to receive stream data: " + ex.Message);
             }
         }
 
@@ -176,16 +181,33 @@ namespace SharpBroadcast.StreamRecorder
                 Socket.Close();
             }
             catch { }
+            finally
+            {
+                Info.Status = "closed";
+                Info.LastActiveTime = DateTime.Now;
+            }
         }
 
         public void Record(string outputFileName = "", bool needOverwrite = true)
         {
             lock (StreamDataFileName)
             {
-                if (Info.Status == "closed") return;
-                if (Info.MediaInfo.Length <= 0) return;
+                if (Info.Status == "closed")
+                {
+                    CommonLog.Error("Failed to record stream: channel [" + ChannelName + "] is closed.");
+                    return;
+                }
+                if (Info.MediaInfo.Length <= 0)
+                {
+                    CommonLog.Error("Failed to record stream: channel [" + ChannelName + "] has no media info.");
+                    return;
+                }
 
-                if (IsRecording || StreamDataFileName.Length > 0) return;
+                if (IsRecording || StreamDataFileName.Length > 0)
+                {
+                    CommonLog.Info("Channel [" + ChannelName + "] has already started recording.");
+                    return;
+                }
 
                 string outputFile = outputFileName;
                 if (outputFile == null || outputFile.Length <= 0)
@@ -291,12 +313,28 @@ namespace SharpBroadcast.StreamRecorder
         {
             lock (StreamDataFileName)
             {
-                if (Info.Status == "closed") return;
-                if (Info.MediaInfo.Length <= 0) return;
+                if (Info.Status == "closed")
+                {
+                    CommonLog.Error("Failed to export(save) record: channel [" + ChannelName + "] is closed.");
+                    return;
+                }
+                if (Info.MediaInfo.Length <= 0)
+                {
+                    CommonLog.Error("Failed to export(save) record: channel [" + ChannelName + "] has no media info.");
+                    return;
+                }
 
-                if (!IsRecording || StreamDataFileName.Length <= 0) return;
+                if (!IsRecording || StreamDataFileName.Length <= 0)
+                {
+                    CommonLog.Error("Failed to export(save) record: channel [" + ChannelName + "] has not started recording.");
+                    return;
+                }
 
-                if (specificTarget.Length > 0 && specificTarget != StreamDataFileName) return;
+                if (specificTarget.Length > 0 && specificTarget != StreamDataFileName)
+                {
+                    CommonLog.Error("Failed to export(save) record: channel [" + ChannelName + "] has not specified the target file path.");
+                    return;
+                }
 
                 StreamDataFileName = ""; // stop writing received stream data to cache
 
@@ -596,7 +634,20 @@ namespace SharpBroadcast.StreamRecorder
 
         private void WhenError(object sender, SuperSocket.ClientEngine.ErrorEventArgs e)
         {
+            Info.ErrorTimes += 1;
             CommonLog.Error("Socket Error: " + e.Exception.Message);
+            if (Info.ErrorTimes <= 5)
+            {
+                try
+                {
+                    Close();
+                }
+                catch { }
+            }
+            else
+            {
+                Info.Status = "closed";
+            }
         }
 
         private void WhenClosed(object sender, EventArgs e)
@@ -621,7 +672,8 @@ namespace SharpBroadcast.StreamRecorder
             if (Info.Status == "closed") return;
 
             IsReceiving = true;
-            Info.LastDataTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+            Info.LastActiveTime = DateTime.Now;
+            Info.LastDataTime = Info.LastActiveTime.ToString("yyyy-MM-dd HH:mm:ss");
 
             string overloadFileName = "";
 

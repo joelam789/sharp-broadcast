@@ -13,6 +13,9 @@ namespace SharpBroadcast.StreamRecorder
         public string Status { get; set; }
         public string LastDataTime { get; set; }
 
+        public int ErrorTimes { get; set; }
+        public DateTime LastActiveTime { get; set; }
+
         public ClientInfo()
         {
             ChannelName = "";
@@ -22,6 +25,9 @@ namespace SharpBroadcast.StreamRecorder
 
             Status = "closed";
             LastDataTime = "?";
+
+            ErrorTimes = 0;
+            LastActiveTime = DateTime.Now;
         }
     }
 
