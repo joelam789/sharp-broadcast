@@ -25,7 +25,9 @@ namespace SharpBroadcast.BroadcastProxy
         public const int MSG_TYPE_BINARY = 3;
 
         public const string MSG_KEY_HTTP_HEADER = "RequestHeader";
-        public const string MSG_KEY_REQ_PATH = "RequestPath";
+        public const string MSG_KEY_CHANNEL = "RequestChannel";
+        public const string MSG_KEY_PATH = "RequestPath";
+        
 
         public enum HttpStatusCode
         {
@@ -235,6 +237,22 @@ namespace SharpBroadcast.BroadcastProxy
             }
         }
 
+        private string GetChannelFromPath(string path)
+        {
+            var parts = path.Split('/');
+
+            if (parts != null && parts.Length > 0)
+            {
+                foreach (var part in parts)
+                {
+                    var item = part.Trim();
+                    if (item.Length > 0) return item;
+                }
+            }
+
+            return "";
+        }
+
         // please know that function Decode() should be called in single thread
         public bool Decode(Session session, MemoryStream stream, List<Object> output)
         {
@@ -329,7 +347,8 @@ namespace SharpBroadcast.BroadcastProxy
                                 netMsg.RequestUrl = Uri.UnescapeDataString(tokens[1]); // "HttpUtility.UrlDecode()" should be better... but need System.Web
                                 netMsg.ProtocolVersion = tokens[2];
 
-                                HttpMessage.SetSessionData(session, HttpMessage.MSG_KEY_REQ_PATH, netMsg.RequestUrl);
+                                HttpMessage.SetSessionData(session, HttpMessage.MSG_KEY_PATH, netMsg.RequestUrl);
+                                HttpMessage.SetSessionData(session, HttpMessage.MSG_KEY_CHANNEL, GetChannelFromPath(netMsg.RequestUrl));
 
                                 break;
                             }
@@ -542,7 +561,7 @@ namespace SharpBroadcast.BroadcastProxy
     {
         void ProcessIncomingData(Session session, HttpMessage msg);
 
-        void ReconnectTargets();
+        void ReconnectTargets(string channel);
     }
 
     public class ClientNetworkEventHandler : CommonNetworkEventHandler
@@ -623,12 +642,17 @@ namespace SharpBroadcast.BroadcastProxy
             HttpMessage.GetSessionData(session, true);
 
             HttpMessage.SetSessionData(session, HttpMessage.MSG_KEY_HTTP_HEADER, "");
-            HttpMessage.SetSessionData(session, HttpMessage.MSG_KEY_REQ_PATH, "");
+            HttpMessage.SetSessionData(session, HttpMessage.MSG_KEY_CHANNEL, "");
+            HttpMessage.SetSessionData(session, HttpMessage.MSG_KEY_PATH, "");
         }
 
         public override void OnDisconnect(Session session)
         {
-            if (m_Server != null) m_Server.ReconnectTargets();
+            if (m_Server != null)
+            {
+                string channel = session == null ? "" : HttpMessage.GetSessionData(session, HttpMessage.MSG_KEY_CHANNEL).ToString();
+                if (channel != null && channel.Length > 0) m_Server.ReconnectTargets(channel);
+            }
             base.OnDisconnect(session);
         }
 
@@ -658,61 +682,81 @@ namespace SharpBroadcast.BroadcastProxy
     public class BroadcastServer: IBroadcastServer
     {
         Server m_Server = new Server();
-        Dictionary<string, Client> m_Targets = new Dictionary<string, Client>();
+        Dictionary<string, Dictionary<string, Client>> m_Targets = new Dictionary<string, Dictionary<string, Client>>();
 
         Timer m_Timer = null;
         int m_CheckInterval = 3; // in seconds
 
-        public BroadcastServer(int checkInterval = 0)
+        int m_Port = 9810;
+
+        public BroadcastServer(int port, int checkInterval = 0)
         {
             m_Server.SetIoFilter(new ServerDataCodec());
             m_Server.SetIoHandler(new ServerNetworkEventHandler(this));
 
+            if (port > 0) m_Port = port;
             if (checkInterval > 0) m_CheckInterval = checkInterval;
         }
 
-        public void LoadTargets(List<string> urls)
+        public void LoadTargets(Dictionary<string, List<string>> urlsMap)
         {
             var oldTargets = m_Targets;
 
             foreach (var item in oldTargets)
             {
-                try
+                foreach (var subItem in item.Value)
                 {
-                    if (item.Value != null)
+                    try
                     {
-                        item.Value.SetClientId(0);
-                        item.Value.Disconnect(true);
+                        if (subItem.Value != null)
+                        {
+                            subItem.Value.SetClientId(0);
+                            subItem.Value.Disconnect(true);
+                        }
                     }
+                    catch { }
                 }
-                catch { }
             }
 
-            Dictionary<string, Client> newTargets = new Dictionary<string, Client>();
+            var newTargets = new Dictionary<string, Dictionary<string, Client>>();
 
             int count = 0;
-            foreach (string url in urls)
+            var paths = urlsMap.Keys;
+            foreach (string path in paths)
             {
-                try
+                Dictionary<string, Client> clients = null;
+                if (newTargets.ContainsKey(path)) clients = newTargets[path];
+                else
                 {
-                    if (url != null && url.Length > 0)
+                    clients = new Dictionary<string, Client>();
+                    newTargets.Add(path, clients);
+                }
+
+                var urls = urlsMap[path];
+                foreach (var url in urls)
+                {
+                    try
                     {
-                        count++;
-                        var address = url.StartsWith("http://") ? url : "http://" + url;
-                        var uri = new Uri(address, UriKind.Absolute);
-                        var client = new Client();
-                        client.SetClientId(count);
-                        client.SetIoFilter(new ClientDataCodec());
-                        client.SetIoHandler(new ClientNetworkEventHandler(this));
-                        client.Connect(uri.Host, uri.Port);
-                        newTargets.Add(url, client);
+                        if (url != null && url.Length > 0)
+                        {
+                            count++;
+                            var address = url.StartsWith("http://") ? url : "http://" + url;
+                            var uri = new Uri(address, UriKind.Absolute);
+                            var client = new Client();
+                            client.SetClientId(count);
+                            client.SetIoFilter(new ClientDataCodec());
+                            client.SetIoHandler(new ClientNetworkEventHandler(this));
+                            client.Connect(uri.Host, uri.Port);
+                            clients.Add(url, client);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        CommonLog.Error("Failed to load target URL: " + m_Port + "/" + path + " => " + url);
+                        CommonLog.Error(ex.ToString());
                     }
                 }
-                catch (Exception ex)
-                {
-                    CommonLog.Error("Failed to load target URL: " + url);
-                    CommonLog.Error(ex.ToString());
-                }
+                
             }
 
             m_Targets = newTargets;
@@ -722,9 +766,15 @@ namespace SharpBroadcast.BroadcastProxy
         {
             //CommonLog.Info("stream length: " + stream.Length);
 
-            var httpHeader = session != null ? HttpMessage.GetSessionData(session, HttpMessage.MSG_KEY_HTTP_HEADER).ToString() : "";
+            string httpHeader = null;
 
-            var targets = m_Targets;
+            var currentTargets = m_Targets;
+
+            string channel = session == null ? "" : HttpMessage.GetSessionData(session, HttpMessage.MSG_KEY_CHANNEL).ToString();
+            if (channel == null || channel.Length <= 0) return;
+
+            var targets = currentTargets.ContainsKey(channel) ? currentTargets[channel] : null;
+            if (targets == null || targets.Count <= 0) return;
 
             foreach (var item in targets)
             {
@@ -732,10 +782,15 @@ namespace SharpBroadcast.BroadcastProxy
                 {
                     if (item.Value != null && item.Value.GetClientId() > 0)
                     {
-                        if (httpHeader.Length > 0)
+                        var clientSession = item.Value.GetSession();
+                        if (clientSession != null && clientSession.UserData == null)
                         {
-                            var clientSession = item.Value.GetSession();
-                            if (clientSession != null && clientSession.UserData == null)
+                            if (httpHeader == null)
+                            {
+                                if (session == null) httpHeader = "";
+                                else httpHeader = HttpMessage.GetSessionData(session, HttpMessage.MSG_KEY_HTTP_HEADER).ToString();
+                            }
+                            if (httpHeader != null && httpHeader.Length > 0)
                             {
                                 item.Value.Send(new HttpMessage(httpHeader));
                                 clientSession.UserData = "header";
@@ -748,9 +803,13 @@ namespace SharpBroadcast.BroadcastProxy
             }
         }
 
-        public void ReconnectTargets()
+        public void ReconnectTargets(string channel)
         {
-            var targets = m_Targets;
+            var currentTargets = m_Targets;
+            if (channel == null || channel.Length <= 0) return;
+
+            var targets = currentTargets.ContainsKey(channel) ? currentTargets[channel] : null;
+            if (targets == null || targets.Count <= 0) return;
 
             foreach (var item in targets)
             {
@@ -765,7 +824,7 @@ namespace SharpBroadcast.BroadcastProxy
             }
         }
 
-        public bool Start(int port)
+        public bool Start()
         {
             Stop();
 
@@ -775,13 +834,13 @@ namespace SharpBroadcast.BroadcastProxy
             {
                 if (m_Server != null)
                 {
-                    m_Server.Start(port);
+                    m_Server.Start(m_Port);
                     isServerOK = true;
                 }
             }
             catch (Exception ex)
             {
-                CommonLog.Error("Failed to listen on port: " + port);
+                CommonLog.Error("Failed to listen on port: " + m_Port);
                 CommonLog.Error(ex.ToString());
             }
 
@@ -816,22 +875,25 @@ namespace SharpBroadcast.BroadcastProxy
         {
             var targets = m_Targets;
 
-            foreach (var item in targets)
+            foreach (var mainItem in targets)
             {
-                try
+                foreach (var item in mainItem.Value)
                 {
-                    if (item.Key != null && item.Key.Length > 0 
-                        && item.Value != null && item.Value.GetClientId() > 0)
+                    try
                     {
-                        if (item.Value.GetState() < 0)
+                        if (item.Key != null && item.Key.Length > 0
+                            && item.Value != null && item.Value.GetClientId() > 0)
                         {
-                            var address = item.Key.StartsWith("http://") ? item.Key : "http://" + item.Key;
-                            var uri = new Uri(address, UriKind.Absolute);
-                            item.Value.Connect(uri.Host, uri.Port);
+                            if (item.Value.GetState() < 0)
+                            {
+                                var address = item.Key.StartsWith("http://") ? item.Key : "http://" + item.Key;
+                                var uri = new Uri(address, UriKind.Absolute);
+                                item.Value.Connect(uri.Host, uri.Port);
+                            }
                         }
                     }
+                    catch { }
                 }
-                catch { }
             }
         }
     }
