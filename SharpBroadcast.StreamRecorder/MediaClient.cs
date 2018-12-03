@@ -669,11 +669,25 @@ namespace SharpBroadcast.StreamRecorder
 
         private void WhenDataReceived(object sender, WebSocket4Net.DataReceivedEventArgs e)
         {
-            if (Info.Status == "closed") return;
+            //IsReceiving = true;
+            //Info.LastActiveTime = DateTime.Now;
+            //Info.LastDataTime = Info.LastActiveTime.ToString("yyyy-MM-dd HH:mm:ss");
 
-            IsReceiving = true;
-            Info.LastActiveTime = DateTime.Now;
-            Info.LastDataTime = Info.LastActiveTime.ToString("yyyy-MM-dd HH:mm:ss");
+            try
+            {
+                if (Info.Status == "closed") return;
+                if (e.Data.Length <= 0) return;
+                else
+                {
+                    IsReceiving = true;
+                    Info.LastActiveTime = DateTime.Now;
+                    Info.LastDataTime = Info.LastActiveTime.ToString("yyyy-MM-dd HH:mm:ss");
+                }
+            }
+            catch
+            {
+                return;
+            }
 
             string overloadFileName = "";
 
@@ -766,9 +780,22 @@ namespace SharpBroadcast.StreamRecorder
 
         private void WhenMessageReceived(object sender, WebSocket4Net.MessageReceivedEventArgs e)
         {
-            IsReceiving = true;
+            try
+            {
+                if (Info.Status == "closed") return;
+                if (e.Message.Length <= 0) return;
+                else
+                {
+                    IsReceiving = true;
+                    Info.LastActiveTime = DateTime.Now;
+                    Info.LastDataTime = Info.LastActiveTime.ToString("yyyy-MM-dd HH:mm:ss");
+                }
 
-            if (e.Message.Trim().Length <= 0) return;
+            }
+            catch
+            {
+                return;
+            }
 
             Info.MediaInfo = e.Message.Trim();
             var parts = Info.MediaInfo.Split('|');
