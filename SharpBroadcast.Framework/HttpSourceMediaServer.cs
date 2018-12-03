@@ -15,7 +15,7 @@ namespace SharpBroadcast.Framework
 {
     public class HttpSourceMediaServer : IMediaServer
     {
-        public const int DEFAULT_INPUT_QUEUE_SIZE = 8;
+        public const int DEFAULT_INPUT_QUEUE_SIZE = 32;
         public const int DEFAULT_INPUT_BUFFER_SIZE = 8;
         public const int DEFAULT_OUTPUT_QUEUE_SIZE = 256;
         public const int DEFAULT_OUTPUT_BUFFER_SIZE = 256;

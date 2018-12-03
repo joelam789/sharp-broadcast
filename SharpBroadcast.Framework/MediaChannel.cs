@@ -10,6 +10,8 @@ namespace SharpBroadcast.Framework
         protected List<byte> m_WelcomeData = new List<byte>();
         protected string m_WelcomeText = "";
 
+        protected int m_MaxInputQueueSize = 0;
+
         public string ChannelName { get; private set; }
 
         public MediaDispatcher Dispatcher { get; private set; }
@@ -26,6 +28,22 @@ namespace SharpBroadcast.Framework
         public bool AddServer(IMediaServer server)
         {
             if (Dispatcher.IsWorking()) return false; // coz we will not lock OutputList
+            if (server != null && server.InputQueueSize > 0)
+            {
+                if (m_MaxInputQueueSize <= 0)
+                {
+                    m_MaxInputQueueSize = server.InputQueueSize;
+                    server.Logger.Info("Max InputQueueLength of [" + ChannelName + "] is set to " + m_MaxInputQueueSize);
+                }
+                else
+                {
+                    if (m_MaxInputQueueSize > server.InputQueueSize)
+                    {
+                        m_MaxInputQueueSize = server.InputQueueSize; // just get the small one
+                        server.Logger.Info("Max InputQueueLength of [" + ChannelName + "] is set to " + m_MaxInputQueueSize);
+                    }
+                }
+            }
             OutputList.Add(new ChannelServerItem(server, server.GetClients(ChannelName)));
             return true;
         }
@@ -33,8 +51,11 @@ namespace SharpBroadcast.Framework
         public void Process(BufferData buffer)
         {
             if (!Dispatcher.IsWorking()) return;
-            Dispatcher.Buffers.Enqueue(buffer);
-            Dispatcher.Process();
+            if (m_MaxInputQueueSize <= 0 || Dispatcher.Buffers.Count <= m_MaxInputQueueSize)
+            {
+                Dispatcher.Buffers.Enqueue(buffer);
+                Dispatcher.Process();
+            }
         }
 
         public void Start()

@@ -89,7 +89,7 @@ namespace SharpBroadcast.Framework
                             foreach (var client in badlist)
                             {
                                 Session session = client as Session;
-                                if (session.UserData != null) (session.UserData as IMediaServer).RemoveClient(client);
+                                if (session != null && session.UserData != null) (session.UserData as IMediaServer).RemoveClient(client);
                                 if (session != null) session.Close();
                             }
                         }

@@ -36,7 +36,7 @@ namespace SharpBroadcast.Framework
         {
             InputIp = "";
             InputPort = 9210;
-            InputQueueSize = 8;
+            InputQueueSize = 32;
             InputBufferSize = 8;
             InputWhitelist = new List<string>();
             OutputIp = "";
