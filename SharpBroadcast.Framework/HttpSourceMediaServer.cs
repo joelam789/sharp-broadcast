@@ -36,6 +36,8 @@ namespace SharpBroadcast.Framework
 
         protected Dictionary<string, MediaChannelState> m_States = new Dictionary<string, MediaChannelState>();
 
+        protected Dictionary<string, int> m_ChannelInputQueueLengths = null;
+
         protected HttpListener m_InputServer = null;
         protected Thread m_InputListenerThread = null;
 
@@ -67,7 +69,7 @@ namespace SharpBroadcast.Framework
 
         public HttpSourceMediaServer(string serverName, MediaResourceManager resourceManager, IServerLogger logger = null,
                             string inputIp = "", int inputPort = -1, string outputIp = "", int outputPort = -1, 
-                            List<string> inputWhiteList = null, string certFile = "", string certKey = "")
+                            List<string> inputWhiteList = null, string certFile = "", string certKey = "", Dictionary<string, int> channelInputQueueLengths = null)
         {
             InputQueueSize = DEFAULT_INPUT_QUEUE_SIZE;
             InputBufferSize = DEFAULT_INPUT_BUFFER_SIZE;
@@ -95,6 +97,8 @@ namespace SharpBroadcast.Framework
 
             if (inputWhiteList != null) m_InputWhiteList.AddRange(inputWhiteList);
             if (m_InputWhiteList.Count <= 0) m_InputWhiteList.Add("127.0.0.1");
+
+            if (channelInputQueueLengths != null) m_ChannelInputQueueLengths = new Dictionary<string, int>(channelInputQueueLengths);
         }
 
         public static bool Match(string pattern1, string pattern2)
@@ -167,6 +171,14 @@ namespace SharpBroadcast.Framework
         public MediaChannel GetChannel(string channelName)
         {
             return m_ResourceManager.GetChannel(channelName, m_ResourceManager.IsAvailableChannelName(channelName));
+        }
+
+        public int GetChannelInputQueueLength(string channelName)
+        {
+            if (m_ChannelInputQueueLengths != null && m_ChannelInputQueueLengths.ContainsKey(channelName))
+                return m_ChannelInputQueueLengths[channelName];
+
+            return 0;
         }
 
         public List<string> GetSourceWhitelist()

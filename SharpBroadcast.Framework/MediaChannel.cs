@@ -28,19 +28,33 @@ namespace SharpBroadcast.Framework
         public bool AddServer(IMediaServer server)
         {
             if (Dispatcher.IsWorking()) return false; // coz we will not lock OutputList
-            if (server != null && server.InputQueueSize > 0)
+
+            if (server != null)
             {
-                if (m_MaxInputQueueSize <= 0)
+                int inputQueueLength = server.GetChannelInputQueueLength(ChannelName);
+                if (inputQueueLength > 0)
                 {
-                    m_MaxInputQueueSize = server.InputQueueSize;
+                    m_MaxInputQueueSize = inputQueueLength;
                     server.Logger.Info("Max InputQueueLength of [" + ChannelName + "] is set to " + m_MaxInputQueueSize);
                 }
                 else
                 {
-                    if (m_MaxInputQueueSize > server.InputQueueSize)
+                    inputQueueLength = server.InputQueueSize;
+                    if (inputQueueLength > 0)
                     {
-                        m_MaxInputQueueSize = server.InputQueueSize; // just get the small one
-                        server.Logger.Info("Max InputQueueLength of [" + ChannelName + "] is set to " + m_MaxInputQueueSize);
+                        if (m_MaxInputQueueSize <= 0)
+                        {
+                            m_MaxInputQueueSize = server.InputQueueSize;
+                            server.Logger.Info("Max InputQueueLength of [" + ChannelName + "] is set to " + m_MaxInputQueueSize);
+                        }
+                        else
+                        {
+                            if (m_MaxInputQueueSize > server.InputQueueSize)
+                            {
+                                m_MaxInputQueueSize = server.InputQueueSize; // just get the small one
+                                server.Logger.Info("Max InputQueueLength of [" + ChannelName + "] is set to " + m_MaxInputQueueSize);
+                            }
+                        }
                     }
                 }
             }

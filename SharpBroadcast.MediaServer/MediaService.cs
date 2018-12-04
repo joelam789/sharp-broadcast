@@ -33,6 +33,12 @@ namespace SharpBroadcast.MediaServer
             ConfigurationManager.RefreshSection("appSettings");
             ConfigurationManager.RefreshSection("media-servers");
 
+            try
+            {
+                ConfigurationManager.RefreshSection("channel-input-queue-lengths");
+            }
+            catch { }
+
             CommonLog.Info("=== Media Server is starting ===");
 
             var appSettings = ConfigurationManager.AppSettings;
@@ -44,6 +50,30 @@ namespace SharpBroadcast.MediaServer
             string remoteValidationURL = "";
             if (appSettings.AllKeys.Contains("RemoteValidationURL")) remoteValidationURL = appSettings["RemoteValidationURL"];
 
+            Dictionary<string, int> channelInputQueueLengths = null;
+            try
+            {
+                var channelInputQueueLengthSetting = ConfigurationManager.GetSection("channel-input-queue-lengths") as NameValueCollection;
+                if (channelInputQueueLengthSetting != null)
+                {
+                    channelInputQueueLengths = new Dictionary<string, int>();
+                    var channelKeys = channelInputQueueLengthSetting.AllKeys;
+                    foreach (var key in channelKeys)
+                    {
+                        int len = 0;
+                        if (Int32.TryParse(channelInputQueueLengthSetting[key], out len))
+                        {
+                            if (!channelInputQueueLengths.ContainsKey(key)) channelInputQueueLengths.Add(key, len);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                CommonLog.Error("Failed to load channel-input-queue-lengths: ");
+                CommonLog.Error(ex.ToString());
+            }
+
             var mediaServerSettings = (NameValueCollection)ConfigurationManager.GetSection("media-servers");
             var allKeys = mediaServerSettings.AllKeys;
 
@@ -52,7 +82,7 @@ namespace SharpBroadcast.MediaServer
                 string json = mediaServerSettings[key];
                 ServerSetting setting = JsonConvert.DeserializeObject<ServerSetting>(json);
                 HttpSourceMediaServer mediaServer = new HttpSourceMediaServer(key, m_MediaResourceManager, CommonLog.GetLogger(),
-                    setting.InputIp, setting.InputPort, setting.OutputIp, setting.OutputPort, setting.InputWhitelist, setting.CertFile, setting.CertKey);
+                    setting.InputIp, setting.InputPort, setting.OutputIp, setting.OutputPort, setting.InputWhitelist, setting.CertFile, setting.CertKey, channelInputQueueLengths);
                 mediaServer.InputQueueSize = setting.InputQueueSize;
                 mediaServer.InputBufferSize = setting.InputBufferSize;
                 mediaServer.OutputQueueSize = setting.OutputQueueSize;

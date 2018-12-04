@@ -25,6 +25,8 @@ namespace SharpBroadcast.Framework
 
         MediaChannel GetChannel(string channelName);
 
+        int GetChannelInputQueueLength(string channelName);
+
         List<MediaChannelState> GetChannelStates();
         void UpdateState(string channelName, MediaChannelState state);
         int RemoveState(string channelName);
