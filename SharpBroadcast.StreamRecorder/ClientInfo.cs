@@ -40,6 +40,8 @@ namespace SharpBroadcast.StreamRecorder
         public string RecordFileFolder { get; set; }
         public string RecordContentType { get; set; }
 
+        public int MustCreateOutputFile { get; set; }
+
         public decimal VideoStartOffset { get; set; }
         public decimal AudioStartOffset { get; set; }
 
@@ -54,6 +56,8 @@ namespace SharpBroadcast.StreamRecorder
             StreamDataFolder = "";
             RecordFileFolder = "";
             RecordContentType = "auto";
+
+            MustCreateOutputFile = 0;
 
             VideoStartOffset = 0;
             AudioStartOffset = 0;

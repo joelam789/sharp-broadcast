@@ -49,6 +49,8 @@ namespace SharpBroadcast.StreamRecorder
         private decimal m_VideoStartOffset = 0;
         private decimal m_AudioStartOffset = 0;
 
+        private int m_MustCreateOutputFile = 0;
+
         public int MaxCacheSize { get; private set; }
         public int MaxRecordSize { get; private set; }
 
@@ -72,6 +74,8 @@ namespace SharpBroadcast.StreamRecorder
             IsReceiving = false;
             IsRecording = false;
             IsConverting = false;
+
+            if (config != null) m_MustCreateOutputFile = config.MustCreateOutputFile;
 
             m_ConverterCmd = config != null && config.Converter.Length > 0 ? config.Converter : DEFAULT_CONVERTER_CMD;
             m_CallbackUrl = config != null && config.Callback.Length > 0 ? config.Callback : "?";
@@ -606,11 +610,27 @@ namespace SharpBroadcast.StreamRecorder
                     CommonLog.Info("Failed to convert live stream to MP4!");
                 }
 
-
             }
             catch (Exception ex)
             {
                 CommonLog.Error("Failed to convert live stream to MP4: " + ex.ToString());
+            }
+
+            if (outputFile.Length > 0)
+            {
+                if (!File.Exists(outputFile) && m_MustCreateOutputFile > 0)
+                {
+                    try
+                    {
+                        using (var fs = File.Create(outputFile)) { }
+                    }
+                    catch (Exception ex)
+                    {
+                        string errmsg = "Failed to create final output file: " + outputFile;
+                        CommonLog.Error(errmsg);
+                        CommonLog.Error(ex.ToString());
+                    }
+                }
             }
 
         }

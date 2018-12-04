@@ -61,6 +61,8 @@ namespace SharpBroadcast.StreamRecorder
             if (appSettings.AllKeys.Contains("RecordFileFolder")) m_Config.RecordFileFolder = appSettings["RecordFileFolder"];
             if (appSettings.AllKeys.Contains("RecordContentType")) m_Config.RecordContentType = appSettings["RecordContentType"];
 
+            if (appSettings.AllKeys.Contains("MustCreateOutputFile")) m_Config.MustCreateOutputFile = Convert.ToInt32(appSettings["MustCreateOutputFile"].ToString());
+
             if (appSettings.AllKeys.Contains("VideoStartOffset")) m_Config.VideoStartOffset = Convert.ToDecimal(appSettings["VideoStartOffset"].ToString());
             if (appSettings.AllKeys.Contains("AudioStartOffset")) m_Config.AudioStartOffset = Convert.ToDecimal(appSettings["AudioStartOffset"].ToString());
             m_Config.VideoStartOffset = Decimal.Round(m_Config.VideoStartOffset, 2);
