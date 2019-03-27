@@ -12,6 +12,10 @@ namespace SharpBroadcast.Framework
 
         protected int m_MaxInputQueueSize = 0;
 
+        //protected IServerLogger m_Logger = null;
+
+        protected List<string> m_InputUrls = new List<string>();
+
         public string ChannelName { get; private set; }
 
         public MediaDispatcher Dispatcher { get; private set; }
@@ -25,17 +29,56 @@ namespace SharpBroadcast.Framework
             Dispatcher = new MediaDispatcher(OutputList);
         }
 
+        public void AddInputUrl(string url)
+        {
+            if (String.IsNullOrEmpty(url)) return;
+            lock (m_InputUrls)
+            {
+                if (!m_InputUrls.Contains(url)) m_InputUrls.Add(url);
+            }
+        }
+
+        public void RemoveInputUrl(string url)
+        {
+            if (String.IsNullOrEmpty(url)) return;
+            lock (m_InputUrls)
+            {
+                if (m_InputUrls.Contains(url)) m_InputUrls.Remove(url);
+                if (m_InputUrls.Count <= 0) // clear buffers
+                {
+                    BufferData item;
+                    while (Dispatcher.Buffers.TryDequeue(out item))
+                    {
+                        // do nothing
+                    }
+                    //if (Dispatcher.Buffers.Count <= 0 && m_Logger != null) m_Logger.Info("Channel #" + ChannelName + "# buffer cleared ");
+                }
+            }
+        }
+
+        public List<string> GetInputUrls()
+        {
+            List<string> urls = new List<string>();
+            lock (m_InputUrls)
+            {
+                urls.AddRange(m_InputUrls);
+            }
+            return urls;
+        }
+
         public bool AddServer(IMediaServer server)
         {
             if (Dispatcher.IsWorking()) return false; // coz we will not lock OutputList
 
             if (server != null)
             {
+                //m_Logger = server.Logger;
+
                 int inputQueueLength = server.GetChannelInputQueueLength(ChannelName);
                 if (inputQueueLength > 0)
                 {
                     m_MaxInputQueueSize = inputQueueLength;
-                    server.Logger.Info("Max InputQueueLength of [" + ChannelName + "] is set to " + m_MaxInputQueueSize);
+                    //server.Logger.Info("Max InputQueueLength of [" + ChannelName + "] is set to " + m_MaxInputQueueSize);
                 }
                 else
                 {
@@ -45,14 +88,14 @@ namespace SharpBroadcast.Framework
                         if (m_MaxInputQueueSize <= 0)
                         {
                             m_MaxInputQueueSize = server.InputQueueSize;
-                            server.Logger.Info("Max InputQueueLength of [" + ChannelName + "] is set to " + m_MaxInputQueueSize);
+                            //server.Logger.Info("Max InputQueueLength of [" + ChannelName + "] is set to " + m_MaxInputQueueSize);
                         }
                         else
                         {
                             if (m_MaxInputQueueSize > server.InputQueueSize)
                             {
                                 m_MaxInputQueueSize = server.InputQueueSize; // just get the small one
-                                server.Logger.Info("Max InputQueueLength of [" + ChannelName + "] is set to " + m_MaxInputQueueSize);
+                                //server.Logger.Info("Max InputQueueLength of [" + ChannelName + "] is set to " + m_MaxInputQueueSize);
                             }
                         }
                     }

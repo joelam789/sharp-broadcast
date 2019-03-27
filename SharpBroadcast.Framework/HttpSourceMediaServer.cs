@@ -611,6 +611,18 @@ namespace SharpBroadcast.Framework
             HttpListenerContext ctx = obj as HttpListenerContext;
             if (ctx == null) return;
 
+            string remoteIp = "";
+            string sourceUrl = "";
+            try
+            {
+                remoteIp = ctx.Request.RemoteEndPoint.Address.ToString();
+                sourceUrl = "[" + remoteIp + "] - " + ctx.Request.Url.ToString();
+            }
+            catch (Exception ex)
+            {
+                Logger.Error("HTTP context error: " + ex.Message);
+            }
+
             IMediaHandler handler = null;
             List<MediaChannel> channels = new List<MediaChannel>();
 
@@ -625,8 +637,16 @@ namespace SharpBroadcast.Framework
                 foreach (var channelName in names)
                 {
                     var channel = GetChannel(channelName.Trim());
+                    if (channel != null) channel.AddInputUrl(sourceUrl);
                     if (channel != null && channel.IsWorking() == false) channel.Start();
                     if (channel != null) channels.Add(channel);
+
+                    if (channel != null)
+                    {
+                        var srcUrls = channel.GetInputUrls();
+                        Logger.Info("Channel #" + channelName + "# input source updated >> ");
+                        foreach (var srcUrl in srcUrls) Logger.Info("#" + channelName + "# - " + srcUrl);
+                    }
                 }
             }
 
@@ -662,6 +682,15 @@ namespace SharpBroadcast.Framework
                     //channel.SetWelcomeText("");
                     channel.RemoveWelcomeText(mediainfo);
                     channel.SetWelcomeData(new byte[0]);
+
+                    channel.RemoveInputUrl(sourceUrl);
+                    if (channel != null)
+                    {
+                        var srcUrls = channel.GetInputUrls();
+                        Logger.Info("Channel #" + channel.ChannelName + "# input source updated >> ");
+                        foreach (var srcUrl in srcUrls) Logger.Info("#" + channel.ChannelName + "# - " + srcUrl);
+                    }
+
                     RemoveState(channel.ChannelName);
                 }
             }
