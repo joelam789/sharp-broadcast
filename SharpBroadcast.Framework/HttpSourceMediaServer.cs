@@ -591,7 +591,7 @@ namespace SharpBroadcast.Framework
             {
                 if (context != null && remoteIp.Length > 0 && isValidAddress && context.Request.Url.Segments.Length > 1)
                 {
-                    Logger.Info("Accepted Input from [" + remoteIp + "] - " + context.Request.Url.ToString());
+                    //Logger.Info("Accepted Input from [" + remoteIp + "] - " + context.Request.Url.ToString());
                     Thread thread = new Thread(ProcessInputData);
                     thread.Start(context);
                 }
@@ -637,16 +637,19 @@ namespace SharpBroadcast.Framework
                 foreach (var channelName in names)
                 {
                     var channel = GetChannel(channelName.Trim());
-                    if (channel != null) channel.AddInputUrl(sourceUrl);
-                    if (channel != null && channel.IsWorking() == false) channel.Start();
-                    if (channel != null) channels.Add(channel);
 
+                    if (channel != null) channel.AddInputUrl(sourceUrl);
                     if (channel != null)
                     {
                         var srcUrls = channel.GetInputUrls();
                         Logger.Info("Channel #" + channelName + "# input source updated >> ");
                         foreach (var srcUrl in srcUrls) Logger.Info("#" + channelName + "# - " + srcUrl);
                     }
+
+                    if (channel != null && channel.IsWorking() == false) channel.Start();
+                    if (channel != null) channels.Add(channel);
+
+                    Thread.Sleep(50);
                 }
             }
 
@@ -675,6 +678,7 @@ namespace SharpBroadcast.Framework
                     UpdateState(channel.ChannelName, state);
                 }
 
+                // should ensure there is at least a try-catch block inside the process function
                 handler.HandleInput(this, channels, ctx.Request.InputStream, mediainfo);
 
                 foreach (var channel in channels)
@@ -687,11 +691,21 @@ namespace SharpBroadcast.Framework
                     if (channel != null)
                     {
                         var srcUrls = channel.GetInputUrls();
-                        Logger.Info("Channel #" + channel.ChannelName + "# input source updated >> ");
-                        foreach (var srcUrl in srcUrls) Logger.Info("#" + channel.ChannelName + "# - " + srcUrl);
+                        if (srcUrls.Count > 0)
+                        {
+                            Logger.Info("Channel #" + channel.ChannelName + "# input source updated >> ");
+                            foreach (var srcUrl in srcUrls) Logger.Info("#" + channel.ChannelName + "# - " + srcUrl);
+                        }
+                        else
+                        {
+                            Logger.Info("Channel #" + channel.ChannelName + "# input source dropped.");
+                        }
+                        
                     }
 
                     RemoveState(channel.ChannelName);
+
+                    Thread.Sleep(50);
                 }
             }
 
