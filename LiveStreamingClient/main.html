@@ -62,8 +62,11 @@
 	var afilter = null;
 	if (tryToUsePCM) {
 		afilter = audioCtx.createBiquadFilter();
-		afilter.Q.value = 1.00;
-		afilter.frequency.value = 1000;
+		//afilter.Q.value = 1.00;
+		//afilter.frequency.value = 1000;
+		afilter.Q.value = 8.30;
+        afilter.frequency.value = 355;
+        afilter.gain.value = 3.0;
 		afilter.type = 'bandpass';
 	}
 	
