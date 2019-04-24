@@ -15,6 +15,27 @@ namespace SharpBroadcast.BroadcastProxy
     {
         Dictionary<int, BroadcastServer> m_Servers = new Dictionary<int, BroadcastServer>();
 
+        List<string> m_InputWhiteList = new List<string>();
+
+        public List<string> GetSourceWhitelist()
+        {
+            List<string> list = new List<string>();
+            lock (m_InputWhiteList)
+            {
+                list.AddRange(m_InputWhiteList);
+            }
+            return list;
+        }
+
+        public void SetSourceWhitelist(List<string> list)
+        {
+            lock (m_InputWhiteList)
+            {
+                m_InputWhiteList.Clear();
+                m_InputWhiteList.AddRange(list);
+            }
+        }
+
         public void Start()
         {
             Stop();
@@ -23,8 +44,16 @@ namespace SharpBroadcast.BroadcastProxy
 
             var proxySettings = new Dictionary<int, Dictionary<string, List<string>>>();
             var keys = ConfigurationManager.AppSettings.AllKeys;
+            var inputWhiteList = new List<string>();
             foreach (var key in keys)
             {
+                if (key == "InputWhitelist")
+                {
+                    var ips = ConfigurationManager.AppSettings[key].ToString().Split(',');
+                    foreach (var ip in ips) inputWhiteList.Add(ip.Trim());
+                    continue;
+                }
+
                 var mainParts = key.Split('/');
                 if (mainParts == null || mainParts.Length < 2) continue;
 
@@ -61,6 +90,19 @@ namespace SharpBroadcast.BroadcastProxy
                 }
             }
 
+            lock (m_InputWhiteList)
+            {
+                if (inputWhiteList != null)
+                {
+                    m_InputWhiteList.Clear();
+                    m_InputWhiteList.AddRange(inputWhiteList);
+                }
+                if (m_InputWhiteList.Count <= 0) m_InputWhiteList.Add("127.0.0.1");
+            }
+
+            var ipWhitelist = GetSourceWhitelist();
+            CommonLog.Info("Input source whitelist: " + String.Join(", ", ipWhitelist.ToArray()));
+
             lock (m_Servers)
             {
                 foreach (var item in proxySettings)
@@ -68,7 +110,7 @@ namespace SharpBroadcast.BroadcastProxy
                     var targets = item.Value;
                     var server = new BroadcastServer(item.Key);
                     server.LoadTargets(targets);
-                    if (server.Start())
+                    if (server.Start(ipWhitelist))
                     {
                         m_Servers.Add(item.Key, server);
                         foreach (var target in targets)

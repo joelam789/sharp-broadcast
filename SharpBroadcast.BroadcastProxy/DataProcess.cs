@@ -562,6 +562,8 @@ namespace SharpBroadcast.BroadcastProxy
         void ProcessIncomingData(Session session, HttpMessage msg);
 
         void ReconnectTargets(string channel);
+
+        List<string> GetSourceWhitelist();
     }
 
     public class ClientNetworkEventHandler : CommonNetworkEventHandler
@@ -629,9 +631,62 @@ namespace SharpBroadcast.BroadcastProxy
             m_Server = server;
         }
 
+        public static bool Match(string pattern1, string pattern2)
+        {
+            if (pattern1 == pattern2) return true;
+            if (pattern1 == "*" || pattern2 == "*") return true;
+            if (pattern1.Length == 0) return pattern2.Length == 0;
+            else if (pattern2.Length == 0) return false;
+
+            if (pattern1[0] == '*')
+            {
+                for (int i = 0; i < pattern2.Length; i++)
+                {
+                    if (Match(pattern1.Substring(1), pattern2.Substring(i)))
+                        return true;
+                }
+                return false;
+            }
+            else if (pattern2[0] == '*')
+            {
+                for (int i = 0; i < pattern1.Length; i++)
+                {
+                    if (Match(pattern1.Substring(i), pattern2.Substring(1)))
+                        return true;
+                }
+                return false;
+            }
+            else return pattern1[0] == pattern2[0] && Match(pattern1.Substring(1), pattern2.Substring(1));
+
+        }
+
         public override void OnConnect(Session session)
         {
             base.OnConnect(session);
+
+            var remoteIp = session.GetRemoteIp();
+            var inputWhiteList = m_Server.GetSourceWhitelist();
+
+            bool isValidAddress = false; // must set whitelist ...
+            if (inputWhiteList.Count > 0 && remoteIp.Length > 0)
+            {
+                foreach (string pattern in inputWhiteList)
+                {
+                    if (Match(pattern, remoteIp))
+                    {
+                        isValidAddress = true;
+                        break;
+                    }
+                }
+            }
+
+            if (!isValidAddress)
+            {
+                CommonLog.Error("Stream source IP is not on white list: " + remoteIp);
+                session.Close();
+                return;
+            }
+
             session.FitReadQueueAction = Session.ACT_KEEP_OLD;
             session.FitWriteQueueAction = Session.ACT_KEEP_OLD;
 
@@ -686,6 +741,8 @@ namespace SharpBroadcast.BroadcastProxy
 
         Timer m_Timer = null;
         int m_CheckInterval = 3; // in seconds
+
+        List<string> m_InputWhiteList = new List<string>();
 
         int m_Port = 9810;
 
@@ -824,9 +881,38 @@ namespace SharpBroadcast.BroadcastProxy
             }
         }
 
-        public bool Start()
+        public List<string> GetSourceWhitelist()
+        {
+            List<string> list = new List<string>();
+            lock (m_InputWhiteList)
+            {
+                list.AddRange(m_InputWhiteList);
+            }
+            return list;
+        }
+
+        public void SetSourceWhitelist(List<string> list)
+        {
+            lock (m_InputWhiteList)
+            {
+                m_InputWhiteList.Clear();
+                m_InputWhiteList.AddRange(list);
+            }
+        }
+
+        public bool Start(List<string> inputWhiteList = null)
         {
             Stop();
+
+            lock (m_InputWhiteList)
+            {
+                if (inputWhiteList != null)
+                {
+                    m_InputWhiteList.Clear();
+                    m_InputWhiteList.AddRange(inputWhiteList);
+                }
+                if (m_InputWhiteList.Count <= 0) m_InputWhiteList.Add("127.0.0.1");
+            }
 
             bool isServerOK = false;
 
