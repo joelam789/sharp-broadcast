@@ -14,6 +14,11 @@
 		
 		this.audioFilter = null;
 		this.videoContainer = null;
+
+		this.pendingUrl = "";
+		this.isOpening = false;
+		this.isClosing = false;
+		this.hasAskedForClosing = false;
 		
 		this.volume = function(value) {
 			if (this.audio != null) {
@@ -25,19 +30,34 @@
 		this.close = function() {
 			if (this.video != null) this.video.enabled = false;
 			if (this.audio != null) this.audio.enabled = false;
-			if (this.socket != null) {
-				this.socket.close()
-				this.socket = null;
-			}
 			if (this.video != null) this.video.clear();
 			if (this.audio != null) this.audio.clear();
+			if (this.socket != null) {
+				if (!this.isOpening && !this.isClosing) {
+					this.hasAskedForClosing = false;
+					this.isClosing = true;
+					this.socket.close();
+				} else if (this.isOpening) {
+					this.hasAskedForClosing = true;
+				} else if (this.isClosing) {
+					this.hasAskedForClosing = false;
+				}
+				//this.socket = null;
+			}
 		};
 		
 		this.open = function(url) {
 			
 			this.close();
+
+			if (this.isOpening || this.isClosing) {
+				this.pendingUrl = url;
+				return;
+			}
 			
 			this.url = url;
+			this.pendingUrl = "";
+			this.isOpening = true;
 			this.socket = new WebSocket(url);
 			this.socket.binaryType = "arraybuffer";
 			this.socket.onmessage = function(event) {
@@ -71,6 +91,13 @@
 				}
 			}.bind(this);
 			this.socket.onopen = function() {
+				this.isOpening = false;
+				if (this.hasAskedForClosing) {
+					this.hasAskedForClosing = false;
+					this.isClosing = true;
+					this.socket.close();
+					return;
+				}
 				if (this.audio != null) this.audio.open(this.audioFilter);
 				if (this.video != null && this.video.domNode != null && this.videoContainer != null)
 					this.videoContainer.appendChild(this.video.domNode);
@@ -81,9 +108,28 @@
 				}
 			}.bind(this);
 			this.socket.onclose = function() {
+				this.isClosing = false;
 				if (this.audio != null) this.audio.close();
 				if (this.onClose != undefined && this.onClose != null) this.onClose();
+				this.socket = null;
+				if (this.pendingUrl != undefined && this.pendingUrl != null && this.pendingUrl.length > 0) {
+					var nextTargetStreamUrl = this.pendingUrl;
+					this.pendingUrl = "";
+					this.open(nextTargetStreamUrl);
+				}
 			}.bind(this);
+			this.socket.onerror = function(evt) {
+				console.error("WebSocket of stream player error:", evt);
+				if (this.video != null) this.video.enabled = false;
+				if (this.audio != null) this.audio.enabled = false;
+				if (this.video != null) this.video.clear();
+				if (this.audio != null) this.audio.clear();
+				this.pendingUrl = "";
+				this.isOpening = false;
+				this.isClosing = false;
+				this.hasAskedForClosing = false;
+				if (this.onError != undefined && this.onError != null) this.onError();
+			  }.bind(this);
 			
 			if (this.video != null) this.video.enabled = true;
 		};
