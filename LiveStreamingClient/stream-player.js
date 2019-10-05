@@ -18,7 +18,7 @@
 		this.pendingUrl = "";
 		this.isOpening = false;
 		this.isClosing = false;
-		this.hasAskedForClosing = false;
+		this.pendingClosing = false;
 		
 		this.volume = function(value) {
 			if (this.audio != null) {
@@ -32,15 +32,16 @@
 			if (this.audio != null) this.audio.enabled = false;
 			if (this.video != null) this.video.clear();
 			if (this.audio != null) this.audio.clear();
+			this.pendingUrl = "";
 			if (this.socket != null) {
 				if (!this.isOpening && !this.isClosing) {
-					this.hasAskedForClosing = false;
+					this.pendingClosing = false;
 					this.isClosing = true;
 					this.socket.close();
 				} else if (this.isOpening) {
-					this.hasAskedForClosing = true;
+					this.pendingClosing = true;
 				} else if (this.isClosing) {
-					this.hasAskedForClosing = false;
+					this.pendingClosing = false;
 				}
 				//this.socket = null;
 			}
@@ -92,8 +93,8 @@
 			}.bind(this);
 			this.socket.onopen = function() {
 				this.isOpening = false;
-				if (this.hasAskedForClosing) {
-					this.hasAskedForClosing = false;
+				if (this.pendingClosing) {
+					this.pendingClosing = false;
 					this.isClosing = true;
 					this.socket.close();
 					return;
@@ -127,7 +128,7 @@
 				this.pendingUrl = "";
 				this.isOpening = false;
 				this.isClosing = false;
-				this.hasAskedForClosing = false;
+				this.pendingClosing = false;
 				if (this.onError != undefined && this.onError != null) this.onError();
 			  }.bind(this);
 			
