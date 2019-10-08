@@ -120,7 +120,7 @@
 				}
 			}.bind(this);
 			this.socket.onerror = function(evt) {
-				console.error("WebSocket of stream player error:", evt);
+				console.error("Error of web-socket in stream player: ", evt);
 				if (this.video != null) this.video.enabled = false;
 				if (this.audio != null) this.audio.enabled = false;
 				if (this.video != null) this.video.clear();
@@ -129,7 +129,7 @@
 				this.isOpening = false;
 				this.isClosing = false;
 				this.pendingClosing = false;
-				if (this.onError != undefined && this.onError != null) this.onError();
+				if (this.onError != undefined && this.onError != null) this.onError(evt);
 			  }.bind(this);
 			
 			if (this.video != null) this.video.enabled = true;
