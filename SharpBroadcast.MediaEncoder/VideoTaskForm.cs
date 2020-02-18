@@ -47,6 +47,7 @@ namespace SharpBroadcast.MediaEncoder
         {
             if (task.VideoType == "mpeg") rbtMpeg1.Checked = true;
             if (task.VideoType == "h264") rbtH264.Checked = true;
+            if (task.VideoType == "rtmp") rbtRtmp.Checked = true;
             for (var i = 0; i < cbbResolution.Items.Count; i++)
             {
                 if (cbbResolution.Items[i].ToString() == task.Resolution)
@@ -72,6 +73,7 @@ namespace SharpBroadcast.MediaEncoder
 
             if (rbtMpeg1.Checked) task.VideoType = "mpeg";
             if (rbtH264.Checked) task.VideoType = "h264";
+            if (rbtRtmp.Checked) task.VideoType = "rtmp";
             if (cbbResolution.SelectedIndex >= 0)
                 task.Resolution = cbbResolution.Items[cbbResolution.SelectedIndex].ToString();
 

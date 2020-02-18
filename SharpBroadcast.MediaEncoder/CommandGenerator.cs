@@ -54,7 +54,7 @@ namespace SharpBroadcast.MediaEncoder
                             ;
 
             string serverUrl = task.ServerAddress.ToLower().Trim();
-            if (!serverUrl.Contains("http://")) serverUrl = "http://" + serverUrl;
+            if (!serverUrl.Contains("://")) serverUrl = "http://" + serverUrl;
 
             if (serverUrl.Last() == '/') serverUrl = serverUrl.Substring(0, serverUrl.Length - 1);
 
@@ -79,6 +79,13 @@ namespace SharpBroadcast.MediaEncoder
                             + (task.Bitrate > 0 ? ("" + '@' + task.Bitrate + "kbps") : "")
                             ;
             }
+            else if (task.VideoType == "rtmp")
+            {
+                if (task.ExtraParam.Length > 0) output += " " + task.ExtraParam + " ";
+                output += " -f flv ";
+                output += serverUrl + "/" + task.ChannelName
+                            ;
+            }
             else return "";
 
             return output;
@@ -96,7 +103,7 @@ namespace SharpBroadcast.MediaEncoder
             string output = " -vn " + (task.Bitrate > 0 ? (" -b:a " + task.Bitrate + "k ") : "");
 
             string serverUrl = task.ServerAddress.ToLower().Trim();
-            if (!serverUrl.Contains("http://")) serverUrl = "http://" + serverUrl;
+            if (!serverUrl.Contains("://")) serverUrl = "http://" + serverUrl;
 
             if (serverUrl.Last() == '/') serverUrl = serverUrl.Substring(0, serverUrl.Length - 1);
 
