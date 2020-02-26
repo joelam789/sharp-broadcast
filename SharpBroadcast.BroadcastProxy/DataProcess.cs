@@ -711,6 +711,12 @@ namespace SharpBroadcast.BroadcastProxy
             base.OnDisconnect(session);
         }
 
+        public override void OnIdle(Session session, Int32 optype)
+        {
+            if (session != null && optype == Session.IO_RECEIVE) session.Close();
+            else base.OnIdle(session, optype);
+        }
+
         public override int OnReceive(Session session, Object data)
         {
             HttpMessage msg = data as HttpMessage;
@@ -920,6 +926,7 @@ namespace SharpBroadcast.BroadcastProxy
             {
                 if (m_Server != null)
                 {
+                    m_Server.SetIdleTime(Session.IO_RECEIVE, 30); // set reading timeout to 30s
                     m_Server.Start(m_Port);
                     isServerOK = true;
                 }
