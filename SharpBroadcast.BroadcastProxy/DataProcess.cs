@@ -926,7 +926,7 @@ namespace SharpBroadcast.BroadcastProxy
             {
                 if (m_Server != null)
                 {
-                    m_Server.SetIdleTime(Session.IO_RECEIVE, 5); // set reading timeout to 5s
+                    m_Server.SetIdleTime(Session.IO_RECEIVE, 30); // set reading timeout to 30s
                     m_Server.Start(m_Port);
                     isServerOK = true;
                 }

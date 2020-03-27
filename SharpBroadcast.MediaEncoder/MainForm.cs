@@ -37,6 +37,12 @@ namespace SharpBroadcast.MediaEncoder
 
         private bool m_NeedToStopAll = false;
 
+        private DateTime m_LastVideoTime = DateTime.Now;
+        private DateTime m_LastAudioTime = DateTime.Now;
+
+        private int m_MaxRecvIdleSeconds = 0;
+
+
         public MainForm()
         {
             InitializeComponent();
@@ -354,7 +360,10 @@ namespace SharpBroadcast.MediaEncoder
 
         private void OnVideoStderrTextRead(string text)
         {
+            m_LastVideoTime = DateTime.Now;
             LogVideoMsg(text);
+
+            
         }
 
         private void OnVideoProcessExited()
@@ -404,6 +413,7 @@ namespace SharpBroadcast.MediaEncoder
 
         private void OnAudioStderrTextRead(string text)
         {
+            m_LastAudioTime = DateTime.Now;
             LogAudioMsg(text);
         }
 
@@ -470,6 +480,13 @@ namespace SharpBroadcast.MediaEncoder
             var allKeys = appSettings.AllKeys;
 
             if (allKeys.Contains("EncoderAAC")) m_EncoderAAC = appSettings["EncoderAAC"];
+
+            if (allKeys.Contains("MaxRecvIdleSeconds"))
+            {
+                int maxIdleTime = 0;
+                if (Int32.TryParse(appSettings["MaxRecvIdleSeconds"].ToString(), out maxIdleTime))
+                    m_MaxRecvIdleSeconds = maxIdleTime > 0 ? maxIdleTime : 0;
+            }
 
             int interval = 0;
             if (allKeys.Contains("AutoRestartInterval")) int.TryParse(appSettings["AutoRestartInterval"], out interval);
@@ -707,6 +724,8 @@ namespace SharpBroadcast.MediaEncoder
                         m_VideoProcess = new ProcessIoWrapper("ffmpeg", m_VideoArgs, ProcessIoWrapper.FLAG_INPUT | ProcessIoWrapper.FLAG_ERROR);
                     }
 
+                    m_LastVideoTime = DateTime.Now;
+
                     //m_ProcessIoWrapper.OnStandardOutputTextRead = new Action<string>((text) => { OnStderrTextRead(text); });
                     m_VideoProcess.OnStandardErrorTextRead = new Action<string>((text) => { OnVideoStderrTextRead(text); });
                     m_VideoProcess.OnProcessExited = new Action(() => { OnVideoProcessExited(); });
@@ -724,6 +743,8 @@ namespace SharpBroadcast.MediaEncoder
                     {
                         m_AudioProcess = new ProcessIoWrapper("ffmpeg", m_AudioArgs, ProcessIoWrapper.FLAG_INPUT | ProcessIoWrapper.FLAG_ERROR);
                     }
+
+                    m_LastAudioTime = DateTime.Now;
 
                     //m_ProcessIoWrapper.OnStandardOutputTextRead = new Action<string>((text) => { OnStderrTextRead(text); });
                     m_AudioProcess.OnStandardErrorTextRead = new Action<string>((text) => { OnAudioStderrTextRead(text); });
@@ -1059,6 +1080,8 @@ namespace SharpBroadcast.MediaEncoder
                     m_VideoProcess = new ProcessIoWrapper("ffmpeg", m_VideoArgs, ProcessIoWrapper.FLAG_INPUT | ProcessIoWrapper.FLAG_ERROR);
                 }
 
+                m_LastVideoTime = DateTime.Now;
+
                 //m_ProcessIoWrapper.OnStandardOutputTextRead = new Action<string>((text) => { OnStderrTextRead(text); });
                 m_VideoProcess.OnStandardErrorTextRead = new Action<string>((text) => { OnVideoStderrTextRead(text); });
                 m_VideoProcess.OnProcessExited = new Action(() => { OnVideoProcessExited(); });
@@ -1098,6 +1121,8 @@ namespace SharpBroadcast.MediaEncoder
                     m_AudioProcess = new ProcessIoWrapper("ffmpeg", m_AudioArgs, ProcessIoWrapper.FLAG_INPUT | ProcessIoWrapper.FLAG_ERROR);
                 }
 
+                m_LastAudioTime = DateTime.Now;
+
                 //m_ProcessIoWrapper.OnStandardOutputTextRead = new Action<string>((text) => { OnStderrTextRead(text); });
                 m_AudioProcess.OnStandardErrorTextRead = new Action<string>((text) => { OnAudioStderrTextRead(text); });
                 m_AudioProcess.OnProcessExited = new Action(() => { OnAudioProcessExited(); });
@@ -1105,7 +1130,48 @@ namespace SharpBroadcast.MediaEncoder
             }
         }
 
-        
-        
+        private void timerCheckRecvTimeout_Tick(object sender, EventArgs e)
+        {
+            DateTime currentTime = DateTime.Now;
+
+            var maxIdleTime = m_MaxRecvIdleSeconds;
+            if (maxIdleTime <= 0) return;
+
+            try
+            {
+                if (btnStart.Enabled == false && btnStop.Enabled == true)
+                {
+                    var seconds = (currentTime - m_LastVideoTime).TotalSeconds;
+                    if (seconds > maxIdleTime)
+                    {
+                        if (m_VideoProcess != null)
+                        {
+                            m_VideoProcess.WriteStandardInput("q\n");
+                            //Thread.Sleep(500);
+                        }
+                    }
+                }
+
+            }
+            catch { }
+
+            try
+            {
+                if (btnStart.Enabled == false && btnStop.Enabled == true)
+                {
+                    var seconds = (currentTime - m_LastAudioTime).TotalSeconds;
+                    if (seconds > maxIdleTime)
+                    {
+                        if (m_AudioProcess != null)
+                        {
+                            m_AudioProcess.WriteStandardInput("q\n");
+                            //Thread.Sleep(500);
+                        }
+                    }
+                }
+
+            }
+            catch { }
+        }
     }
 }

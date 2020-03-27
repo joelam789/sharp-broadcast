@@ -84,6 +84,7 @@
             this.timerAutoSet = new System.Windows.Forms.Timer(this.components);
             this.timerRestartVideo = new System.Windows.Forms.Timer(this.components);
             this.timerRestartAudio = new System.Windows.Forms.Timer(this.components);
+            this.timerCheckRecvTimeout = new System.Windows.Forms.Timer(this.components);
             this.gbMediaSource.SuspendLayout();
             this.gbLog.SuspendLayout();
             this.gbAction.SuspendLayout();
@@ -395,6 +396,7 @@
             this.colChannelName});
             this.olvVideoTasks.FullRowSelect = true;
             this.olvVideoTasks.HasCollapsibleGroups = false;
+            this.olvVideoTasks.HideSelection = false;
             this.olvVideoTasks.Location = new System.Drawing.Point(6, 47);
             this.olvVideoTasks.Name = "olvVideoTasks";
             this.olvVideoTasks.ShowGroups = false;
@@ -533,6 +535,7 @@
             this.colAudioChannelName});
             this.olvAudioTasks.FullRowSelect = true;
             this.olvAudioTasks.HasCollapsibleGroups = false;
+            this.olvAudioTasks.HideSelection = false;
             this.olvAudioTasks.Location = new System.Drawing.Point(6, 47);
             this.olvAudioTasks.Name = "olvAudioTasks";
             this.olvAudioTasks.ShowGroups = false;
@@ -585,6 +588,12 @@
             // timerRestartAudio
             // 
             this.timerRestartAudio.Tick += new System.EventHandler(this.timerRestartAudio_Tick);
+            // 
+            // timerCheckRecvTimeout
+            // 
+            this.timerCheckRecvTimeout.Enabled = true;
+            this.timerCheckRecvTimeout.Interval = 1000;
+            this.timerCheckRecvTimeout.Tick += new System.EventHandler(this.timerCheckRecvTimeout_Tick);
             // 
             // MainForm
             // 
@@ -673,6 +682,7 @@
         private System.Windows.Forms.Timer timerRestartVideo;
         private System.Windows.Forms.Timer timerRestartAudio;
         private System.Windows.Forms.TextBox edtAudioUrlSource;
+        private System.Windows.Forms.Timer timerCheckRecvTimeout;
     }
 }
 
