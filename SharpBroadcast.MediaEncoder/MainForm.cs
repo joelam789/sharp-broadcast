@@ -1132,46 +1132,78 @@ namespace SharpBroadcast.MediaEncoder
 
         private void timerCheckRecvTimeout_Tick(object sender, EventArgs e)
         {
-            DateTime currentTime = DateTime.Now;
-
-            var maxIdleTime = m_MaxRecvIdleSeconds;
-            if (maxIdleTime <= 0) return;
-
-            try
+            BeginInvoke((Action)(() =>
             {
-                if (btnStart.Enabled == false && btnStop.Enabled == true)
+                DateTime currentTime = DateTime.Now;
+
+                var maxIdleTime = m_MaxRecvIdleSeconds;
+                if (maxIdleTime <= 0) return;
+
+                try
                 {
-                    var seconds = (currentTime - m_LastVideoTime).TotalSeconds;
-                    if (seconds > maxIdleTime)
+                    if (btnStart.Enabled == false && btnStop.Enabled == true)
                     {
-                        if (m_VideoProcess != null)
+                        var seconds = (currentTime - m_LastVideoTime).TotalSeconds;
+                        if (seconds > maxIdleTime)
                         {
-                            m_VideoProcess.WriteStandardInput("q\n");
-                            //Thread.Sleep(500);
+                            try
+                            {
+                                if (m_VideoProcess != null)
+                                {
+                                    m_VideoProcess.WriteStandardInput("q\n");
+                                    Thread.Sleep(200);
+                                }
+                            }
+                            catch { }
+
+                            try
+                            {
+
+                                if (m_VideoProcess != null) m_VideoProcess.StopRunningProcess();
+                            }
+                            catch { }
+
+                            m_VideoProcess = null;
                         }
                     }
+
                 }
+                catch { }
 
-            }
-            catch { }
-
-            try
-            {
-                if (btnStart.Enabled == false && btnStop.Enabled == true)
+                try
                 {
-                    var seconds = (currentTime - m_LastAudioTime).TotalSeconds;
-                    if (seconds > maxIdleTime)
+                    if (btnStart.Enabled == false && btnStop.Enabled == true)
                     {
-                        if (m_AudioProcess != null)
+                        var seconds = (currentTime - m_LastAudioTime).TotalSeconds;
+                        if (seconds > maxIdleTime)
                         {
-                            m_AudioProcess.WriteStandardInput("q\n");
-                            //Thread.Sleep(500);
+                            try
+                            {
+                                if (m_AudioProcess != null)
+                                {
+                                    m_AudioProcess.WriteStandardInput("q\n");
+                                    Thread.Sleep(200);
+                                }
+                            }
+                            catch { }
+
+                            try
+                            {
+                                if (m_AudioProcess != null) m_AudioProcess.StopRunningProcess();
+                            }
+                            catch { }
+
+                            m_AudioProcess = null;
                         }
                     }
-                }
 
-            }
-            catch { }
+                }
+                catch { }
+
+
+            }));
+
+                
         }
     }
 }
