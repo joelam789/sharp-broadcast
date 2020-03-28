@@ -747,18 +747,20 @@ namespace SharpBroadcast.BroadcastProxy
 
         Timer m_Timer = null;
         int m_CheckInterval = 3; // in seconds
+        int m_MaxRecvIdleSeconds = 0;
 
         List<string> m_InputWhiteList = new List<string>();
 
         int m_Port = 9810;
 
-        public BroadcastServer(int port, int checkInterval = 0)
+        public BroadcastServer(int port, int maxRecvIdleSeconds = 0, int checkInterval = 0)
         {
             m_Server.SetIoFilter(new ServerDataCodec());
             m_Server.SetIoHandler(new ServerNetworkEventHandler(this));
 
             if (port > 0) m_Port = port;
             if (checkInterval > 0) m_CheckInterval = checkInterval;
+            if (maxRecvIdleSeconds > 0) m_MaxRecvIdleSeconds = maxRecvIdleSeconds;
         }
 
         public void LoadTargets(Dictionary<string, List<string>> urlsMap)
@@ -926,7 +928,7 @@ namespace SharpBroadcast.BroadcastProxy
             {
                 if (m_Server != null)
                 {
-                    m_Server.SetIdleTime(Session.IO_RECEIVE, 30); // set reading timeout to 30s
+                    if (m_MaxRecvIdleSeconds > 0) m_Server.SetIdleTime(Session.IO_RECEIVE, m_MaxRecvIdleSeconds);
                     m_Server.Start(m_Port);
                     isServerOK = true;
                 }

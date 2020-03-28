@@ -45,12 +45,23 @@ namespace SharpBroadcast.BroadcastProxy
             var proxySettings = new Dictionary<int, Dictionary<string, List<string>>>();
             var keys = ConfigurationManager.AppSettings.AllKeys;
             var inputWhiteList = new List<string>();
+
+            var maxRecvIdleSeconds = 0;
+
             foreach (var key in keys)
             {
                 if (key == "InputWhitelist")
                 {
                     var ips = ConfigurationManager.AppSettings[key].ToString().Split(',');
                     foreach (var ip in ips) inputWhiteList.Add(ip.Trim());
+                    continue;
+                }
+
+                if (key == "MaxRecvIdleSeconds")
+                {
+                    int maxIdleTime = 0;
+                    if (Int32.TryParse(ConfigurationManager.AppSettings[key].ToString(), out maxIdleTime))
+                        maxRecvIdleSeconds = maxIdleTime > 0 ? maxIdleTime : 0;
                     continue;
                 }
 
@@ -90,6 +101,8 @@ namespace SharpBroadcast.BroadcastProxy
                 }
             }
 
+            CommonLog.Info("Max receiving idle seconds: " + maxRecvIdleSeconds);
+
             lock (m_InputWhiteList)
             {
                 if (inputWhiteList != null)
@@ -108,7 +121,7 @@ namespace SharpBroadcast.BroadcastProxy
                 foreach (var item in proxySettings)
                 {
                     var targets = item.Value;
-                    var server = new BroadcastServer(item.Key);
+                    var server = new BroadcastServer(item.Key, maxRecvIdleSeconds);
                     server.LoadTargets(targets);
                     if (server.Start(ipWhitelist))
                     {
