@@ -1164,6 +1164,8 @@ namespace SharpBroadcast.MediaEncoder
                             catch { }
 
                             m_VideoProcess = null;
+
+                            m_LastVideoTime = DateTime.Now;
                         }
                     }
 
@@ -1194,6 +1196,8 @@ namespace SharpBroadcast.MediaEncoder
                             catch { }
 
                             m_AudioProcess = null;
+
+                            m_LastAudioTime = DateTime.Now;
                         }
                     }
 
