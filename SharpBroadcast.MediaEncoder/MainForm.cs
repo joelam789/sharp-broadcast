@@ -205,17 +205,22 @@ namespace SharpBroadcast.MediaEncoder
 
         private void Log4Video(string text)
         {
-            if (mmVideoLogger.Lines.Length > 1024)
+            try
             {
-                List<string> finalLines = mmVideoLogger.Lines.ToList();
-                finalLines.RemoveRange(0, 512);
-                mmVideoLogger.Lines = finalLines.ToArray();
-            }
+                if (mmVideoLogger.Lines.Length > 1024)
+                {
+                    List<string> finalLines = mmVideoLogger.Lines.ToList();
+                    finalLines.RemoveRange(0, 512);
+                    mmVideoLogger.Lines = finalLines.ToArray();
+                }
 
-            //mmLogger.AppendText("[" + DateTime.Now.ToString("HH:mm:ss") + "] " + text);
-            mmVideoLogger.AppendText(text);
-            mmVideoLogger.SelectionStart = mmVideoLogger.Text.Length;
-            mmVideoLogger.ScrollToCaret();
+                //mmLogger.AppendText("[" + DateTime.Now.ToString("HH:mm:ss") + "] " + text);
+                mmVideoLogger.AppendText(text);
+                mmVideoLogger.SelectionStart = mmVideoLogger.Text.Length;
+                mmVideoLogger.ScrollToCaret();
+
+            }
+            catch { } // just want to make it more robust
         }
 
         public void LogVideoMsg(string msg)
@@ -228,17 +233,22 @@ namespace SharpBroadcast.MediaEncoder
 
         private void Log4Audio(string text)
         {
-            if (mmAudioLogger.Lines.Length > 1024)
+            try
             {
-                List<string> finalLines = mmAudioLogger.Lines.ToList();
-                finalLines.RemoveRange(0, 512);
-                mmAudioLogger.Lines = finalLines.ToArray();
-            }
+                if (mmAudioLogger.Lines.Length > 1024)
+                {
+                    List<string> finalLines = mmAudioLogger.Lines.ToList();
+                    finalLines.RemoveRange(0, 512);
+                    mmAudioLogger.Lines = finalLines.ToArray();
+                }
 
-            //mmLogger.AppendText("[" + DateTime.Now.ToString("HH:mm:ss") + "] " + text);
-            mmAudioLogger.AppendText(text);
-            mmAudioLogger.SelectionStart = mmAudioLogger.Text.Length;
-            mmAudioLogger.ScrollToCaret();
+                //mmLogger.AppendText("[" + DateTime.Now.ToString("HH:mm:ss") + "] " + text);
+                mmAudioLogger.AppendText(text);
+                mmAudioLogger.SelectionStart = mmAudioLogger.Text.Length;
+                mmAudioLogger.ScrollToCaret();
+            }
+            catch { } // just want to make it more robust
+            
         }
 
         public void LogAudioMsg(string msg)
