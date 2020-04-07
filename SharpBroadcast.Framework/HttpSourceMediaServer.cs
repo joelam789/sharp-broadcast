@@ -603,6 +603,12 @@ namespace SharpBroadcast.Framework
             catch (Exception ex)
             {
                 Logger.Error("HTTP process error: " + ex.Message);
+
+                try
+                {
+                    if (context != null) context.Response.Abort(); // make sure the connection is closed
+                }
+                catch { }
             }
         }
 
@@ -711,12 +717,9 @@ namespace SharpBroadcast.Framework
 
             try
             {
-                ctx.Response.Abort(); // make sure the connection is closed
+                if (ctx != null) ctx.Response.Abort(); // make sure the connection is closed
             }
-            catch (Exception ex)
-            {
-                Logger.Error("HTTP context error: " + ex.Message);
-            }
+            catch { }
         }
 
         public void Stop()
