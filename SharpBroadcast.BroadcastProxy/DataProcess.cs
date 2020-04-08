@@ -713,7 +713,7 @@ namespace SharpBroadcast.BroadcastProxy
 
         public override void OnIdle(Session session, Int32 optype)
         {
-            if (session != null && optype == Session.IO_RECEIVE) session.Close();
+            if (session != null && optype == Session.IO_RECEIVE) session.Close(false);
             else base.OnIdle(session, optype);
         }
 
@@ -836,10 +836,18 @@ namespace SharpBroadcast.BroadcastProxy
             var currentTargets = m_Targets;
 
             string channel = session == null ? "" : HttpMessage.GetSessionData(session, HttpMessage.MSG_KEY_CHANNEL).ToString();
-            if (channel == null || channel.Length <= 0) return;
+            if (channel == null || channel.Length <= 0)
+            {
+                if (session != null) session.Close(false);
+                return;
+            }
 
             var targets = currentTargets.ContainsKey(channel) ? currentTargets[channel] : null;
-            if (targets == null || targets.Count <= 0) return;
+            if (targets == null || targets.Count <= 0)
+            {
+                if (session != null) session.Close(false);
+                return;
+            }
 
             foreach (var item in targets)
             {
