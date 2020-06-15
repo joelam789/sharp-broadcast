@@ -498,6 +498,8 @@ namespace SharpBroadcast.Framework
                 {
                     m_OutputServer = new WebSocketServer(this, m_CertFile, m_CertKey);
 
+                    //m_OutputServer.ActualServer.SetIdleTime(Session.IO_BOTH, 3 * 60); // set max idle time to 3 mins
+
                     if (m_OutputIp.Length > 0 && m_OutputIp != "0.0.0.0")
                     {
                         m_OutputServer.ActualServer.Start(m_OutputIp, m_OutputPort);
