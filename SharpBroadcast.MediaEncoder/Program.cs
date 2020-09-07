@@ -37,9 +37,11 @@ namespace SharpBroadcast.MediaEncoder
 
             try
             {
+                SimpleLog.Info("=== BEGIN ===");
                 Application.EnableVisualStyles();
                 Application.SetCompatibleTextRenderingDefault(false);
                 Application.Run(new AppMainForm());
+                SimpleLog.Info("=== END ===");
             }
             finally
             {

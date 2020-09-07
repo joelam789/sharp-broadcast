@@ -40,6 +40,13 @@ namespace SharpBroadcast.MediaEncoder
         private DateTime m_LastVideoTime = DateTime.Now;
         private DateTime m_LastAudioTime = DateTime.Now;
 
+        private decimal m_LowVideoInputSpeed = 0;
+        private decimal m_MinVideoInputSpeed = 0;
+        private decimal m_LastVideoInputSpeed = 0;
+        private List<decimal> m_LastVideoInputFrames = new List<decimal>();
+
+        private string m_LastErrorMessage = "";
+
         private int m_MaxRecvIdleSeconds = 0;
 
 
@@ -373,6 +380,41 @@ namespace SharpBroadcast.MediaEncoder
             m_LastVideoTime = DateTime.Now;
             LogVideoMsg(text);
 
+            try
+            {
+                if (m_LowVideoInputSpeed > 0 || m_MinVideoInputSpeed > 0)
+                {
+                    var lines = text.Split('\n');
+                    foreach (var line in lines)
+                    {
+                        var pos1 = line.LastIndexOf("speed=");
+                        var pos2 = pos1 >= 0 ? line.LastIndexOf('x') : -1;
+                        var len = pos1 >= 0 && pos2 >= 0 ? pos2 - pos1 - 6 : -1;
+                        if (len > 0)
+                        {
+                            var str = line.Substring(pos1 + 6, len);
+                            //Console.WriteLine(str);
+
+                            decimal speed = 0;
+                            if (decimal.TryParse(str, out speed))
+                            {
+                                m_LastVideoInputFrames.Add(speed);
+                                if (m_LastVideoInputFrames.Count >= 5)
+                                {
+                                    var sum = m_LastVideoInputFrames.Sum();
+                                    m_LastVideoInputSpeed = sum / m_LastVideoInputFrames.Count;
+                                    m_LastVideoInputFrames.Clear();
+                                }
+                                if (m_LowVideoInputSpeed > 0 && m_LowVideoInputSpeed > speed)
+                                {
+                                    SimpleLog.Info(line);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch { }
             
         }
 
@@ -380,6 +422,13 @@ namespace SharpBroadcast.MediaEncoder
         {
             if (m_VideoProcess != null && m_VideoProcess.HasExited())
             {
+                if (m_LastErrorMessage.Length > 0)
+                {
+                    var logmsg = m_LastErrorMessage;
+                    LogVideoMsg("\r\n" + logmsg + "\r\n");
+                    SimpleLog.Info(logmsg);
+                }
+
                 if (ckbAutoRestart.Checked && timerRestartVideo.Interval >= 1000)
                 {
                     BeginInvoke((Action)(() =>
@@ -496,6 +545,20 @@ namespace SharpBroadcast.MediaEncoder
                 int maxIdleTime = 0;
                 if (Int32.TryParse(appSettings["MaxRecvIdleSeconds"].ToString(), out maxIdleTime))
                     m_MaxRecvIdleSeconds = maxIdleTime > 0 ? maxIdleTime : 0;
+            }
+
+            if (allKeys.Contains("LowVideoInputSpeed"))
+            {
+                decimal lowVideoInputSpeed = 0;
+                if (decimal.TryParse(appSettings["LowVideoInputSpeed"].ToString(), out lowVideoInputSpeed))
+                    m_LowVideoInputSpeed = lowVideoInputSpeed > 0 ? lowVideoInputSpeed : 0;
+            }
+
+            if (allKeys.Contains("MinVideoInputSpeed"))
+            {
+                decimal minVideoInputSpeed = 0;
+                if (decimal.TryParse(appSettings["MinVideoInputSpeed"].ToString(), out minVideoInputSpeed))
+                    m_MinVideoInputSpeed = minVideoInputSpeed > 0 ? minVideoInputSpeed : 0;
             }
 
             int interval = 0;
@@ -724,6 +787,10 @@ namespace SharpBroadcast.MediaEncoder
 
                 if (m_VideoArgs.Length > 0)
                 {
+                    m_LastErrorMessage = "";
+                    m_LastVideoInputSpeed = 0;
+                    m_LastVideoInputFrames.Clear();
+
                     if (m_VideoArgs.Contains("-f nut pipe:1"))
                     {
                         // in this case, Process.Kill() will just kill "cmd", but not "ffmpeg" ...
@@ -1080,6 +1147,10 @@ namespace SharpBroadcast.MediaEncoder
                 }
                 catch { }
 
+                m_LastErrorMessage = "";
+                m_LastVideoInputSpeed = 0;
+                m_LastVideoInputFrames.Clear();
+
                 if (m_VideoArgs.Contains("-f nut pipe:1"))
                 {
                     // in this case, Process.Kill() will just kill "cmd", but not "ffmpeg" ...
@@ -1147,73 +1218,123 @@ namespace SharpBroadcast.MediaEncoder
                 DateTime currentTime = DateTime.Now;
 
                 var maxIdleTime = m_MaxRecvIdleSeconds;
-                if (maxIdleTime <= 0) return;
-
-                try
+                if (maxIdleTime > 0)
                 {
-                    if (btnStart.Enabled == false && btnStop.Enabled == true)
+                    try
                     {
-                        var seconds = (currentTime - m_LastVideoTime).TotalSeconds;
-                        if (seconds > maxIdleTime)
+                        if (btnStart.Enabled == false && btnStop.Enabled == true)
                         {
-                            try
+                            var seconds = (currentTime - m_LastVideoTime).TotalSeconds;
+                            if (seconds > maxIdleTime)
                             {
-                                if (m_VideoProcess != null)
+                                m_LastErrorMessage = "Stopped ffmpeg because video input stream idles timeout.";
+
+                                try
                                 {
-                                    m_VideoProcess.WriteStandardInput("q\n");
-                                    Thread.Sleep(200);
+                                    if (m_VideoProcess != null)
+                                    {
+                                        m_VideoProcess.WriteStandardInput("q\n");
+                                        Thread.Sleep(200);
+                                    }
                                 }
+                                catch { }
+
+                                try
+                                {
+
+                                    if (m_VideoProcess != null) m_VideoProcess.StopRunningProcess();
+                                }
+                                catch { }
+
+                                m_VideoProcess = null;
+
+                                m_LastVideoInputSpeed = 0;
+                                m_LastVideoInputFrames.Clear();
+
+                                m_LastVideoTime = DateTime.Now;
+
                             }
-                            catch { }
-
-                            try
-                            {
-
-                                if (m_VideoProcess != null) m_VideoProcess.StopRunningProcess();
-                            }
-                            catch { }
-
-                            m_VideoProcess = null;
-
-                            m_LastVideoTime = DateTime.Now;
                         }
+
                     }
+                    catch { }
+
+                    try
+                    {
+                        if (btnStart.Enabled == false && btnStop.Enabled == true)
+                        {
+                            var seconds = (currentTime - m_LastAudioTime).TotalSeconds;
+                            if (seconds > maxIdleTime)
+                            {
+                                try
+                                {
+                                    if (m_AudioProcess != null)
+                                    {
+                                        m_AudioProcess.WriteStandardInput("q\n");
+                                        Thread.Sleep(200);
+                                    }
+                                }
+                                catch { }
+
+                                try
+                                {
+                                    if (m_AudioProcess != null) m_AudioProcess.StopRunningProcess();
+                                }
+                                catch { }
+
+                                m_AudioProcess = null;
+
+                                m_LastAudioTime = DateTime.Now;
+                            }
+                        }
+
+                    }
+                    catch { }
 
                 }
-                catch { }
 
-                try
+                if (m_VideoProcess != null)
                 {
-                    if (btnStart.Enabled == false && btnStop.Enabled == true)
+                    var minSpeed = m_MinVideoInputSpeed;
+                    var lastSpeed = m_LastVideoInputSpeed;
+                    if (minSpeed > 0 && lastSpeed > 0 && lastSpeed < minSpeed)
                     {
-                        var seconds = (currentTime - m_LastAudioTime).TotalSeconds;
-                        if (seconds > maxIdleTime)
+                        try
                         {
-                            try
+                            if (btnStart.Enabled == false && btnStop.Enabled == true)
                             {
-                                if (m_AudioProcess != null)
+                                m_LastErrorMessage = "Stopped ffmpeg because video input stream is too slow.";
+
+                                try
                                 {
-                                    m_AudioProcess.WriteStandardInput("q\n");
-                                    Thread.Sleep(200);
+                                    if (m_VideoProcess != null)
+                                    {
+                                        m_VideoProcess.WriteStandardInput("q\n");
+                                        Thread.Sleep(200);
+                                    }
                                 }
+                                catch { }
+
+                                try
+                                {
+
+                                    if (m_VideoProcess != null) m_VideoProcess.StopRunningProcess();
+                                }
+                                catch { }
+
+                                m_VideoProcess = null;
+
+                                m_LastVideoInputSpeed = 0;
+                                m_LastVideoInputFrames.Clear();
+
+                                m_LastVideoTime = DateTime.Now;
+
                             }
-                            catch { }
 
-                            try
-                            {
-                                if (m_AudioProcess != null) m_AudioProcess.StopRunningProcess();
-                            }
-                            catch { }
-
-                            m_AudioProcess = null;
-
-                            m_LastAudioTime = DateTime.Now;
                         }
+                        catch { }
                     }
-
                 }
-                catch { }
-
 
             }));
 
