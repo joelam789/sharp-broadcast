@@ -232,10 +232,20 @@ namespace SharpBroadcast.MediaEncoder
 
         public void LogVideoMsg(string msg)
         {
-            BeginInvoke((Action)(() =>
+            try
             {
-                Log4Video(msg);
-            }));
+                BeginInvoke((Action)(() =>
+                {
+                    try
+                    {
+                        Log4Video(msg);
+                    }
+                    catch { }
+                    
+                }));
+            }
+            catch { } // just want to make it more robust
+            
         }
 
         private void Log4Audio(string text)
@@ -260,10 +270,19 @@ namespace SharpBroadcast.MediaEncoder
 
         public void LogAudioMsg(string msg)
         {
-            BeginInvoke((Action)(() =>
+            try
             {
-                Log4Audio(msg);
-            }));
+                BeginInvoke((Action)(() =>
+                {
+                    try
+                    {
+                        Log4Audio(msg);
+                    }
+                    catch { }
+
+                }));
+            }
+            catch { } // just want to make it more robust
         }
 
         public List<string> GenInputPart()
@@ -422,12 +441,13 @@ namespace SharpBroadcast.MediaEncoder
         {
             if (m_VideoProcess != null && m_VideoProcess.HasExited())
             {
+                var logmsg = "Video ffmpeg process is stopped.";
                 if (m_LastErrorMessage.Length > 0)
                 {
-                    var logmsg = m_LastErrorMessage;
-                    LogVideoMsg("\r\n" + logmsg + "\r\n");
-                    SimpleLog.Info(logmsg);
+                    logmsg += " Error: " + m_LastErrorMessage;
                 }
+                LogVideoMsg("\r\n" + logmsg + "\r\n");
+                SimpleLog.Info(logmsg);
 
                 if (ckbAutoRestart.Checked && timerRestartVideo.Interval >= 1000)
                 {
@@ -791,15 +811,19 @@ namespace SharpBroadcast.MediaEncoder
                     m_LastVideoInputSpeed = 0;
                     m_LastVideoInputFrames.Clear();
 
+                    var logmsg = "Run a new ffmpeg process of video with command line - \n";
                     if (m_VideoArgs.Contains("-f nut pipe:1"))
                     {
+                        logmsg += "cmd /C ffmpeg " + m_VideoArgs;
                         // in this case, Process.Kill() will just kill "cmd", but not "ffmpeg" ...
                         m_VideoProcess = new ProcessIoWrapper("cmd", "/C ffmpeg " + m_VideoArgs, ProcessIoWrapper.FLAG_INPUT | ProcessIoWrapper.FLAG_ERROR);
                     }
                     else
                     {
+                        logmsg += "ffmpeg " + m_VideoArgs;
                         m_VideoProcess = new ProcessIoWrapper("ffmpeg", m_VideoArgs, ProcessIoWrapper.FLAG_INPUT | ProcessIoWrapper.FLAG_ERROR);
                     }
+                    SimpleLog.Info("\n" + logmsg + "\n");
 
                     m_LastVideoTime = DateTime.Now;
 
@@ -1151,15 +1175,19 @@ namespace SharpBroadcast.MediaEncoder
                 m_LastVideoInputSpeed = 0;
                 m_LastVideoInputFrames.Clear();
 
+                var logmsg = "Run a new ffmpeg process of video with command line - \n";
                 if (m_VideoArgs.Contains("-f nut pipe:1"))
                 {
+                    logmsg += "cmd /C ffmpeg " + m_VideoArgs;
                     // in this case, Process.Kill() will just kill "cmd", but not "ffmpeg" ...
                     m_VideoProcess = new ProcessIoWrapper("cmd", "/C ffmpeg " + m_VideoArgs, ProcessIoWrapper.FLAG_INPUT | ProcessIoWrapper.FLAG_ERROR);
                 }
                 else
                 {
+                    logmsg += "ffmpeg " + m_VideoArgs;
                     m_VideoProcess = new ProcessIoWrapper("ffmpeg", m_VideoArgs, ProcessIoWrapper.FLAG_INPUT | ProcessIoWrapper.FLAG_ERROR);
                 }
+                SimpleLog.Info("\n" + logmsg + "\n");
 
                 m_LastVideoTime = DateTime.Now;
 
@@ -1227,7 +1255,7 @@ namespace SharpBroadcast.MediaEncoder
                             var seconds = (currentTime - m_LastVideoTime).TotalSeconds;
                             if (seconds > maxIdleTime)
                             {
-                                m_LastErrorMessage = "Stopped ffmpeg because video input stream idles timeout.";
+                                m_LastErrorMessage = "Video input stream keeps idling.";
 
                                 try
                                 {
@@ -1303,7 +1331,7 @@ namespace SharpBroadcast.MediaEncoder
                         {
                             if (btnStart.Enabled == false && btnStop.Enabled == true)
                             {
-                                m_LastErrorMessage = "Stopped ffmpeg because video input stream is too slow.";
+                                m_LastErrorMessage = "Video input stream is too slow.";
 
                                 try
                                 {
