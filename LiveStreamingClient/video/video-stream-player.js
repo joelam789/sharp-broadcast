@@ -36,13 +36,14 @@
 		
 		this.playerRenderFrame = function(vdata) {
 			this.proxyPlayer.videoDataQueue[this.proxyPlayer.videoDataQueue.length] = vdata;
-			//if (this.proxyPlayer.videoDataQueue.length > this.proxyPlayer.videoDataQueueSize
-			//	&& this.proxyPlayer.videoDataQueueSize > 2) console.log("Video playback buffer overflowed");
+			//if (this.proxyPlayer.videoDataQueue.length > this.proxyPlayer.videoDataQueueSize) 
+			//	console.log("Video playback buffer overflowed");
 			while (this.proxyPlayer.videoDataQueue.length > this.proxyPlayer.videoDataQueueSize) {
 				this.proxyPlayer.videoDataQueue.shift();
 				this.proxyPlayer.incomingDataSizeQueue.shift();
 			}
-			this.proxyPlayer.videoBufferReady = this.proxyPlayer.videoDataQueue.length >= this.proxyPlayer.videoDataQueueSize / 2;
+			if (this.proxyPlayer.videoDataQueue.length > this.proxyPlayer.videoDataQueueSize / 2)
+				this.proxyPlayer.videoBufferReady = true;
 		};
 		
 		this.playerOnRenderFrameComplete = function(vdata) {
@@ -68,7 +69,7 @@
 		this.clear = function() {
 			this.preloadedDataQueue = [];
 			this.videoDataQueue = [];
-			this.videoBufferReady = this.videoDataQueue.length >= this.videoDataQueueSize / 2;
+			this.videoBufferReady = this.videoDataQueue.length > this.videoDataQueueSize / 2;
 			this.incomingDataSizeQueue = [];
 		};
 		
@@ -81,7 +82,7 @@
 			
 			this.preloadedDataQueue = [];
 			this.videoDataQueue = [];
-			this.videoBufferReady = this.videoDataQueue.length >= this.videoDataQueueSize / 2;
+			this.videoBufferReady = this.videoDataQueue.length > this.videoDataQueueSize / 2;
 			this.incomingDataSizeQueue = [];
 			
 			var currentpnode = null;
@@ -209,7 +210,7 @@
 			}
 			
 			if (vdataobj == null) this.videoBufferReady = false;
-			//if (vdataobj == null && this.videoDataQueueSize > 2) console.log("Video runs out of playback buffer");
+			//if (vdataobj == null) console.log("Video runs out of playback buffer");
 			
 			if (vdataobj == null) return;
 			
