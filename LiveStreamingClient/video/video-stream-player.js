@@ -28,17 +28,21 @@
 		this.preloadedDataQueueSize = 0; // set it > 0 if you need to make "delay" to sync audio (when video is faster)
 		
 		this.videoDataQueue = [];
-		this.videoDataQueueSize = 8; // video cache size
+		this.videoDataQueueSize = 1; // video cache size
+		this.videoBufferReady = false;
 		
 		this.width = 0;
 		this.height = 0;
 		
 		this.playerRenderFrame = function(vdata) {
 			this.proxyPlayer.videoDataQueue[this.proxyPlayer.videoDataQueue.length] = vdata;
+			//if (this.proxyPlayer.videoDataQueue.length > this.proxyPlayer.videoDataQueueSize
+			//	&& this.proxyPlayer.videoDataQueueSize > 2) console.log("Video playback buffer overflowed");
 			while (this.proxyPlayer.videoDataQueue.length > this.proxyPlayer.videoDataQueueSize) {
 				this.proxyPlayer.videoDataQueue.shift();
 				this.proxyPlayer.incomingDataSizeQueue.shift();
 			}
+			this.proxyPlayer.videoBufferReady = this.proxyPlayer.videoDataQueue.length >= this.proxyPlayer.videoDataQueueSize / 2;
 		};
 		
 		this.playerOnRenderFrameComplete = function(vdata) {
@@ -64,6 +68,7 @@
 		this.clear = function() {
 			this.preloadedDataQueue = [];
 			this.videoDataQueue = [];
+			this.videoBufferReady = this.videoDataQueue.length >= this.videoDataQueueSize / 2;
 			this.incomingDataSizeQueue = [];
 		};
 		
@@ -76,6 +81,7 @@
 			
 			this.preloadedDataQueue = [];
 			this.videoDataQueue = [];
+			this.videoBufferReady = this.videoDataQueue.length >= this.videoDataQueueSize / 2;
 			this.incomingDataSizeQueue = [];
 			
 			var currentpnode = null;
@@ -181,6 +187,16 @@
 			
 			this.feedingDetectionTimes++;
 			
+			if (!this.videoBufferReady) {
+				this.hungryTimes++;
+				if (this.feedingDetectionTimes * this.frameInterval >= 1000) { // check it every 1 second
+					this.networkSpeedScore = Math.round((this.feedingDetectionTimes - this.hungryTimes)/(this.feedingDetectionTimes + 0.01) * 100);
+					this.feedingDetectionTimes = 0;
+					this.hungryTimes = 0;
+				}
+				return;
+			}
+			
 			var vdataobj = this.videoDataQueue.shift();
 			var vdatasize = this.incomingDataSizeQueue.shift();
 			
@@ -191,6 +207,9 @@
 				this.feedingDetectionTimes = 0;
 				this.hungryTimes = 0;
 			}
+			
+			if (vdataobj == null) this.videoBufferReady = false;
+			//if (vdataobj == null && this.videoDataQueueSize > 2) console.log("Video runs out of playback buffer");
 			
 			if (vdataobj == null) return;
 			
