@@ -811,8 +811,19 @@ namespace SharpBroadcast.MediaEncoder
                     m_LastVideoInputSpeed = 0;
                     m_LastVideoInputFrames.Clear();
 
+                    var customVideoPipeInput = rbtnFromUrl.Checked
+                        && edtVideoUrlSource.Text.Contains('[')
+                        && edtVideoUrlSource.Text.Contains(']')
+                        && edtVideoUrlSource.Text.Contains("-i pipe:0");
+
                     var logmsg = "Run a new ffmpeg process of video with command line - \n";
-                    if (m_VideoArgs.Contains("-f nut pipe:1"))
+                    if (customVideoPipeInput) // ...
+                    {
+                        logmsg += "cmd /C " + m_VideoArgs;
+                        // in this case, Process.Kill() will just kill "cmd", but not "ffmpeg" ...
+                        m_VideoProcess = new ProcessIoWrapper("cmd", "/C " + m_VideoArgs, ProcessIoWrapper.FLAG_INPUT | ProcessIoWrapper.FLAG_ERROR);
+                    }
+                    else if (m_VideoArgs.Contains("-f nut pipe:1"))
                     {
                         logmsg += "cmd /C ffmpeg " + m_VideoArgs;
                         // in this case, Process.Kill() will just kill "cmd", but not "ffmpeg" ...
@@ -835,15 +846,19 @@ namespace SharpBroadcast.MediaEncoder
 
                 if (m_AudioArgs.Length > 0)
                 {
+                    var logmsg = "Run a new ffmpeg process of audio with command line - \n";
                     if (m_AudioArgs.Contains("-f nut pipe:1"))
                     {
+                        logmsg += "cmd /C ffmpeg " + m_AudioArgs;
                         // in this case, Process.Kill() will just kill "cmd", but not "ffmpeg" ...
                         m_AudioProcess = new ProcessIoWrapper("cmd", "/C ffmpeg " + m_AudioArgs, ProcessIoWrapper.FLAG_INPUT | ProcessIoWrapper.FLAG_ERROR);
                     }
                     else
                     {
+                        logmsg += "ffmpeg " + m_AudioArgs;
                         m_AudioProcess = new ProcessIoWrapper("ffmpeg", m_AudioArgs, ProcessIoWrapper.FLAG_INPUT | ProcessIoWrapper.FLAG_ERROR);
                     }
+                    SimpleLog.Info("\n" + logmsg + "\n");
 
                     m_LastAudioTime = DateTime.Now;
 
@@ -1175,8 +1190,19 @@ namespace SharpBroadcast.MediaEncoder
                 m_LastVideoInputSpeed = 0;
                 m_LastVideoInputFrames.Clear();
 
+                var customVideoPipeInput = rbtnFromUrl.Checked
+                        && edtVideoUrlSource.Text.Contains('[')
+                        && edtVideoUrlSource.Text.Contains(']')
+                        && edtVideoUrlSource.Text.Contains("-i pipe:0");
+
                 var logmsg = "Run a new ffmpeg process of video with command line - \n";
-                if (m_VideoArgs.Contains("-f nut pipe:1"))
+                if (customVideoPipeInput) // ...
+                {
+                    logmsg += "cmd /C " + m_VideoArgs;
+                    // in this case, Process.Kill() will just kill "cmd", but not "ffmpeg" ...
+                    m_VideoProcess = new ProcessIoWrapper("cmd", "/C " + m_VideoArgs, ProcessIoWrapper.FLAG_INPUT | ProcessIoWrapper.FLAG_ERROR);
+                }
+                else if (m_VideoArgs.Contains("-f nut pipe:1"))
                 {
                     logmsg += "cmd /C ffmpeg " + m_VideoArgs;
                     // in this case, Process.Kill() will just kill "cmd", but not "ffmpeg" ...

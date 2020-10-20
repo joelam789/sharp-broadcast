@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+<meta http-equiv="cache-control" content="max-age=0" />
+<meta http-equiv="cache-control" content="no-cache" />
+<meta http-equiv="expires" content="0" />
+<meta http-equiv="expires" content="Tue, 01 Jan 1980 1:00:00 GMT" />
+<meta http-equiv="pragma" content="no-cache" />
+<title>WebRTC Example</title>
+</head>
+
+<body>
+  
+  <script type="text/javascript">
+  
+	var localVideo = null;
+	var videoCanvas = null;
+	var requestAnimationFunc = null;
+	
+	var deviceInputStream = null;
+	
+	var videoOutputStream = null;
+	var videoTracks = null;
+	
+	var audioStream = null;
+	var audioTracks = null;
+	
+	var mixOutputStream = null;
+	var mediaRecorder = null;
+	
+	var wsPublish = null;
+	
+	var needAudio = true;
+	var needCustomPlayback = true;
+	
+	var proxyServerUrl = "wss://127.0.0.1:9898";
+	
+	function updateCanvas() {
+	
+		if (!needCustomPlayback) return;
+	
+		if (!localVideo || localVideo.ended || localVideo.paused) {
+			window.requestAnimationFrame(updateCanvas);
+			return;
+		}
+		if (!videoCanvas) {
+			window.requestAnimationFrame(updateCanvas);
+			return;
+		}
+		
+		videoCanvas.width = localVideo.clientWidth;
+		videoCanvas.height = localVideo.clientHeight;
+	
+		var ctx = videoCanvas.getContext('2d');
+		if (!ctx) {
+			window.requestAnimationFrame(updateCanvas);
+			return;
+		}
+
+		//ctx.globalCompositeOperation = 'destination-over';
+		//ctx.clearRect(0, 0, videoCanvas.width, videoCanvas.height); // clear canvas
+
+		ctx.drawImage(localVideo, 0, 0, videoCanvas.width, videoCanvas.height);
+
+		window.requestAnimationFrame(updateCanvas);
+		
+	}
+	
+	function stopStreaming() {
+		if (mediaRecorder && mediaRecorder.state === 'recording') mediaRecorder.stop();
+		if (wsPublish && wsPublish.readyState == 1) wsPublish.close();
+		mediaRecorder = null;
+		wsPublish = null;
+	}
+	
+	function startStreaming() {
+	
+		if (!deviceInputStream) return;
+		
+		stopStreaming();
+		
+		wsPublish = new WebSocket(proxyServerUrl);
+		wsPublish.binaryType = "arraybuffer";
+
+		wsPublish.onopen = function() {
+			console.log("Connected to ws server.")
+		};
+
+		wsPublish.onmessage = function(evt) {
+			console.warn(evt.msg);
+		};
+
+		wsPublish.onclose = function() {
+			if (mediaRecorder && mediaRecorder.state === 'recording') mediaRecorder.stop();
+			console.log("Connection is closed...");
+		};
+
+		wsPublish.onerror = function(e) {
+			console.error(e);
+		}
+		
+		
+		if (needCustomPlayback && videoCanvas) {
+			videoOutputStream = videoCanvas.captureStream(30); // 30 FPS
+		}
+		
+		if (!videoOutputStream) {
+			videoOutputStream = new MediaStream();
+			videoTracks = deviceInputStream.getVideoTracks();
+			videoTracks.forEach(function (track) {
+			  videoOutputStream.addTrack(track);
+			});
+		}
+		
+		
+		// Let's do some extra work to get audio to join the party.
+		// https://hacks.mozilla.org/2016/04/record-almost-everything-in-the-browser-with-mediarecorder/
+		if (needAudio) {
+			audioStream = new MediaStream();
+			audioTracks = deviceInputStream.getAudioTracks();
+			audioTracks.forEach(function (track) {
+			  audioStream.addTrack(track);
+			});
+		}
+
+		var localStreams = needAudio && audioStream ? [audioStream, videoOutputStream] : [videoOutputStream];
+		mixOutputStream = new MediaStream();
+		localStreams.forEach(function (s) {
+			s.getTracks().forEach(function (t) {
+				mixOutputStream.addTrack(t);
+			});
+		});
+		
+		mediaRecorder = new MediaRecorder(mixOutputStream, {
+			mimeType: 'video/webm',
+			videoBitsPerSecond: 3000000,
+		});
+
+		mediaRecorder.addEventListener('dataavailable', function(e) {
+			if (wsPublish && wsPublish.readyState == 1) wsPublish.send(e.data);
+		});
+		
+		mediaRecorder.addEventListener('stop', function() {
+			if (mediaRecorder && mediaRecorder.state === 'recording') mediaRecorder.stop();
+			if (wsPublish && wsPublish.readyState == 1) wsPublish.close();
+		});
+
+		mediaRecorder.start(1000);
+	
+	}
+	
+	// windows events
+	window.onload = function () {
+		
+		localVideo = document.getElementById('localVideoPlayer');
+		videoCanvas = document.getElementById('videoCanvas');
+		
+		//videoCanvas.width = 480;
+		//videoCanvas.height = 360;
+		
+		if (!needCustomPlayback) {
+			videoCanvas.width = 1;
+			videoCanvas.height = 1;
+		} else {
+			localVideo.style.position = "absolute"; // just let custom playback canvas cover it
+		}
+		
+		navigator.mediaDevices.getUserMedia({ video: true , audio: needAudio })
+		.then(function (stream) {
+			deviceInputStream = stream;
+			localVideo.srcObject = stream;
+		})
+		.catch(function(error) {
+			console.log('navigator.MediaDevices.getUserMedia error: ', error.message, error.name);
+		});
+		
+		if (needCustomPlayback) requestAnimationFunc = window.requestAnimationFrame(updateCanvas);
+		
+		//window.cancelAnimationFrame(requestAnimationFunc);
+		
+	};
+	
+  </script>
+  
+  <div>
+  
+  <p id="videoContainer">
+  <video id="localVideoPlayer" playsinline autoplay></video>
+  <canvas id="videoCanvas" style="position: relative;" ></canvas>
+  </p>
+
+  <p>
+   <button type="button" onclick="startStreaming()">Start streaming</button>
+   &nbsp;&nbsp;&nbsp;&nbsp;
+   <button type="button" onclick="stopStreaming()">Stop streaming</button>
+  </p>
+
+  
+  </div>
+	
+</body>
+</html>
