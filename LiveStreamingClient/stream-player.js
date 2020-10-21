@@ -100,8 +100,10 @@
 					return;
 				}
 				if (this.audio != null) this.audio.open(this.audioFilter);
-				if (this.video != null && this.video.domNode != null && this.videoContainer != null)
+				if (this.video != null && this.video.domNode != null && this.videoContainer != null) {
+					this.videoContainer.innerHTML = ''; // should ensure the container is for video player only
 					this.videoContainer.appendChild(this.video.domNode);
+				}
 				if (this.onOpen != undefined && this.onOpen != null) this.onOpen();
 				if (this.video == null) {
 					if (this.audio != null) this.audio.enabled = true;
