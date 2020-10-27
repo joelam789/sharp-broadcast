@@ -48,7 +48,7 @@ namespace SharpBroadcast.MediaEncoder
 
         public static string GenVideoOutputPart(VideoOutputTask task)
         {
-            string output = " -s " + task.Resolution 
+            string output = (task.Resolution.Length > 0 ? (" -s " + task.Resolution) : "")
                             + (task.FPS > 0 ? (" -r " + task.FPS) : "")
                             + (task.Bitrate > 0 ? (" -b:v " + task.Bitrate + "k ") : "") 
                             ;
@@ -79,12 +79,13 @@ namespace SharpBroadcast.MediaEncoder
                             + (task.Bitrate > 0 ? ("" + '@' + task.Bitrate + "kbps") : "")
                             ;
             }
-            else if (task.VideoType == "rtmp")
+            else if (task.VideoType == "custom")
             {
                 if (task.ExtraParam.Length > 0) output += " " + task.ExtraParam + " ";
-                output += " -f flv ";
-                output += serverUrl + "/" + task.ChannelName
-                            ;
+                //output += " -f flv ";
+                output += serverUrl;
+                var channelName = task.ChannelName.Trim();
+                if (channelName.Length > 0) output += "/" + channelName;
             }
             else return "";
 

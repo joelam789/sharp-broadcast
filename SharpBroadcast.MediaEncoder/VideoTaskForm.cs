@@ -39,6 +39,7 @@ namespace SharpBroadcast.MediaEncoder
             {
                 m_Resolution = JsonConvert.DeserializeObject<VideoResolutionOptionGroup>(appSettings["ResolutionOptions"].ToString());
                 cbbResolution.Items.Clear();
+                cbbResolution.Items.Add("");
                 foreach (var item in m_Resolution.Options) cbbResolution.Items.Add(item.Trim());
             }
         }
@@ -47,7 +48,7 @@ namespace SharpBroadcast.MediaEncoder
         {
             if (task.VideoType == "mpeg") rbtMpeg1.Checked = true;
             if (task.VideoType == "h264") rbtH264.Checked = true;
-            if (task.VideoType == "rtmp") rbtRtmp.Checked = true;
+            if (task.VideoType == "custom") rbtCustom.Checked = true;
             for (var i = 0; i < cbbResolution.Items.Count; i++)
             {
                 if (cbbResolution.Items[i].ToString() == task.Resolution)
@@ -73,7 +74,7 @@ namespace SharpBroadcast.MediaEncoder
 
             if (rbtMpeg1.Checked) task.VideoType = "mpeg";
             if (rbtH264.Checked) task.VideoType = "h264";
-            if (rbtRtmp.Checked) task.VideoType = "rtmp";
+            if (rbtCustom.Checked) task.VideoType = "custom";
             if (cbbResolution.SelectedIndex >= 0)
                 task.Resolution = cbbResolution.Items[cbbResolution.SelectedIndex].ToString();
 

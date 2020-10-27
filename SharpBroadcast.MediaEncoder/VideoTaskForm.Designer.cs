@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             this.gbVideoSetting = new System.Windows.Forms.GroupBox();
+            this.rbtCustom = new System.Windows.Forms.RadioButton();
             this.btnAttach = new System.Windows.Forms.Button();
             this.btnRefresh = new System.Windows.Forms.Button();
             this.nudFps = new System.Windows.Forms.NumericUpDown();
@@ -53,7 +54,6 @@
             this.gbAction = new System.Windows.Forms.GroupBox();
             this.btnCancel = new System.Windows.Forms.Button();
             this.btnOK = new System.Windows.Forms.Button();
-            this.rbtRtmp = new System.Windows.Forms.RadioButton();
             this.gbVideoSetting.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nudFps)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudBitrate)).BeginInit();
@@ -63,7 +63,7 @@
             // 
             // gbVideoSetting
             // 
-            this.gbVideoSetting.Controls.Add(this.rbtRtmp);
+            this.gbVideoSetting.Controls.Add(this.rbtCustom);
             this.gbVideoSetting.Controls.Add(this.btnAttach);
             this.gbVideoSetting.Controls.Add(this.btnRefresh);
             this.gbVideoSetting.Controls.Add(this.nudFps);
@@ -87,6 +87,17 @@
             this.gbVideoSetting.TabStop = false;
             this.gbVideoSetting.Text = "Video";
             // 
+            // rbtCustom
+            // 
+            this.rbtCustom.AutoSize = true;
+            this.rbtCustom.Location = new System.Drawing.Point(258, 23);
+            this.rbtCustom.Name = "rbtCustom";
+            this.rbtCustom.Size = new System.Drawing.Size(60, 17);
+            this.rbtCustom.TabIndex = 17;
+            this.rbtCustom.Text = "Custom";
+            this.rbtCustom.UseVisualStyleBackColor = true;
+            this.rbtCustom.CheckedChanged += new System.EventHandler(this.rbtH264_CheckedChanged);
+            // 
             // btnAttach
             // 
             this.btnAttach.Location = new System.Drawing.Point(258, 169);
@@ -101,7 +112,7 @@
             // 
             this.btnRefresh.Location = new System.Drawing.Point(258, 46);
             this.btnRefresh.Name = "btnRefresh";
-            this.btnRefresh.Size = new System.Drawing.Size(50, 25);
+            this.btnRefresh.Size = new System.Drawing.Size(74, 25);
             this.btnRefresh.TabIndex = 15;
             this.btnRefresh.Text = "Refresh";
             this.btnRefresh.UseVisualStyleBackColor = true;
@@ -344,16 +355,6 @@
             this.btnOK.UseVisualStyleBackColor = true;
             this.btnOK.Click += new System.EventHandler(this.btnOK_Click);
             // 
-            // rbtRtmp
-            // 
-            this.rbtRtmp.AutoSize = true;
-            this.rbtRtmp.Location = new System.Drawing.Point(258, 23);
-            this.rbtRtmp.Name = "rbtRtmp";
-            this.rbtRtmp.Size = new System.Drawing.Size(56, 17);
-            this.rbtRtmp.TabIndex = 17;
-            this.rbtRtmp.Text = "RTMP";
-            this.rbtRtmp.UseVisualStyleBackColor = true;
-            // 
             // VideoTaskForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -404,6 +405,6 @@
         private System.Windows.Forms.Label lblFps;
         private System.Windows.Forms.Button btnRefresh;
         private System.Windows.Forms.Button btnAttach;
-        private System.Windows.Forms.RadioButton rbtRtmp;
+        private System.Windows.Forms.RadioButton rbtCustom;
     }
 }
