@@ -172,6 +172,15 @@
 			return this.isPlaying() && this.video != null && this.video.enabled ? this.video.networkSpeedScore : 0;
 		};
 		
+		this.resetContainerStyle = function() {
+			if (this.videoContainer) {
+				if (this.videoContainer.attributeStyleMap)
+					this.videoContainer.attributeStyleMap.clear();
+				else if (this.videoContainer.style && this.videoContainer.style.cssText)
+					this.videoContainer.style.cssText = "";
+			}
+		};
+		
 		if (this.video != null) this.video.onRenderFirstFrameComplete = function () {
 			if (this.audio != null) this.audio.enabled = true;
 			if (this.onPlay != undefined && this.onPlay != null) this.onPlay();
