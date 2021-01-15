@@ -589,6 +589,9 @@ namespace SharpBroadcast.Framework
                 }
             }
 
+            Logger.Info("Get publish-stream request from [" + remoteIp + "] - " + context.Request.Url.ToString());
+            if (!isValidAddress) Logger.Error("Encoder IP [" + remoteIp + "] is NOT allowed.");
+
             try
             {
                 if (context != null && remoteIp.Length > 0 && isValidAddress && context.Request.Url.Segments.Length > 1)

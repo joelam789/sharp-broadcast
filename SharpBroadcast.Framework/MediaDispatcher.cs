@@ -5,6 +5,8 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
+using System.Threading.Tasks.Schedulers;
 
 using SharpNetwork.Core;
 using SharpNetwork.SimpleWebSocket;
@@ -23,6 +25,8 @@ namespace SharpBroadcast.Framework
 
         private List<ChannelServerItem> m_OutputList;
 
+        private List<TaskFactory> m_OutputTaskPools = new List<TaskFactory>();
+
         public MediaDispatcher(List<ChannelServerItem> outputList)
         {
             Buffers = new ConcurrentQueue<BufferData>();
@@ -32,6 +36,9 @@ namespace SharpBroadcast.Framework
             m_OutputList = outputList;
 
             m_Watcher = new ManualResetEvent(false);
+
+            for (var i = 0; i < Environment.ProcessorCount; i++)
+                m_OutputTaskPools.Add(new TaskFactory(new LimitedConcurrencyLevelTaskScheduler(1)));
 
         }
 
@@ -78,8 +85,27 @@ namespace SharpBroadcast.Framework
                                 {
                                     try
                                     {
-                                        if (buffer.Buffer != null) session.Send(new WebMessage(buffer.Buffer, buffer.Length));
-                                        else session.Send(new WebMessage(buffer.Text));
+                                        //if (buffer.Buffer != null) session.Send(new WebMessage(buffer.Buffer, buffer.Length));
+                                        //else session.Send(new WebMessage(buffer.Text));
+                                        var pool = m_OutputTaskPools[session.GetRemotePort() % m_OutputTaskPools.Count];
+                                        if (pool != null) pool.StartNew((obj) =>
+                                        {
+                                            OutputWebData data = obj as OutputWebData;
+                                            try
+                                            {
+                                                if (data != null) data.Sender.Send(data.Message);
+                                            }
+                                            catch
+                                            {
+                                                if (data != null && data.Sender != null && data.Sender.UserData != null)
+                                                    (data.Sender.UserData as IMediaServer).RemoveClient(client);
+                                                if (data != null && data.Sender != null) data.Sender.Close();
+                                            }
+                                        }, new OutputWebData(session,
+                                                buffer.Buffer != null 
+                                                ? new WebMessage(buffer.Buffer, buffer.Length)
+                                                : new WebMessage(buffer.Text)));
+
                                     }
                                     catch { badlist.Add(client); }
                                 }
@@ -176,6 +202,18 @@ namespace SharpBroadcast.Framework
             Length = Text.Length;
 
             Buffer = null;
+        }
+    }
+
+    public class OutputWebData
+    {
+        public Session Sender { get; private set; }
+        public WebMessage Message { get; private set; }
+
+        public OutputWebData(Session sender, WebMessage msg)
+        {
+            Sender = sender;
+            Message = msg;
         }
     }
 }
