@@ -82,6 +82,7 @@
 	
 	// video options
 	var voptions = { webgl: true, useWorker: true,
+					 enableSpeedChecking: true,
 					 workerFile : "video/Decoder.js",
 					 size: {width: 640, height: 360}
 				   };
@@ -153,7 +154,8 @@
 		
 		setInterval(function() {
 		
-			document.getElementById('speed').innerHTML = 'Video Stream Speed Score: ' + streamPlayer.getVideoStreamSpeedScore();
+			if (voptions.enableSpeedChecking) document.getElementById('speed').innerHTML = 'Video Stream Instant Speed: ' + streamPlayer.getVideoStreamSpeed() + " kbps";
+			else document.getElementById('speed').innerHTML = 'Video Stream Speed Score: ' + streamPlayer.getVideoStreamSpeedScore();
 			
 			/*
 			if (streamPlayer.videoContainer != null) {
@@ -185,7 +187,7 @@
   
   <span id="msg" style="position: relative; top: 10px;">Loading...</span>
   <br/>
-  <p id="speed">Video Stream Speed Score: ?</p>
+  <p id="speed">Video Stream Speed: ?</p>
   
   <!--
   <p>

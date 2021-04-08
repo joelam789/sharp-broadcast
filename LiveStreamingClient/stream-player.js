@@ -172,6 +172,10 @@
 			return this.isPlaying() && this.video != null && this.video.enabled ? this.video.networkSpeedScore : 0;
 		};
 		
+		this.getVideoStreamSpeed = function() {
+			return this.isPlaying() && this.video != null && this.video.enabled ? this.video.networkDataSpeed * 8 / 1000 : 0; // in "kbps"
+		};
+		
 		this.resetContainerStyle = function() {
 			if (this.videoContainer) {
 				if (this.videoContainer.attributeStyleMap)

@@ -31,6 +31,11 @@
 		this.videoDataQueueSize = 1; // video cache size
 		this.videoBufferReady = false;
 		
+		this.currentTotalVideoDataSize = 0;
+		this.lastTotalVideoDataSize = 0;
+		this.networkDataSpeed = 0; // bytes per second
+		this.speedUpdateTimer = null;
+		
 		this.width = 0;
 		this.height = 0;
 		
@@ -109,6 +114,19 @@
 			this.feedingDetectionTimes = 0;
 			this.isFirstFrameComplete = false;
 			
+			this.currentTotalVideoDataSize = 0;
+			this.lastTotalVideoDataSize = 0;
+			this.networkDataSpeed = 0;
+			
+			if (this.speedUpdateTimer != null) {
+				clearInterval(this.speedUpdateTimer);
+				this.speedUpdateTimer = null;
+			}
+			
+			if (this.initOptions.enableSpeedChecking) {
+				this.speedUpdateTimer = setInterval(this.checkNetworkSpeed.bind(this), 1000);
+			}
+			
 			this.canvas = this.player.canvas;
 			this.domNode = this.player.domNode;
 			
@@ -140,6 +158,7 @@
 			
 			var processingVideoData = this.preloadedDataQueue.length > 0 ? this.preloadedDataQueue.shift() : data;
 			this.incomingDataSizeQueue[this.incomingDataSizeQueue.length] = processingVideoData.byteLength;
+			this.currentTotalVideoDataSize += processingVideoData.byteLength;
 
 			this.player.decode(Array.prototype.slice.apply(new Uint8Array(processingVideoData)));
 		};
@@ -184,17 +203,26 @@
 			else this.reload();
 		};
 		
+		this.checkFeedingSpeed = function() {
+			if (this.feedingDetectionTimes * this.frameInterval >= 1000) { // check it every 1 second
+				this.networkSpeedScore = Math.round((this.feedingDetectionTimes - this.hungryTimes)/(this.feedingDetectionTimes + 0.0001) * 100);
+				this.feedingDetectionTimes = 0;
+				this.hungryTimes = 0;
+			}
+		};
+		
+		this.checkNetworkSpeed = function() {
+			this.networkDataSpeed = this.currentTotalVideoDataSize - this.lastTotalVideoDataSize;
+			this.lastTotalVideoDataSize = this.currentTotalVideoDataSize;
+		};
+		
 		this.renderFunc = function() {
 			
 			this.feedingDetectionTimes++;
 			
 			if (!this.videoBufferReady) {
 				this.hungryTimes++;
-				if (this.feedingDetectionTimes * this.frameInterval >= 1000) { // check it every 1 second
-					this.networkSpeedScore = Math.round((this.feedingDetectionTimes - this.hungryTimes)/(this.feedingDetectionTimes + 0.01) * 100);
-					this.feedingDetectionTimes = 0;
-					this.hungryTimes = 0;
-				}
+				this.checkFeedingSpeed();
 				return;
 			}
 			
@@ -203,11 +231,7 @@
 			
 			if (vdataobj == null) this.hungryTimes++;
 			
-			if (this.feedingDetectionTimes * this.frameInterval >= 1000) { // check it every 1 second
-				this.networkSpeedScore = Math.round((this.feedingDetectionTimes - this.hungryTimes)/(this.feedingDetectionTimes + 0.01) * 100);
-				this.feedingDetectionTimes = 0;
-				this.hungryTimes = 0;
-			}
+			this.checkFeedingSpeed();
 			
 			if (vdataobj == null) this.videoBufferReady = false;
 			//if (vdataobj == null) console.log("Video runs out of playback buffer");
