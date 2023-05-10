@@ -289,38 +289,34 @@ namespace SharpBroadcast.MediaEncoder
         {
             List<string> inputList = new List<string>();
 
+            // Video
+
             if (rbtnFromDevice.Checked)
             {
-                if (cbbCams.SelectedIndex < 0 && cbbMics.SelectedIndex < 0)
+                if (cbbCams.SelectedIndex < 0)
                 {
                     MessageBox.Show("Please select a device.");
                     return inputList;
                 }
                 else
                 {
-                    string videoDevice = (cbbCams.Visible && cbbCams.Enabled && cbbCams.SelectedIndex >= 0) 
+                    string videoDevice = (cbbCams.Visible && cbbCams.Enabled && cbbCams.SelectedIndex >= 0)
                                             ? cbbCams.Items[cbbCams.SelectedIndex].ToString() : "";
-                    string audioDevice = (cbbMics.Visible && cbbMics.Enabled && cbbMics.SelectedIndex >= 0) 
-                                            ? cbbMics.Items[cbbMics.SelectedIndex].ToString() : "";
 
                     string videoOptions = (videoDevice.Length > 0 && edtVideoOption.Enabled)
                                             ? edtVideoOption.Text : "";
-                    string audioOptions = (audioDevice.Length > 0 && edtAudioOption.Enabled)
-                                            ? edtAudioOption.Text : "";
 
                     //input = CommandGenerator.GenInputPart(videoDevice, audioDevice, videoOptions, audioOptions);
 
                     var videoInput = CommandGenerator.GenInputPart(videoDevice, "", videoOptions, "");
-                    var audioInput = CommandGenerator.GenInputPart("", audioDevice, "", audioOptions);
 
                     inputList.Add(videoInput.Trim());
-                    inputList.Add(audioInput.Trim());
                 }
             }
 
             if (rbtnFromUrl.Checked)
             {
-                if (edtVideoUrlSource.Text.Trim().Length <= 0 && edtAudioUrlSource.Text.Trim().Length <= 0)
+                if (edtVideoUrlSource.Text.Trim().Length <= 0)
                 {
                     MessageBox.Show("Please input the URL source.");
                     return inputList;
@@ -333,6 +329,43 @@ namespace SharpBroadcast.MediaEncoder
                         inputList.Add(input.Trim());
                     }
                     else inputList.Add("");
+                }
+            }
+
+            // Audio
+
+            if (rbtnFromDevice2.Checked)
+            {
+                if (cbbMics.SelectedIndex < 0)
+                {
+                    MessageBox.Show("Please select a device.");
+                    return inputList;
+                }
+                else
+                {
+                    string audioDevice = (cbbMics.Visible && cbbMics.Enabled && cbbMics.SelectedIndex >= 0)
+                                            ? cbbMics.Items[cbbMics.SelectedIndex].ToString() : "";
+
+                    string audioOptions = (audioDevice.Length > 0 && edtAudioOption.Enabled)
+                                            ? edtAudioOption.Text : "";
+
+                    //input = CommandGenerator.GenInputPart(videoDevice, audioDevice, videoOptions, audioOptions);
+
+                    var audioInput = CommandGenerator.GenInputPart("", audioDevice, "", audioOptions);
+
+                    inputList.Add(audioInput.Trim());
+                }
+            }
+
+            if (rbtnFromURL2.Checked)
+            {
+                if (edtAudioUrlSource.Text.Trim().Length <= 0)
+                {
+                    //MessageBox.Show("Please input the URL source.");
+                    return inputList;
+                }
+                else
+                {
                     if (edtAudioUrlSource.Text.Trim().Length > 0)
                     {
                         var input = CommandGenerator.GenInputPart(edtAudioUrlSource.Text.Trim());
@@ -544,9 +577,11 @@ namespace SharpBroadcast.MediaEncoder
         private void MainForm_Load(object sender, EventArgs e)
         {
             rbtnFromDevice.Checked = false;
+            rbtnFromDevice2.Checked = false;
             cbbCams.Enabled = false;
             cbbMics.Enabled = false;
             rbtnFromUrl.Checked = true;
+            rbtnFromURL2.Checked = true;
             edtVideoUrlSource.Enabled = true;
             edtAudioUrlSource.Enabled = true;
 
@@ -690,14 +725,7 @@ namespace SharpBroadcast.MediaEncoder
                 cbbCams.Enabled = true;
                 cbbCams.Items.Clear();
 
-                if (cbbMics.Visible)
-                {
-                    cbbMics.Enabled = true;
-                    cbbMics.Items.Clear();
-                }
-
                 edtVideoOption.Enabled = cbbCams.Enabled;
-                edtAudioOption.Enabled = cbbMics.Enabled;
 
                 List<string> videoList = new List<string>();
                 List<string> audioList = new List<string>();
@@ -705,6 +733,40 @@ namespace SharpBroadcast.MediaEncoder
                 GetDevices(videoList, audioList);
 
                 foreach (var item in videoList) cbbCams.Items.Add(item);
+            }
+            else
+            {
+                cbbCams.Enabled = false;
+                cbbCams.Items.Clear();
+
+                edtVideoOption.Enabled = cbbCams.Enabled;
+            }
+        }
+
+        private void rbtnFromUrl_CheckedChanged(object sender, EventArgs e)
+        {
+            edtVideoUrlSource.Enabled = rbtnFromUrl.Checked;
+            
+        }
+
+        private void rbtnFromDevice2_CheckedChanged(object sender, EventArgs e)
+        {
+            if (!gbMediaSource.Enabled) return;
+
+            if (rbtnFromDevice2.Checked)
+            {
+                if (cbbMics.Visible)
+                {
+                    cbbMics.Enabled = true;
+                    cbbMics.Items.Clear();
+                }
+
+                edtAudioOption.Enabled = cbbMics.Enabled;
+
+                List<string> videoList = new List<string>();
+                List<string> audioList = new List<string>();
+
+                GetDevices(videoList, audioList);
 
                 if (cbbMics.Visible)
                 {
@@ -713,24 +775,18 @@ namespace SharpBroadcast.MediaEncoder
             }
             else
             {
-                cbbCams.Enabled = false;
-                cbbCams.Items.Clear();
-
                 if (cbbMics.Visible)
                 {
                     cbbMics.Enabled = false;
                     cbbMics.Items.Clear();
                 }
-
-                edtVideoOption.Enabled = cbbCams.Enabled;
                 edtAudioOption.Enabled = cbbMics.Enabled;
             }
         }
 
-        private void rbtnFromUrl_CheckedChanged(object sender, EventArgs e)
+        private void rbtnFromURL2_CheckedChanged(object sender, EventArgs e)
         {
-            edtVideoUrlSource.Enabled = rbtnFromUrl.Checked;
-            edtAudioUrlSource.Enabled = rbtnFromUrl.Checked;
+            edtAudioUrlSource.Enabled = rbtnFromURL2.Checked;
         }
 
         private void btnStart_Click(object sender, EventArgs e)
@@ -1122,7 +1178,8 @@ namespace SharpBroadcast.MediaEncoder
                 if (m_DefaultVideoDeviceName.Length > 0 && videoList.Count > 0) idxVideo = videoList.IndexOf(m_DefaultVideoDeviceName);
                 if (m_DefaultAudioDeviceName.Length > 0 && audioList.Count > 0) idxAudio = audioList.IndexOf(m_DefaultAudioDeviceName);
 
-                if (idxVideo >= 0 || idxAudio >= 0) rbtnFromDevice.Checked = true;
+                if (idxVideo >= 0) rbtnFromDevice.Checked = true;
+                if (idxAudio >= 0) rbtnFromDevice2.Checked = true;
             }
             finally
             {
@@ -1130,32 +1187,37 @@ namespace SharpBroadcast.MediaEncoder
                 gbMediaSource.Enabled = true;
             }
 
-            if (idxVideo >= 0 || idxAudio >= 0)
+            if (idxVideo >= 0)
             {
                 cbbCams.Enabled = true;
                 cbbCams.Items.Clear();
 
-                if (cbbMics.Visible)
-                {
-                    cbbMics.Enabled = true;
-                    cbbMics.Items.Clear();
-                }
-
                 edtVideoOption.Enabled = cbbCams.Enabled;
-                edtAudioOption.Enabled = cbbMics.Enabled;
 
                 foreach (var item in videoList) cbbCams.Items.Add(item);
-
-                if (cbbMics.Visible)
-                {
-                    foreach (var item in audioList) cbbMics.Items.Add(item);
-                }
 
                 if (idxVideo >= 0 && cbbCams.Enabled)
                 {
                     cbbCams.SelectedIndex = idxVideo;
                     cbbCams.Text = cbbCams.Items[cbbCams.SelectedIndex].ToString();
                 }
+            }
+
+            if (idxAudio >= 0)
+            {
+                if (cbbMics.Visible)
+                {
+                    cbbMics.Enabled = true;
+                    cbbMics.Items.Clear();
+                }
+
+                edtAudioOption.Enabled = cbbMics.Enabled;
+
+                if (cbbMics.Visible)
+                {
+                    foreach (var item in audioList) cbbMics.Items.Add(item);
+                }
+
                 if (idxAudio >= 0 && cbbMics.Enabled)
                 {
                     cbbMics.SelectedIndex = idxAudio;
@@ -1394,5 +1456,7 @@ namespace SharpBroadcast.MediaEncoder
 
                 
         }
+
+        
     }
 }

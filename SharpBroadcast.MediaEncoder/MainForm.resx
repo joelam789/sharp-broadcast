@@ -5256,6 +5256,9 @@
         ////////////////////////
 </value>
   </data>
+  <metadata name="ttDevice.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>505, 22</value>
+  </metadata>
   <metadata name="timerAutoSet.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>594, 22</value>
   </metadata>

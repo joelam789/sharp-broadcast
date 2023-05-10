@@ -31,10 +31,8 @@
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.gbMediaSource = new System.Windows.Forms.GroupBox();
-            this.edtAudioUrlSource = new System.Windows.Forms.TextBox();
-            this.edtAudioOption = new System.Windows.Forms.TextBox();
+            this.gbVideo = new System.Windows.Forms.GroupBox();
             this.edtVideoOption = new System.Windows.Forms.TextBox();
-            this.cbbMics = new System.Windows.Forms.ComboBox();
             this.edtVideoUrlSource = new System.Windows.Forms.TextBox();
             this.cbbCams = new System.Windows.Forms.ComboBox();
             this.rbtnFromUrl = new System.Windows.Forms.RadioButton();
@@ -85,7 +83,14 @@
             this.timerRestartVideo = new System.Windows.Forms.Timer(this.components);
             this.timerRestartAudio = new System.Windows.Forms.Timer(this.components);
             this.timerCheckRecvTimeout = new System.Windows.Forms.Timer(this.components);
+            this.gbAudio = new System.Windows.Forms.GroupBox();
+            this.edtAudioUrlSource = new System.Windows.Forms.TextBox();
+            this.edtAudioOption = new System.Windows.Forms.TextBox();
+            this.cbbMics = new System.Windows.Forms.ComboBox();
+            this.rbtnFromDevice2 = new System.Windows.Forms.RadioButton();
+            this.rbtnFromURL2 = new System.Windows.Forms.RadioButton();
             this.gbMediaSource.SuspendLayout();
+            this.gbVideo.SuspendLayout();
             this.gbLog.SuspendLayout();
             this.gbAction.SuspendLayout();
             this.menuNotify.SuspendLayout();
@@ -93,82 +98,67 @@
             ((System.ComponentModel.ISupportInitialize)(this.olvVideoTasks)).BeginInit();
             this.gbAudioTask.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.olvAudioTasks)).BeginInit();
+            this.gbAudio.SuspendLayout();
             this.SuspendLayout();
             // 
             // gbMediaSource
             // 
-            this.gbMediaSource.Controls.Add(this.edtAudioUrlSource);
-            this.gbMediaSource.Controls.Add(this.edtAudioOption);
-            this.gbMediaSource.Controls.Add(this.edtVideoOption);
-            this.gbMediaSource.Controls.Add(this.cbbMics);
-            this.gbMediaSource.Controls.Add(this.edtVideoUrlSource);
-            this.gbMediaSource.Controls.Add(this.cbbCams);
-            this.gbMediaSource.Controls.Add(this.rbtnFromUrl);
-            this.gbMediaSource.Controls.Add(this.rbtnFromDevice);
+            this.gbMediaSource.Controls.Add(this.gbAudio);
+            this.gbMediaSource.Controls.Add(this.gbVideo);
             this.gbMediaSource.Enabled = false;
             this.gbMediaSource.Location = new System.Drawing.Point(12, 13);
             this.gbMediaSource.Name = "gbMediaSource";
-            this.gbMediaSource.Size = new System.Drawing.Size(400, 190);
+            this.gbMediaSource.Size = new System.Drawing.Size(400, 197);
             this.gbMediaSource.TabIndex = 0;
             this.gbMediaSource.TabStop = false;
             this.gbMediaSource.Text = "Media Source";
             // 
-            // edtAudioUrlSource
+            // gbVideo
             // 
-            this.edtAudioUrlSource.Location = new System.Drawing.Point(18, 159);
-            this.edtAudioUrlSource.Name = "edtAudioUrlSource";
-            this.edtAudioUrlSource.Size = new System.Drawing.Size(370, 20);
-            this.edtAudioUrlSource.TabIndex = 7;
-            // 
-            // edtAudioOption
-            // 
-            this.edtAudioOption.Location = new System.Drawing.Point(208, 70);
-            this.edtAudioOption.Name = "edtAudioOption";
-            this.edtAudioOption.Size = new System.Drawing.Size(180, 20);
-            this.edtAudioOption.TabIndex = 6;
-            this.ttDevice.SetToolTip(this.edtAudioOption, "parameters for the device above");
+            this.gbVideo.Controls.Add(this.edtVideoOption);
+            this.gbVideo.Controls.Add(this.edtVideoUrlSource);
+            this.gbVideo.Controls.Add(this.cbbCams);
+            this.gbVideo.Controls.Add(this.rbtnFromUrl);
+            this.gbVideo.Controls.Add(this.rbtnFromDevice);
+            this.gbVideo.Location = new System.Drawing.Point(6, 19);
+            this.gbVideo.Name = "gbVideo";
+            this.gbVideo.Size = new System.Drawing.Size(388, 82);
+            this.gbVideo.TabIndex = 8;
+            this.gbVideo.TabStop = false;
+            this.gbVideo.Text = "Video";
             // 
             // edtVideoOption
             // 
-            this.edtVideoOption.Location = new System.Drawing.Point(18, 70);
+            this.edtVideoOption.Location = new System.Drawing.Point(268, 19);
             this.edtVideoOption.Name = "edtVideoOption";
-            this.edtVideoOption.Size = new System.Drawing.Size(180, 20);
-            this.edtVideoOption.TabIndex = 5;
+            this.edtVideoOption.Size = new System.Drawing.Size(114, 20);
+            this.edtVideoOption.TabIndex = 10;
             this.ttDevice.SetToolTip(this.edtVideoOption, "parameters for the device above");
-            // 
-            // cbbMics
-            // 
-            this.cbbMics.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cbbMics.FormattingEnabled = true;
-            this.cbbMics.Location = new System.Drawing.Point(208, 43);
-            this.cbbMics.Name = "cbbMics";
-            this.cbbMics.Size = new System.Drawing.Size(180, 21);
-            this.cbbMics.TabIndex = 4;
             // 
             // edtVideoUrlSource
             // 
-            this.edtVideoUrlSource.Location = new System.Drawing.Point(18, 130);
+            this.edtVideoUrlSource.Location = new System.Drawing.Point(87, 45);
             this.edtVideoUrlSource.Name = "edtVideoUrlSource";
-            this.edtVideoUrlSource.Size = new System.Drawing.Size(370, 20);
-            this.edtVideoUrlSource.TabIndex = 3;
+            this.edtVideoUrlSource.Size = new System.Drawing.Size(295, 20);
+            this.edtVideoUrlSource.TabIndex = 9;
             this.edtVideoUrlSource.Text = "rtmp://live.hkstv.hk.lxdns.com/live/hks";
             // 
             // cbbCams
             // 
             this.cbbCams.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cbbCams.FormattingEnabled = true;
-            this.cbbCams.Location = new System.Drawing.Point(18, 43);
+            this.cbbCams.Location = new System.Drawing.Point(87, 19);
             this.cbbCams.Name = "cbbCams";
-            this.cbbCams.Size = new System.Drawing.Size(180, 21);
-            this.cbbCams.TabIndex = 2;
+            this.cbbCams.Size = new System.Drawing.Size(175, 21);
+            this.cbbCams.TabIndex = 8;
             // 
             // rbtnFromUrl
             // 
             this.rbtnFromUrl.AutoSize = true;
-            this.rbtnFromUrl.Location = new System.Drawing.Point(18, 108);
+            this.rbtnFromUrl.Location = new System.Drawing.Point(7, 48);
             this.rbtnFromUrl.Name = "rbtnFromUrl";
             this.rbtnFromUrl.Size = new System.Drawing.Size(73, 17);
-            this.rbtnFromUrl.TabIndex = 1;
+            this.rbtnFromUrl.TabIndex = 7;
             this.rbtnFromUrl.Text = "From URL";
             this.rbtnFromUrl.UseVisualStyleBackColor = true;
             this.rbtnFromUrl.CheckedChanged += new System.EventHandler(this.rbtnFromUrl_CheckedChanged);
@@ -177,10 +167,10 @@
             // 
             this.rbtnFromDevice.AutoSize = true;
             this.rbtnFromDevice.Checked = true;
-            this.rbtnFromDevice.Location = new System.Drawing.Point(18, 23);
+            this.rbtnFromDevice.Location = new System.Drawing.Point(6, 22);
             this.rbtnFromDevice.Name = "rbtnFromDevice";
             this.rbtnFromDevice.Size = new System.Drawing.Size(85, 17);
-            this.rbtnFromDevice.TabIndex = 0;
+            this.rbtnFromDevice.TabIndex = 6;
             this.rbtnFromDevice.TabStop = true;
             this.rbtnFromDevice.Text = "From Device";
             this.rbtnFromDevice.UseVisualStyleBackColor = true;
@@ -190,7 +180,7 @@
             // 
             this.gbLog.Controls.Add(this.mmAudioLogger);
             this.gbLog.Controls.Add(this.mmVideoLogger);
-            this.gbLog.Location = new System.Drawing.Point(12, 308);
+            this.gbLog.Location = new System.Drawing.Point(12, 317);
             this.gbLog.Name = "gbLog";
             this.gbLog.Size = new System.Drawing.Size(986, 401);
             this.gbLog.TabIndex = 3;
@@ -220,7 +210,7 @@
             this.gbAction.Controls.Add(this.btnStop);
             this.gbAction.Controls.Add(this.btnStart);
             this.gbAction.Enabled = false;
-            this.gbAction.Location = new System.Drawing.Point(12, 209);
+            this.gbAction.Location = new System.Drawing.Point(12, 219);
             this.gbAction.Name = "gbAction";
             this.gbAction.Size = new System.Drawing.Size(400, 92);
             this.gbAction.TabIndex = 4;
@@ -320,7 +310,7 @@
             this.gbVideoTask.Controls.Add(this.olvVideoTasks);
             this.gbVideoTask.Location = new System.Drawing.Point(418, 13);
             this.gbVideoTask.Name = "gbVideoTask";
-            this.gbVideoTask.Size = new System.Drawing.Size(580, 141);
+            this.gbVideoTask.Size = new System.Drawing.Size(580, 151);
             this.gbVideoTask.TabIndex = 6;
             this.gbVideoTask.TabStop = false;
             this.gbVideoTask.Text = "Video Publish Tasks";
@@ -400,7 +390,7 @@
             this.olvVideoTasks.Location = new System.Drawing.Point(6, 47);
             this.olvVideoTasks.Name = "olvVideoTasks";
             this.olvVideoTasks.ShowGroups = false;
-            this.olvVideoTasks.Size = new System.Drawing.Size(567, 87);
+            this.olvVideoTasks.Size = new System.Drawing.Size(567, 99);
             this.olvVideoTasks.TabIndex = 8;
             this.olvVideoTasks.UseCompatibleStateImageBehavior = false;
             this.olvVideoTasks.View = System.Windows.Forms.View.Details;
@@ -463,7 +453,7 @@
             this.gbAudioTask.Controls.Add(this.btnDeleteAudioTask);
             this.gbAudioTask.Controls.Add(this.btnAddAudioTask);
             this.gbAudioTask.Controls.Add(this.olvAudioTasks);
-            this.gbAudioTask.Location = new System.Drawing.Point(418, 160);
+            this.gbAudioTask.Location = new System.Drawing.Point(418, 170);
             this.gbAudioTask.Name = "gbAudioTask";
             this.gbAudioTask.Size = new System.Drawing.Size(580, 141);
             this.gbAudioTask.TabIndex = 7;
@@ -595,11 +585,73 @@
             this.timerCheckRecvTimeout.Interval = 1000;
             this.timerCheckRecvTimeout.Tick += new System.EventHandler(this.timerCheckRecvTimeout_Tick);
             // 
+            // gbAudio
+            // 
+            this.gbAudio.Controls.Add(this.edtAudioUrlSource);
+            this.gbAudio.Controls.Add(this.edtAudioOption);
+            this.gbAudio.Controls.Add(this.cbbMics);
+            this.gbAudio.Controls.Add(this.rbtnFromDevice2);
+            this.gbAudio.Controls.Add(this.rbtnFromURL2);
+            this.gbAudio.Location = new System.Drawing.Point(6, 107);
+            this.gbAudio.Name = "gbAudio";
+            this.gbAudio.Size = new System.Drawing.Size(388, 79);
+            this.gbAudio.TabIndex = 9;
+            this.gbAudio.TabStop = false;
+            this.gbAudio.Text = "Audio";
+            // 
+            // edtAudioUrlSource
+            // 
+            this.edtAudioUrlSource.Location = new System.Drawing.Point(87, 49);
+            this.edtAudioUrlSource.Name = "edtAudioUrlSource";
+            this.edtAudioUrlSource.Size = new System.Drawing.Size(295, 20);
+            this.edtAudioUrlSource.TabIndex = 10;
+            // 
+            // edtAudioOption
+            // 
+            this.edtAudioOption.Location = new System.Drawing.Point(268, 22);
+            this.edtAudioOption.Name = "edtAudioOption";
+            this.edtAudioOption.Size = new System.Drawing.Size(114, 20);
+            this.edtAudioOption.TabIndex = 9;
+            this.ttDevice.SetToolTip(this.edtAudioOption, "parameters for the device above");
+            // 
+            // cbbMics
+            // 
+            this.cbbMics.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cbbMics.FormattingEnabled = true;
+            this.cbbMics.Location = new System.Drawing.Point(87, 22);
+            this.cbbMics.Name = "cbbMics";
+            this.cbbMics.Size = new System.Drawing.Size(175, 21);
+            this.cbbMics.TabIndex = 8;
+            // 
+            // rbtnFromDevice2
+            // 
+            this.rbtnFromDevice2.AutoSize = true;
+            this.rbtnFromDevice2.Checked = true;
+            this.rbtnFromDevice2.Location = new System.Drawing.Point(6, 23);
+            this.rbtnFromDevice2.Name = "rbtnFromDevice2";
+            this.rbtnFromDevice2.Size = new System.Drawing.Size(85, 17);
+            this.rbtnFromDevice2.TabIndex = 11;
+            this.rbtnFromDevice2.TabStop = true;
+            this.rbtnFromDevice2.Text = "From Device";
+            this.rbtnFromDevice2.UseVisualStyleBackColor = true;
+            this.rbtnFromDevice2.CheckedChanged += new System.EventHandler(this.rbtnFromDevice2_CheckedChanged);
+            // 
+            // rbtnFromURL2
+            // 
+            this.rbtnFromURL2.AutoSize = true;
+            this.rbtnFromURL2.Location = new System.Drawing.Point(6, 50);
+            this.rbtnFromURL2.Name = "rbtnFromURL2";
+            this.rbtnFromURL2.Size = new System.Drawing.Size(73, 17);
+            this.rbtnFromURL2.TabIndex = 12;
+            this.rbtnFromURL2.Text = "From URL";
+            this.rbtnFromURL2.UseVisualStyleBackColor = true;
+            this.rbtnFromURL2.CheckedChanged += new System.EventHandler(this.rbtnFromURL2_CheckedChanged);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1004, 716);
+            this.ClientSize = new System.Drawing.Size(1004, 721);
             this.Controls.Add(this.gbAudioTask);
             this.Controls.Add(this.gbVideoTask);
             this.Controls.Add(this.gbAction);
@@ -613,7 +665,8 @@
             this.Load += new System.EventHandler(this.MainForm_Load);
             this.Resize += new System.EventHandler(this.MainForm_Resize);
             this.gbMediaSource.ResumeLayout(false);
-            this.gbMediaSource.PerformLayout();
+            this.gbVideo.ResumeLayout(false);
+            this.gbVideo.PerformLayout();
             this.gbLog.ResumeLayout(false);
             this.gbAction.ResumeLayout(false);
             this.gbAction.PerformLayout();
@@ -622,6 +675,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.olvVideoTasks)).EndInit();
             this.gbAudioTask.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.olvAudioTasks)).EndInit();
+            this.gbAudio.ResumeLayout(false);
+            this.gbAudio.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -629,10 +684,6 @@
         #endregion
 
         private System.Windows.Forms.GroupBox gbMediaSource;
-        private System.Windows.Forms.RadioButton rbtnFromUrl;
-        private System.Windows.Forms.RadioButton rbtnFromDevice;
-        private System.Windows.Forms.ComboBox cbbCams;
-        private System.Windows.Forms.TextBox edtVideoUrlSource;
         private System.Windows.Forms.GroupBox gbLog;
         private System.Windows.Forms.RichTextBox mmVideoLogger;
         private System.Windows.Forms.GroupBox gbAction;
@@ -644,7 +695,6 @@
         private System.Windows.Forms.NotifyIcon notifyIconMain;
         private System.Windows.Forms.NotifyIcon notifyIconStop;
         private System.Windows.Forms.NotifyIcon notifyIconStart;
-        private System.Windows.Forms.ComboBox cbbMics;
         private System.Windows.Forms.GroupBox gbVideoTask;
         private BrightIdeasSoftware.FastObjectListView olvVideoTasks;
         private BrightIdeasSoftware.OLVColumn colVideoType;
@@ -672,8 +722,6 @@
         private System.Windows.Forms.Button btnReloadVideoTasks;
         private System.Windows.Forms.Button btnSaveAudioTasks;
         private System.Windows.Forms.Button btnReloadAudioTasks;
-        private System.Windows.Forms.TextBox edtVideoOption;
-        private System.Windows.Forms.TextBox edtAudioOption;
         private System.Windows.Forms.ToolTip ttDevice;
         private System.Windows.Forms.Timer timerAutoSet;
         private System.Windows.Forms.RichTextBox mmAudioLogger;
@@ -681,8 +729,19 @@
         private System.Windows.Forms.Label lblRestartInterval;
         private System.Windows.Forms.Timer timerRestartVideo;
         private System.Windows.Forms.Timer timerRestartAudio;
-        private System.Windows.Forms.TextBox edtAudioUrlSource;
         private System.Windows.Forms.Timer timerCheckRecvTimeout;
+        private System.Windows.Forms.GroupBox gbVideo;
+        private System.Windows.Forms.TextBox edtVideoOption;
+        private System.Windows.Forms.TextBox edtVideoUrlSource;
+        private System.Windows.Forms.ComboBox cbbCams;
+        private System.Windows.Forms.RadioButton rbtnFromUrl;
+        private System.Windows.Forms.RadioButton rbtnFromDevice;
+        private System.Windows.Forms.GroupBox gbAudio;
+        private System.Windows.Forms.TextBox edtAudioUrlSource;
+        private System.Windows.Forms.TextBox edtAudioOption;
+        private System.Windows.Forms.ComboBox cbbMics;
+        private System.Windows.Forms.RadioButton rbtnFromDevice2;
+        private System.Windows.Forms.RadioButton rbtnFromURL2;
     }
 }
 
