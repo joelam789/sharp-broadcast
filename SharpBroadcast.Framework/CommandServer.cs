@@ -186,6 +186,20 @@ namespace SharpBroadcast.Framework
 
             try
             {
+                if (context != null)
+                {
+                    if (m_AllowOrigin != null && m_AllowOrigin.Length > 0)
+                    {
+                        try
+                        {
+                            context.Response.AppendHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+                            context.Response.AppendHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, HEAD, DELETE, CONNECT");
+                            context.Response.AppendHeader("Access-Control-Allow-Origin", m_AllowOrigin);
+                        }
+                        catch { }
+                    }
+                }
+
                 bool isRequestOK = false;
                 if (context != null)
                 {
@@ -212,11 +226,24 @@ namespace SharpBroadcast.Framework
                             Dictionary<string, string> reqestParams = new Dictionary<string, string>();
                             foreach (var item in msg) reqestParams.Add(item.Key.Trim(), item.Value.ToString().Trim());
 
-                            ProcessRequest(reqestParams);
+                            ProcessRequest(context, reqestParams);
 
                         }
                     }
 
+                }
+                else
+                {
+                    if (!string.IsNullOrEmpty(remoteIp))
+                    {
+                        m_Logger.Error("Invalid Request IP: " + remoteIp);
+                    }
+
+                    if (context != null)
+                    {
+                        byte[] buffer = Encoding.UTF8.GetBytes("Invalid IP Address");
+                        context.Response.OutputStream.Write(buffer, 0, buffer.Length);
+                    }
                 }
             }
             catch (Exception ex)
@@ -229,16 +256,6 @@ namespace SharpBroadcast.Framework
                 {
                     if (context != null)
                     {
-                        if (m_AllowOrigin != null && m_AllowOrigin.Length > 0)
-                        {
-                            try
-                            {
-                                context.Response.AppendHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-                                context.Response.AppendHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, HEAD, DELETE, CONNECT");
-                                context.Response.AppendHeader("Access-Control-Allow-Origin", m_AllowOrigin);
-                            }
-                            catch { }
-                        }
                         context.Response.OutputStream.Close();
                     }
                 }
@@ -246,7 +263,7 @@ namespace SharpBroadcast.Framework
             }
         }
 
-        private void ProcessRequest(Dictionary<string, string> reqestParams)
+        private void ProcessRequest(HttpListenerContext context, Dictionary<string, string> reqestParams)
         {
             if (m_MediaResourceManager == null) return;
 
@@ -258,7 +275,10 @@ namespace SharpBroadcast.Framework
             {
                 if (!reqestParams.ContainsKey("Value")) return;
                 if (reqestParams["Value"] == "1") m_MediaResourceManager.Mute = true;
-                else m_MediaResourceManager.Mute = false; 
+                else m_MediaResourceManager.Mute = false;
+
+                byte[] buffer = Encoding.UTF8.GetBytes("OK");
+                context.Response.OutputStream.Write(buffer, 0, buffer.Length);
             }
         }
 
