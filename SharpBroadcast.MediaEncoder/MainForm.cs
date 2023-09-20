@@ -90,61 +90,28 @@ namespace SharpBroadcast.MediaEncoder
 
             string ret = RunCmd("ffmpeg", "-f dshow -list_devices true -i dummy");
             var lines = ret.Split('\n');
-            bool foundVideoInfo = false;
-            bool foundAudioInfo = false;
+            //bool foundVideoInfo = false;
+            //bool foundAudioInfo = false;
             foreach (var line in lines)
             {
                 string info = line.Trim();
                 if (info.Contains("[dshow @"))
                 {
-                    if (!foundVideoInfo)
+                    if (info.Contains("Alternative name"))
                     {
-                        if (info.Contains("DirectShow video devices"))
-                        {
-                            foundVideoInfo = true;
-                            continue;
-                        }
+                        continue;
                     }
                     else
                     {
-                        if (!foundAudioInfo)
+                        int begin = info.IndexOf('"');
+                        int end = info.LastIndexOf('"');
+                        if (end > begin && begin > 0)
                         {
-                            if (info.Contains("DirectShow audio devices"))
+                            string deviceName = info.Substring(begin + 1, end - begin - 1).Trim();
+                            if (deviceName != null && deviceName.Length > 0)
                             {
-                                foundAudioInfo = true;
-                                continue;
-                            }
-
-                            if (info.Contains("Alternative name"))
-                            {
-                                continue;
-                            }
-                            else
-                            {
-                                int begin = info.IndexOf('"');
-                                int end = info.LastIndexOf('"');
-                                if (end > begin && begin > 0)
-                                {
-                                    string deviceName = info.Substring(begin + 1, end - begin - 1).Trim();
-                                    if (deviceName != null && deviceName.Length > 0) videoList.Add(deviceName);
-                                }
-                            }
-                        }
-                        else
-                        {
-                            if (info.Contains("Alternative name"))
-                            {
-                                continue;
-                            }
-                            else
-                            {
-                                int begin = info.IndexOf('"');
-                                int end = info.LastIndexOf('"');
-                                if (end > begin && begin > 0)
-                                {
-                                    string deviceName = info.Substring(begin + 1, end - begin - 1).Trim();
-                                    if (deviceName != null && deviceName.Length > 0) audioList.Add(deviceName);
-                                }
+                                if (info.Contains("(video)")) videoList.Add(deviceName);
+                                else if (info.Contains("(audio)")) audioList.Add(deviceName);
                             }
                         }
                     }

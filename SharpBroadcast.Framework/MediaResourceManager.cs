@@ -15,6 +15,22 @@ namespace SharpBroadcast.Framework
 
         protected List<string> m_AvailableChannelNames = new List<string>();
 
+
+        protected bool m_Mute = false;
+        public bool Mute
+        {
+            get
+            {
+                return m_Mute;
+            }
+            set
+            {
+                m_Mute = value;
+                var servers = GetServerList();
+                foreach (var server in servers) server.Mute = m_Mute;
+            }
+        }
+
         public bool IsAvailableChannelName(string channelName)
         {
             return m_AvailableChannelNames.Count <= 0 || m_AvailableChannelNames.Contains(channelName);

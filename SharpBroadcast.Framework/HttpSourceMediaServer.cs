@@ -58,6 +58,8 @@ namespace SharpBroadcast.Framework
         public int OutputBufferSize { get; set; }
         public int OutputSocketBufferSize { get; set; }
 
+        public bool Mute { get; set; }
+
         public string InputIp { get { return m_InputIp; } }
         public int InputPort { get { return m_InputPort; } }
         public string OutputIp { get { return m_OutputIp; } }
@@ -77,6 +79,8 @@ namespace SharpBroadcast.Framework
             OutputQueueSize = DEFAULT_OUTPUT_QUEUE_SIZE;
             OutputBufferSize = DEFAULT_OUTPUT_BUFFER_SIZE;
             OutputSocketBufferSize = 0;  // use default value
+
+            Mute = false;
 
             m_ServerName = serverName;
 

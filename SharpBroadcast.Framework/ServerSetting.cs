@@ -49,4 +49,20 @@ namespace SharpBroadcast.Framework
             CertKey = "";
         }
     }
+
+    public class CommandServerSetting
+    {
+        public string WorkingIp { get; set; }
+
+        public int WorkingPort { get; set; }
+
+        public List<string> IpWhitelist { get; set; }
+
+        public CommandServerSetting()
+        {
+            WorkingIp = "";
+            WorkingPort = 9010;
+            IpWhitelist = new List<string>();
+        }
+    }
 }

@@ -21,6 +21,8 @@ namespace SharpBroadcast.Framework
         string OutputIp { get; }
         int OutputPort { get; }
 
+        bool Mute { get; set; }
+
         IServerLogger Logger { get; }
 
         MediaChannel GetChannel(string channelName);

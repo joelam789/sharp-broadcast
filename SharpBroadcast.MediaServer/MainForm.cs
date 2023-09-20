@@ -13,12 +13,15 @@ using System.Windows.Forms;
 
 using Newtonsoft.Json;
 using SharpBroadcast.Framework;
+using SharpNetwork.Core;
 
 namespace SharpBroadcast.MediaServer
 {
     public partial class MainForm : Form
     {
         private MediaResourceManager m_MediaResourceManager = new MediaResourceManager();
+
+        private CommandServer m_CommandServer = null;
 
         public MainForm()
         {
@@ -155,6 +158,24 @@ namespace SharpBroadcast.MediaServer
                     else LogMsg("Failed to start " + server.ServerName + "! ports: " + server.InputPort + " , " + server.OutputPort);
                 }
 
+                var commandServerSettings = (NameValueCollection)ConfigurationManager.GetSection("media-servers");
+                allKeys = commandServerSettings.AllKeys;
+
+                foreach (var key in allKeys)
+                {
+                    string json = commandServerSettings[key];
+                    CommandServerSetting setting = JsonConvert.DeserializeObject<CommandServerSetting>(json);
+                    m_CommandServer = new CommandServer(m_MediaResourceManager, CommonLog.GetLogger(),
+                        setting.WorkingIp, setting.WorkingPort, setting.IpWhitelist, "*");
+                    break;
+                }
+
+                if (m_CommandServer != null)
+                {
+                    m_CommandServer.Start();
+                    LogMsg("Command Server is working on port " + m_CommandServer.GetPort() + " ... ");
+                }
+
                 timerRefreshInfo.Enabled = true;
                 timerRefreshInfo.Start();
             }
@@ -169,6 +190,7 @@ namespace SharpBroadcast.MediaServer
             if (MessageBox.Show("Are you sure you want to quit ?", this.Text, MessageBoxButtons.YesNo) == DialogResult.Yes)
             {
                 timerRefreshInfo.Enabled = false;
+                if (m_CommandServer != null) m_CommandServer.Stop();
                 m_MediaResourceManager.Clear();
                 e.Cancel = false;
             }

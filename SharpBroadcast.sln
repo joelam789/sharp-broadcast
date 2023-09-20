@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual C# Express 2010
+# Visual Studio Version 17
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharpBroadcast.Framework", "SharpBroadcast.Framework\SharpBroadcast.Framework.csproj", "{0BCACD0F-FDE1-4621-A79A-9F3C183CCCCB}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharpBroadcast.MediaServer", "SharpBroadcast.MediaServer\SharpBroadcast.MediaServer.csproj", "{2E747580-817A-4232-89BB-AF83F6968CDE}"

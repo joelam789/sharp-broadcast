@@ -18,6 +18,8 @@ namespace SharpBroadcast.MediaServer
     {
         private MediaResourceManager m_MediaResourceManager = new MediaResourceManager();
 
+        private CommandServer m_CommandServer = null;
+
         public MediaService()
         {
             InitializeComponent();
@@ -98,11 +100,31 @@ namespace SharpBroadcast.MediaServer
                     CommonLog.Info("Media Server is working on port " + item.InputPort
                         + " (input) and port " + item.OutputPort + " (output) ... ");
             }
+
+            var commandServerSettings = (NameValueCollection)ConfigurationManager.GetSection("media-servers");
+            allKeys = commandServerSettings.AllKeys;
+
+            foreach (var key in allKeys)
+            {
+                string json = commandServerSettings[key];
+                CommandServerSetting setting = JsonConvert.DeserializeObject<CommandServerSetting>(json);
+                m_CommandServer = new CommandServer(m_MediaResourceManager, CommonLog.GetLogger(),
+                    setting.WorkingIp, setting.WorkingPort, setting.IpWhitelist, "*");
+                break;
+            }
+
+            if (m_CommandServer != null)
+            {
+                m_CommandServer.Start();
+                CommonLog.Info("Command Server is working on port " + m_CommandServer.GetPort() + " ... ");
+            }
         }
 
         protected override void OnStop()
         {
             // TODO: Add code here to perform any tear-down necessary to stop your service.
+
+            if (m_CommandServer != null) m_CommandServer.Stop();
 
             m_MediaResourceManager.Clear();
 
