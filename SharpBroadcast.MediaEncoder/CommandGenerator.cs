@@ -70,7 +70,7 @@ namespace SharpBroadcast.MediaEncoder
             }
             else if (task.VideoType == "h264")
             {
-                output += " -an -vcodec libx264 -tune zerolatency -pass 1 -coder 0 -bf 0 -flags -loop -wpredp 0 ";
+                output += " -an -vcodec libx264 -pass 1 -coder 0 -bf 0 -flags -loop -wpredp 0 ";
                 if (task.PixelFormat.Length > 0) output += " -pix_fmt " + task.PixelFormat;
                 if (task.ExtraParam.Length > 0) output += " " + task.ExtraParam + " ";
                 output += " -f h264 ";
