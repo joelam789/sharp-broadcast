@@ -107,7 +107,8 @@ namespace SharpBroadcast.MediaEncoder
                         int end = info.LastIndexOf('"');
                         if (end > begin && begin > 0)
                         {
-                            string deviceName = info.Substring(begin + 1, end - begin - 1).Trim();
+                            //string deviceName = info.Substring(begin + 1, end - begin - 1).Trim();
+                            string deviceName = info.Substring(begin + 1, end - begin - 1);
                             if (deviceName != null && deviceName.Length > 0)
                             {
                                 if (info.Contains("(video)")) videoList.Add(deviceName);
